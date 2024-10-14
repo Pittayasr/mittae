@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import TextInput from "./component/textInput";
 import TextSelect from "./component/textSelect";
-import { Form, Button, Row, Col } from "react-bootstrap";
+import Button from "./component/Button";
+import { Form, Row, Col } from "react-bootstrap";
 
 const provinces = [
   "กรุงเทพมหานคร",
@@ -92,9 +93,7 @@ const FormComponent: React.FC = () => {
       e.stopPropagation();
       setValidated(true);
     } else {
-      // Handle form submission
       setValidated(false);
-      // Perform your submission logic here
       console.log("Form submitted successfully");
     }
   };
@@ -102,6 +101,7 @@ const FormComponent: React.FC = () => {
   return (
     <div className="container mx-auto">
       <Form noValidate validated={validated} onSubmit={handleSubmit}>
+        {/* ใช้ Row เดียวกันสำหรับฟิลด์ทั้งสาม */}
         <Row className="g-3 my-3">
           <Col md={4} xs={12}>
             <TextInput label="ชื่อเจ้าของรถ" id="firstName" required />
@@ -130,9 +130,8 @@ const FormComponent: React.FC = () => {
         <TextInput label="Address 2" id="address2" />
 
         <hr className="my-4" />
-        <Button variant="primary" type="submit" className="w-100">
-          Continue to checkout
-        </Button>
+
+        <Button label="ต่อไป" className="w-100" />
       </Form>
     </div>
   );

@@ -7,10 +7,6 @@
   /* margin: 50px; เพิ่มระยะห่างระหว่างฟอร์มกับขอบ */
 }
 
-h4 {
-  margin-bottom: 15px; /* ปรับระยะห่างของหัวข้อ */
-}
-
-.modal-body p {
+/* .modal-body p {
   text-align: justify;
-}
+} */
