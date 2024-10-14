@@ -3,8 +3,6 @@ import PDPA_modal from "./PDPAmodal";
 import ReadMEmodal from "./ReadMEmodal";
 import FormComponent from "./form";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css";
 import "bootstrap-datepicker";
 import "./App.css";
 

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import TextInput from "./component/textInput";
 import TextSelect from "./component/textSelect";
+import DateInput from "./component/dateInput"; // นำเข้า DateInput
 import Button from "./component/Button";
 import { Form, Row, Col } from "react-bootstrap";
 
@@ -121,6 +122,13 @@ const FormComponent: React.FC = () => {
               options={provinces}
               required
             />
+          </Col>
+        </Row>
+
+        {/* แทรก DateInput สำหรับการเลือกวันที่ */}
+        <Row className="g-3 my-3">
+          <Col md={6} xs={12}>
+            <DateInput />
           </Col>
         </Row>
 

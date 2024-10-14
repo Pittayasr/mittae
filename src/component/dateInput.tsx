@@ -1,16 +1,51 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Form } from "react-bootstrap";
 import $ from "jquery"; // นำเข้า jQuery
-import "bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css";
-import "bootstrap-datepicker"; // นำเข้า Bootstrap Datepicker
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-datepicker";
 
 const DateInput: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const dateInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // กำหนดค่าให้กับ datepicker
     if (dateInputRef.current) {
+      // กำหนดค่า locale สำหรับภาษาไทย
+      $.fn.datepicker.dates["th"] = {
+        days: ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัส", "ศุกร์", "เสาร์"],
+        daysShort: ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"],
+        daysMin: ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"],
+        months: [
+          "มกราคม",
+          "กุมภาพันธ์",
+          "มีนาคม",
+          "เมษายน",
+          "พฤษภาคม",
+          "มิถุนายน",
+          "กรกฎาคม",
+          "สิงหาคม",
+          "กันยายน",
+          "ตุลาคม",
+          "พฤศจิกายน",
+          "ธันวาคม",
+        ],
+        monthsShort: [
+          "ม.ค.",
+          "ก.พ.",
+          "มี.ค.",
+          "เม.ย.",
+          "พ.ค.",
+          "มิ.ย.",
+          "ก.ค.",
+          "ส.ค.",
+          "ก.ย.",
+          "ต.ค.",
+          "พ.ย.",
+          "ธ.ค.",
+        ],
+        today: "วันนี้",
+      };
+
       $(dateInputRef.current)
         .datepicker({
           format: "dd/mm/yyyy",
@@ -23,7 +58,6 @@ const DateInput: React.FC = () => {
         });
     }
 
-    // ทำความสะอาดเมื่อ component ถูก unmount
     return () => {
       if (dateInputRef.current) {
         $(dateInputRef.current).datepicker("destroy");
@@ -31,7 +65,6 @@ const DateInput: React.FC = () => {
     };
   }, []);
 
-  // ฟังก์ชันแปลงวันที่ให้เป็นปี พ.ศ.
   const convertToThaiYear = (date: Date) => {
     const year = date.getFullYear() + 543; // แปลงเป็นปี พ.ศ.
     const day = date.getDate();
@@ -47,7 +80,7 @@ const DateInput: React.FC = () => {
         placeholder="เลือกวันที่"
         ref={dateInputRef}
         value={selectedDate}
-        readOnly // ทำให้ไม่สามารถพิมพ์ได้
+        readOnly
       />
       {selectedDate && (
         <div className="mt-2">
