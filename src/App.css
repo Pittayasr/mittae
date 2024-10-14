@@ -1,0 +1,16 @@
+.form-container {
+  width: 100%; /* ใช้ความกว้างเต็ม */
+  padding: 20px; /* เพิ่มพื้นที่รอบ ๆ */
+  background-color: white; /* สีพื้นหลัง */
+  border-radius: 8px; /* มุมโค้ง */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* เงา */
+  /* margin: 50px; เพิ่มระยะห่างระหว่างฟอร์มกับขอบ */
+}
+
+h4 {
+  margin-bottom: 15px; /* ปรับระยะห่างของหัวข้อ */
+}
+
+.modal-body p {
+  text-align: justify;
+}

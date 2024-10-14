@@ -1,0 +1,22 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  /* font-family: "Arial", sans-serif; */
+  color: #333;
+  background-color: #f8f9fa; /* หรือสีพื้นหลังที่คุณต้องการ */
+}
+
+.container {
+  margin: 0 auto;
+  padding: 0px 10px;
+}
+
+/* @media (max-width: 768px) {
+    .container {
+      padding: 10px;
+    }
+  } */
