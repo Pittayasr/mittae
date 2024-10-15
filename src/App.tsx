@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import PDPA_modal from "./PDPAmodal";
 import ReadMEmodal from "./ReadMEmodal";
 import FormComponent from "./form";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-datepicker";
 import "./App.css";
 
 function App() {
