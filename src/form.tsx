@@ -4,6 +4,7 @@ import TextSelect from "./component/textSelect";
 import DateInput from "./component/dateInput"; // นำเข้า DateInput
 import Button from "./component/Button";
 import { Form, Row, Col } from "react-bootstrap";
+import { Dayjs } from "dayjs";
 
 const provinces = [
   "กรุงเทพมหานคร",
@@ -86,6 +87,7 @@ const provinces = [
 
 const FormComponent: React.FC = () => {
   const [validated, setValidated] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null); // เก็บค่าวันที่ที่เลือก
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     const form = e.currentTarget;
@@ -96,7 +98,13 @@ const FormComponent: React.FC = () => {
     } else {
       setValidated(false);
       console.log("Form submitted successfully");
+      console.log("Selected Date:", selectedDate?.format("DD/MM/YYYY")); // แสดงวันที่ที่เลือก
     }
+  };
+
+  // ฟังก์ชันจัดการการเปลี่ยนแปลงวันที่
+  const handleDateChange = (date: Dayjs | null) => {
+    setSelectedDate(date);
   };
 
   return (
@@ -128,7 +136,8 @@ const FormComponent: React.FC = () => {
         {/* แทรก DateInput สำหรับการเลือกวันที่ */}
         <Row className="g-3 my-3">
           <Col md={6} xs={12}>
-            <DateInput />
+            <DateInput onDateChange={handleDateChange} />{" "}
+            {/* ส่ง onDateChange */}
           </Col>
         </Row>
 

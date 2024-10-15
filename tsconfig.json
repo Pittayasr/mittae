@@ -6,6 +6,8 @@
   ],
   "compilerOptions": {
     "types": ["jquery"], // เพิ่มบรรทัดนี้
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
     // คุณสามารถเพิ่มตัวเลือกอื่น ๆ ที่คุณต้องการได้ที่นี่
   }
 }

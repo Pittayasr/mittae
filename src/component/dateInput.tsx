@@ -1,93 +1,47 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Form } from "react-bootstrap";
-import $ from "jquery"; // นำเข้า jQuery
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-datepicker";
+import React, { useState } from "react";
+import { DatePicker } from "antd";
+import { Dayjs } from "dayjs";
+import "dayjs/locale/th";
+import locale from "antd/es/date-picker/locale/th_TH";
+import "antd/dist/reset.css";
 
-const DateInput: React.FC = () => {
-  const [selectedDate, setSelectedDate] = useState<string>("");
-  const dateInputRef = useRef<HTMLInputElement>(null);
+const DateInput: React.FC<{ onDateChange: (date: Dayjs | null) => void }> = ({
+  onDateChange,
+}) => {
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
 
-  useEffect(() => {
-    if (dateInputRef.current) {
-      // กำหนดค่า locale สำหรับภาษาไทย
-      $.fn.datepicker.dates["th"] = {
-        days: ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัส", "ศุกร์", "เสาร์"],
-        daysShort: ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"],
-        daysMin: ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"],
-        months: [
-          "มกราคม",
-          "กุมภาพันธ์",
-          "มีนาคม",
-          "เมษายน",
-          "พฤษภาคม",
-          "มิถุนายน",
-          "กรกฎาคม",
-          "สิงหาคม",
-          "กันยายน",
-          "ตุลาคม",
-          "พฤศจิกายน",
-          "ธันวาคม",
-        ],
-        monthsShort: [
-          "ม.ค.",
-          "ก.พ.",
-          "มี.ค.",
-          "เม.ย.",
-          "พ.ค.",
-          "มิ.ย.",
-          "ก.ค.",
-          "ส.ค.",
-          "ก.ย.",
-          "ต.ค.",
-          "พ.ย.",
-          "ธ.ค.",
-        ],
-        today: "วันนี้",
-      };
+  const handleDateChange = (date: Dayjs | null) => {
+    setSelectedDate(date);
+    onDateChange(date);
+  };
 
-      $(dateInputRef.current)
-        .datepicker({
-          format: "dd/mm/yyyy",
-          autoclose: true,
-          language: "th", // ใช้ภาษาไทย
-        })
-        .on("changeDate", (e: any) => {
-          const date = new Date(e.date);
-          setSelectedDate(convertToThaiYear(date));
-        });
-    }
-
-    return () => {
-      if (dateInputRef.current) {
-        $(dateInputRef.current).datepicker("destroy");
-      }
-    };
-  }, []);
-
-  const convertToThaiYear = (date: Date) => {
-    const year = date.getFullYear() + 543; // แปลงเป็นปี พ.ศ.
-    const day = date.getDate();
-    const month = date.getMonth() + 1; // เดือนเริ่มนับจาก 0
-    return `${day}/${month}/${year}`; // คืนค่าในรูปแบบ วัน/เดือน/ปี
+  // ฟังก์ชันสำหรับการแสดงวันที่ในรูปแบบ พ.ศ.
+  const formatDateToThai = (date: Dayjs | null) => {
+    if (!date) return "";
+    const year = date.year() + 543; // คำนวณปี พ.ศ.
+    return `${date.date()}/${date.month() + 1}/${year}`; // วันที่/เดือน/ปี
   };
 
   return (
-    <Form.Group controlId="formDate">
-      <Form.Label>เลือกวันที่ (พ.ศ.)</Form.Label>
-      <Form.Control
-        type="text"
-        placeholder="เลือกวันที่"
-        ref={dateInputRef}
-        value={selectedDate}
-        readOnly
-      />
-      {selectedDate && (
-        <div className="mt-2">
-          <p>วันที่เลือก: {selectedDate}</p>
+    <DatePicker
+      locale={locale}
+      value={selectedDate}
+      onChange={handleDateChange}
+      format="DD/MM/YYYY" // ตั้งค่า format เป็นแบบไทย
+      placeholder="เลือกวันที่"
+      // แสดงวันที่ในรูปแบบ พ.ศ. แทนวันที่ปกติ
+      renderExtraFooter={() => (
+        <div>
+          <span>ปี พ.ศ. {selectedDate ? selectedDate.year() + 543 : ""}</span>
         </div>
       )}
-    </Form.Group>
+      // กำหนดการแสดงวันที่ใน input
+      inputReadOnly
+      style={{ width: "100%" }}
+      allowClear
+      // ใช้ formatter เพื่อให้แสดงวันที่ในรูปแบบที่ต้องการ
+      formTarget={formatDateToThai(selectedDate)} // ปรับเปลี่ยนการแสดงผลใน input
+    />
   );
 };
 
