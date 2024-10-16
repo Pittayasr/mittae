@@ -21,27 +21,28 @@ const RadioButton: React.FC<RadioButtonProps> = ({
   return (
     <Form.Group>
       <Form.Label>{label}</Form.Label>
-      <div>
-        {" "}
+      <div className="radioButton">
         {/* ใช้ Flexbox เพื่อให้ radio buttons อยู่ในบรรทัดเดียวกัน */}
-        {options.map((option, index) => (
-          <Form.Check
-            key={index}
-            type="radio"
-            label={option}
-            name={name}
-            value={option}
-            checked={selectedValue === option}
-            onChange={() => onChange(option)} // ฟังก์ชันจัดการเมื่อมีการเลือก
-            className="me-4" // เพิ่ม margin-right สำหรับ spacing
-          />
-        ))}
+        {options.map((option, index) => {
+          const id = `${name}-${index}`; // สร้าง id ที่ไม่ซ้ำกัน
+          return (
+            <Form.Check
+              key={index}
+              type="radio"
+              id={id} // เพิ่ม id
+              label={option}
+              name={name}
+              value={option}
+              checked={selectedValue === option}
+              onChange={() => onChange(option)} // ฟังก์ชันจัดการเมื่อมีการเลือก
+              style={{
+                width: "100%", // ปรับขนาดความกว้างของ input
+                padding: "10px", // เพิ่มช่องว่างภายใน
+              }}
+            />
+          );
+        })}
       </div>
-      {!isValid && (
-        <Form.Text className="text-danger">
-          กรุณาเลือก {label.toLowerCase()}
-        </Form.Text>
-      )}
     </Form.Group>
   );
 };

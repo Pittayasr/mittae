@@ -20,7 +20,7 @@ function App() {
   };
 
   return (
-    <div className="container my-3">
+    <div className="container my-5">
       {/* PDPA Modal */}
       <PDPA_modal isVisible={!isPDPAAgreed} onAgree={handlePDPAAgree} />
 

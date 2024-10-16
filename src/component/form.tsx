@@ -44,13 +44,27 @@ const FormComponent: React.FC = () => {
 
   return (
     <div className="container mx-auto">
-      <Form noValidate validated={validated} onSubmit={handleSubmit}>
+      <Form
+        className="form"
+        noValidate
+        validated={validated}
+        onSubmit={handleSubmit}
+      >
         {/* Section 1: ข้อมูลเจ้าของรถ */}
-        <Row className="mt-3 mb-3">
-          <Col md={4} xs={12}>
+        <Row className="mt-3">
+          <Col className="mb-4" md={4} xs={6}>
             <TextInput label="ชื่อเจ้าของรถ" id="firstName" required />
           </Col>
-          <Col md={4} xs={12}>
+          <Col className="mb-4" md={4} xs={6}>
+            <TextSelect
+              label="จังหวัด"
+              id="province"
+              options={provinces}
+              onChange={() => {}}
+              required
+            />
+          </Col>
+          <Col className="mb-4" md={4} xs={12}>
             <TextSelect
               label="ประเภทรถ"
               id="carType"
@@ -58,24 +72,12 @@ const FormComponent: React.FC = () => {
                 "รถยนต์",
                 "รถจักรยานยนต์",
                 "รถบรรทุก",
+                "รถบรรทุก(เกิน7ที่นั่ง)",
                 "รถไฮบริด",
                 "รถไฟฟ้า",
               ]}
               onChange={(value) => {
                 setSelectedCarType(value);
-                setTextInputValue(""); // เมื่อเปลี่ยนเลือกประเภทรถใหม่ให้ล้างค่าใน TextInput
-              }}
-              required
-            />
-          </Col>
-          <Col md={4} xs={12}>
-            <TextSelect
-              label="จังหวัด"
-              id="province"
-              options={provinces}
-              onChange={(value) => {
-                setSelectedCarType(value);
-                setTextInputValue(""); // เมื่อเปลี่ยนเลือกประเภทรถใหม่ให้ล้างค่าใน TextInput
               }}
               required
             />
@@ -83,72 +85,90 @@ const FormComponent: React.FC = () => {
         </Row>
 
         {/* Section 2: วันที่ต่างๆ */}
-        <Row className="mb-3">
-          <Col className="mb-3" md={4} xs={12}>
-            {/* ข้อความ "ดูรูปตัวอย่าง" แทรกอยู่บน DateInput */}
-            <ImageModal /> {/* เรียกใช้ ImageModal ที่คุณสร้างไว้ */}
+        <Row>
+          <Col className="mb-4" md={4} xs={12}>
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <span>วันที่จดทะเบียน</span>
+              <ImageModal
+                imageUrl="/src/data/registerDate.png"
+                buttonText="ดูรูปตัวอย่าง"
+              />
+            </div>
+            {/* ข้อความ "ดูรูปตัวอย่าง" */}
             <DateInput
               onDateChange={handleDateChange} // ส่ง onDateChange เพื่อจัดการการเปลี่ยนแปลงวันที่
-              labelText="วันที่จดทะเบียน"
+              labelText=""
             />
           </Col>
-          <Col className="mb-3" md={4} xs={12}>
+          <Col className=" dateTax mb-4" md={4} xs={6}>
             {/* ข้อความ "ดูรูปตัวอย่าง" แทรกอยู่บน DateInput */}
-            <ImageModal /> {/* เรียกใช้ ImageModal ที่คุณสร้างไว้ */}
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <span>วันสิ้นอายุ</span>
+              <ImageModal
+                imageUrl="/src/data/endDate.png"
+                buttonText="ดูรูปตัวอย่าง"
+              />
+            </div>
+            {/* ข้อความ "ดูรูปตัวอย่าง" */}
             <DateInput
               onDateChange={handleDateChange} // ส่ง onDateChange เพื่อจัดการการเปลี่ยนแปลงวันที่
-              labelText="วันสิ้นอายุ"
+              labelText=""
             />
           </Col>
-          <Col md={4} xs={12}>
+          <Col className="dateTax mb-4" md={4} xs={6}>
+            {/* ข้อความ "ดูรูปตัวอย่าง" แทรกอยู่บน DateInput */}
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <span>วันต่อภาษีล่าสุด</span>
+            </div>
+            {/* ข้อความ "ดูรูปตัวอย่าง" */}
             <DateInput
               onDateChange={handleDateChange} // ส่ง onDateChange เพื่อจัดการการเปลี่ยนแปลงวันที่
-              labelText="วันต่อภาษีล่าสุด"
+              labelText=""
             />
           </Col>
         </Row>
 
         {/* Section 3: ข้อมูลรถและติดต่อ */}
-        <Row className="mb-3">
-          <Col md={4} xs={12}>
+        <Row>
+          <Col className="noCar-tel mb-4" md={4} xs={6}>
             <TextInput
               label="หมายเลขทะเบียนรถ"
               id="registrationNumber"
               required
             />
           </Col>
-          <Col md={4} xs={12}>
-            <TextInput
-              label={
-                !selectedCarType
-                  ? "โปรดเลือกประเภทรถ"
-                  : selectedCarType === "รถไฮบริด"
-                  ? "น้ำหนักรถ (กิโลกรัม)"
-                  : selectedCarType === "รถบรรทุก"
-                  ? "น้ำหนักรถ (กิโลกรัม)"
-                  : selectedCarType === "รถไฟฟ้า"
-                  ? "น้ำหนักรถ (กิโลกรัม)"
-                  : "ขนาดความจุ CC"
-              }
-              id="engineSize"
-              value={textInputValue}
-              onChange={(e) => setTextInputValue(e.target.value)}
-              disabled={!selectedCarType}
-              required
-            />
-          </Col>
-          <Col md={4} xs={12}>
+
+          <Col className="noCar-tel mb-4" md={4} xs={6}>
             <TextInput
               label="เบอร์โทรศัพท์ผู้กรอกข้อมูล"
               id="contactNumber"
               required
             />
           </Col>
+
+          <Col className="mb-4" md={4} xs={12}>
+            {/* แสดงช่องนี้เมื่อมีการเลือกประเภทรถ */}
+            {selectedCarType && (
+              <TextInput
+                label={
+                  selectedCarType === "รถไฮบริด" ||
+                  selectedCarType === "รถบรรทุก" ||
+                  selectedCarType === "รถบรรทุก(เกิน7ที่นั่ง)" ||
+                  selectedCarType === "รถไฟฟ้า"
+                    ? "น้ำหนักรถ (กิโลกรัม)"
+                    : "ขนาดความจุ CC"
+                }
+                id="engineSize"
+                value={textInputValue}
+                required
+              />
+            )}
+          </Col>
         </Row>
 
         {/* Section 4: ข้อมูลเจ้าของรถ (เลือกประเภทและกรอกข้อมูล) */}
-        <Row className="mb-3">
-          <Col md={12} xs={12}>
+        <Row>
+          <Col className="mb-4" md={12} xs={12}>
             <RadioButton
               options={[
                 "เลขที่บัตรประชาชนเจ้าของรถล่าสุด",
@@ -163,41 +183,51 @@ const FormComponent: React.FC = () => {
           </Col>
         </Row>
 
+        {/* Section 5: กรอกข้อมูลเจ้าของรถ ชนิดรถต่างๆ */}
         <Row>
-          <Col md={8} xs={12} xxl={8} xl={8}>
-            <TextInput
-              label={
-                !selectedRadio
-                  ? "โปรดเลือกประเภทข้อมูลเจ้าของรถ"
-                  : selectedRadio === "เลขที่บัตรประชาชนเจ้าของรถล่าสุด"
-                  ? "กรอกเลขที่บัตรประชาชน"
-                  : "กรอกหมายเลขพาสปอร์ต"
-              }
-              id="ownerData"
-              value={textInputValue}
-              onChange={(e) => setTextInputValue(e.target.value)} // อัปเดตค่าใน TextInput
-              disabled={!selectedRadio} // ปิดการใช้งานถ้ายังไม่ได้เลือก radio
-              required
-            />
+          <Col className="ID-card-and-type mb-4" md={6} xs={6}>
+            {selectedRadio && (
+              <TextInput
+                label={
+                  !selectedRadio
+                    ? "โปรดเลือกประเภทข้อมูลเจ้าของรถ"
+                    : selectedRadio === "เลขที่บัตรประชาชนเจ้าของรถล่าสุด"
+                    ? "กรอกเลขที่บัตรประชาชน"
+                    : "กรอกหมายเลขพาสปอร์ต"
+                }
+                id="ownerData"
+                value={textInputValue}
+                onChange={(e) => setTextInputValue(e.target.value)} // อัปเดตค่าใน TextInput
+                disabled={!selectedRadio} // ปิดการใช้งานถ้ายังไม่ได้เลือก radio
+                required
+              />
+            )}
           </Col>
-          <Col md={4} xl={4} xs={6}>
-            <TextSelect
-              label="จำนวนประตูรถ"
-              id="bikeTypeAdditional"
-              options={["2 ประตู", "4 ประตู"]}
-              onChange={(value) => {
-                setSelectedCarType(value);
-                setTextInputValue(""); // เมื่อเปลี่ยนเลือกประเภทรถใหม่ให้ล้างค่าใน TextInput
-              }}
-              required
-            />
+          <Col className="ID-card-and-type mb-4" md={6} xs={6}>
+            {selectedCarType && (
+              <TextSelect
+                label={
+                  selectedCarType === "รถจักรยานยนต์"
+                    ? "ประเภทของรถมอเตอร์ไซค์"
+                    : "จำนวนประตูรถยนต์"
+                }
+                id="bikeTypeAdditional"
+                options={
+                  selectedCarType === "รถจักรยานยนต์"
+                    ? ["รถส่วนบุคคล", "สาธารณะ", "รถพ่วง"]
+                    : ["2 ประตู", "4 ประตู"]
+                }
+                onChange={() => {}}
+                required
+              />
+            )}
           </Col>
         </Row>
 
         <hr className="my-4" />
 
         {/* ปุ่มกด */}
-        <Row className="mb-3">
+        <Row className="mb-2">
           <Col>
             <Button label="ต่อไป" className="w-100" />
           </Col>

@@ -1,7 +1,15 @@
 import React, { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 
-const ImageModal: React.FC = () => {
+interface ImageModalProps {
+  imageUrl: string; // Prop สำหรับ URL รูปภาพ
+  buttonText?: string; // Prop สำหรับข้อความในปุ่ม
+}
+
+const ImageModal: React.FC<ImageModalProps> = ({
+  imageUrl,
+  buttonText = "ดูรูปตัวอย่าง", // ค่าเริ่มต้นสำหรับข้อความในปุ่ม
+}) => {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
@@ -10,8 +18,13 @@ const ImageModal: React.FC = () => {
   return (
     <>
       {/* ลิงก์หรือข้อความที่ผู้ใช้คลิกเพื่อดูรูป */}
-      <Button variant="link" onClick={handleShow}>
-        ดูรูปตัวอย่าง
+      <Button
+        variant="button"
+        onClick={handleShow}
+        aria-label={buttonText}
+        style={{ padding: "0px", paddingBottom: "0px", color: "blue" }}
+      >
+        {buttonText}
       </Button>
 
       {/* โมดัลที่จะแสดงภาพ */}
@@ -21,7 +34,7 @@ const ImageModal: React.FC = () => {
         </Modal.Header>
         <Modal.Body>
           <img
-            src="/src/data/endDate.png" // URL รูปที่จะแสดง
+            src={imageUrl} // ใช้ prop imageUrl
             alt="ตัวอย่าง"
             className="img-fluid"
           />
