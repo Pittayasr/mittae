@@ -67,7 +67,7 @@ const PDPA_modal: React.FC<PDPA_modalProps> = ({ isVisible, onAgree }) => {
             label="ข้าพเจ้าได้อ่านและยอมรับเงื่อนไขทุกประการ"
             checked={isAgreed}
             onChange={handleAgreeChange}
-            style={{ fontSize: "1.2rem" }}
+            style={{ fontSize: "1rem" }}
             className="mx-auto"
           />
         </Form>

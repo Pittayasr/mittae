@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import PDPA_modal from "./PDPAmodal";
-import ReadMEmodal from "./ReadMEmodal";
-import FormComponent from "./form";
+import PDPA_modal from "./component/PDPAmodal";
+import ReadMEmodal from "./component/ReadMEmodal";
+import FormComponent from "./component/form";
 import "./App.css";
 
 function App() {
@@ -30,7 +30,7 @@ function App() {
       {/* แสดงฟอร์มเมื่อยอมรับเงื่อนไข */}
       {showForm && (
         <div className="form-container mx-auto">
-          <h4 className="mb-3 text-center">รถจักรยานยนต์</h4>
+          {/* <h4 className="mb-3 text-center">รถจักรยานยนต์</h4> */}
           <FormComponent />
         </div>
       )}
