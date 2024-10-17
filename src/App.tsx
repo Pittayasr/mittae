@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import PDPA_modal from "./component/PDPAmodal";
 import ReadMEmodal from "./component/ReadMEmodal";
 import FormComponent from "./component/form";

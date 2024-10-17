@@ -13,21 +13,36 @@ const FormComponent: React.FC = () => {
   const [validated, setValidated] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null); // เก็บค่าวันที่ที่เลือก
   const [selectedRadio, setSelectedRadio] = useState<string | null>(null); // เก็บค่าสำหรับ radio button
-  const [textInputValue, setTextInputValue] = useState<string>(""); // เก็บค่าใน TextInput
+  const [ownerData, setOwnerData] = useState<string>(""); // เก็บข้อมูลเจ้าของรถ
+  const [usernameData, setUsernameData] = useState<string>(""); // เก็บข้อมูลเจ้าของรถ
+  const [engineSize, setEngineSize] = useState<string>(""); // เก็บ CC หรือ น้ำหนักรถ
+  const [contactNumber, setContactNumber] = useState<string>(""); // เบอร์โทรศัพท์ผู้กรอกข้อมูล
+  const [registrationNumber, setRegistrationNumber] = useState<string>(""); // หมายเลขทะเบียนรถ
   const [selectedCarType, setSelectedCarType] = useState<string | null>(null); // เก็บประเภทรถที่เลือก
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    const form = e.currentTarget;
     e.preventDefault();
-    if (form.checkValidity() === false) {
-      e.stopPropagation();
-      setValidated(true);
-    } else {
-      setValidated(false);
+
+    // ตรวจสอบฟิลด์ที่ต้องการ
+    const isFormValid =
+      ownerData &&
+      usernameData &&
+      engineSize &&
+      contactNumber &&
+      registrationNumber &&
+      selectedDate &&
+      selectedRadio &&
+      selectedCarType;
+
+    if (isFormValid) {
       console.log("Form submitted successfully");
       console.log("Selected Radio:", selectedRadio); // แสดงค่า radio button ที่เลือก
       console.log("Selected Date:", selectedDate?.format("DD/MM/YYYY")); // แสดงวันที่ที่เลือก
-      console.log("TextInput Value:", textInputValue); // แสดงค่าจาก TextInput
+      console.log("TextInput Value:", ownerData); // แสดงค่าจาก TextInput
+      console.log("TextInput Value:", usernameData); // แสดงค่าจาก TextInput
+    } else {
+      console.log("Please fill all fields");
+      setValidated(true); // แสดง error สำหรับฟิลด์ที่ไม่ครบ
     }
   };
 
@@ -38,7 +53,7 @@ const FormComponent: React.FC = () => {
 
   const handleRadioChange = (value: string) => {
     setSelectedRadio(value);
-    setTextInputValue(""); // ล้างค่าใน TextInput เมื่อเปลี่ยนตัวเลือก
+    setOwnerData(""); // ล้างค่าใน TextInput เมื่อเปลี่ยนตัวเลือก
     setValidated(false); // Reset validation state เมื่อเปลี่ยนปุ่มวงรี
   };
 
@@ -53,7 +68,13 @@ const FormComponent: React.FC = () => {
         {/* Section 1: ข้อมูลเจ้าของรถ */}
         <Row className="mt-3">
           <Col className="mb-4" md={4} xs={6}>
-            <TextInput label="ชื่อเจ้าของรถ" id="firstName" required />
+            <TextInput
+              label="ชื่อเจ้าของรถ"
+              id="userName"
+              value={usernameData}
+              onChange={(e) => setUsernameData(e.target.value)}
+              required
+            />
           </Col>
           <Col className="mb-4" md={4} xs={6}>
             <TextSelect
@@ -76,9 +97,7 @@ const FormComponent: React.FC = () => {
                 "รถไฮบริด",
                 "รถไฟฟ้า",
               ]}
-              onChange={(value) => {
-                setSelectedCarType(value);
-              }}
+              onChange={(value) => setSelectedCarType(value)}
               required
             />
           </Col>
@@ -94,14 +113,9 @@ const FormComponent: React.FC = () => {
                 buttonText="ดูรูปตัวอย่าง"
               />
             </div>
-            {/* ข้อความ "ดูรูปตัวอย่าง" */}
-            <DateInput
-              onDateChange={handleDateChange} // ส่ง onDateChange เพื่อจัดการการเปลี่ยนแปลงวันที่
-              labelText=""
-            />
+            <DateInput onDateChange={handleDateChange} labelText="" />
           </Col>
-          <Col className=" dateTax mb-4" md={4} xs={6}>
-            {/* ข้อความ "ดูรูปตัวอย่าง" แทรกอยู่บน DateInput */}
+          <Col className="mb-4" md={4} xs={6}>
             <div className="d-flex justify-content-between align-items-center mb-1">
               <span>วันสิ้นอายุ</span>
               <ImageModal
@@ -109,57 +123,48 @@ const FormComponent: React.FC = () => {
                 buttonText="ดูรูปตัวอย่าง"
               />
             </div>
-            {/* ข้อความ "ดูรูปตัวอย่าง" */}
-            <DateInput
-              onDateChange={handleDateChange} // ส่ง onDateChange เพื่อจัดการการเปลี่ยนแปลงวันที่
-              labelText=""
-            />
+            <DateInput onDateChange={handleDateChange} labelText="" />
           </Col>
-          <Col className="dateTax mb-4" md={4} xs={6}>
-            {/* ข้อความ "ดูรูปตัวอย่าง" แทรกอยู่บน DateInput */}
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <span>วันต่อภาษีล่าสุด</span>
-            </div>
-            {/* ข้อความ "ดูรูปตัวอย่าง" */}
-            <DateInput
-              onDateChange={handleDateChange} // ส่ง onDateChange เพื่อจัดการการเปลี่ยนแปลงวันที่
-              labelText=""
-            />
+          <Col className="mb-4" md={4} xs={6}>
+            <span className="mb-1">วันต่อภาษีล่าสุด</span>
+            <DateInput onDateChange={handleDateChange} labelText="" />
           </Col>
         </Row>
 
         {/* Section 3: ข้อมูลรถและติดต่อ */}
         <Row>
-          <Col className="noCar-tel mb-4" md={4} xs={6}>
+          <Col className="mb-4" md={4} xs={6}>
             <TextInput
               label="หมายเลขทะเบียนรถ"
               id="registrationNumber"
+              value={registrationNumber}
+              onChange={(e) => setRegistrationNumber(e.target.value)}
               required
             />
           </Col>
 
-          <Col className="noCar-tel mb-4" md={4} xs={6}>
+          <Col className="mb-4" md={4} xs={6}>
             <TextInput
               label="เบอร์โทรศัพท์ผู้กรอกข้อมูล"
               id="contactNumber"
+              value={contactNumber}
+              onChange={(e) => setContactNumber(e.target.value)}
               required
             />
           </Col>
 
           <Col className="mb-4" md={4} xs={12}>
-            {/* แสดงช่องนี้เมื่อมีการเลือกประเภทรถ */}
             {selectedCarType && (
               <TextInput
                 label={
                   selectedCarType === "รถไฮบริด" ||
-                  selectedCarType === "รถบรรทุก" ||
-                  selectedCarType === "รถบรรทุก(เกิน7ที่นั่ง)" ||
                   selectedCarType === "รถไฟฟ้า"
                     ? "น้ำหนักรถ (กิโลกรัม)"
                     : "ขนาดความจุ CC"
                 }
                 id="engineSize"
-                value={textInputValue}
+                value={engineSize}
+                onChange={(e) => setEngineSize(e.target.value)}
                 required
               />
             )}
@@ -178,32 +183,30 @@ const FormComponent: React.FC = () => {
               label="ประเภทข้อมูลเจ้าของรถ"
               selectedValue={selectedRadio}
               onChange={handleRadioChange}
-              isValid={selectedRadio !== null} // ใช้โลจิกการตรวจสอบว่า selectedRadio ไม่เป็นค่า null
+              isValid={selectedRadio !== null}
             />
           </Col>
         </Row>
 
         {/* Section 5: กรอกข้อมูลเจ้าของรถ ชนิดรถต่างๆ */}
         <Row>
-          <Col className="ID-card-and-type mb-4" md={6} xs={6}>
+          <Col className="mb-4" md={6} xs={6}>
             {selectedRadio && (
               <TextInput
                 label={
-                  !selectedRadio
-                    ? "โปรดเลือกประเภทข้อมูลเจ้าของรถ"
-                    : selectedRadio === "เลขที่บัตรประชาชนเจ้าของรถล่าสุด"
+                  selectedRadio === "เลขที่บัตรประชาชนเจ้าของรถล่าสุด"
                     ? "กรอกเลขที่บัตรประชาชน"
                     : "กรอกหมายเลขพาสปอร์ต"
                 }
                 id="ownerData"
-                value={textInputValue}
-                onChange={(e) => setTextInputValue(e.target.value)} // อัปเดตค่าใน TextInput
-                disabled={!selectedRadio} // ปิดการใช้งานถ้ายังไม่ได้เลือก radio
+                value={ownerData}
+                onChange={(e) => setOwnerData(e.target.value)}
+                disabled={!selectedRadio}
                 required
               />
             )}
           </Col>
-          <Col className="ID-card-and-type mb-4" md={6} xs={6}>
+          <Col className="mb-4" md={6} xs={6}>
             {selectedCarType && (
               <TextSelect
                 label={
@@ -229,7 +232,24 @@ const FormComponent: React.FC = () => {
         {/* ปุ่มกด */}
         <Row className="mb-2">
           <Col>
-            <Button label="ต่อไป" className="w-100" />
+            <Button
+              label="ต่อไป"
+              className="w-100"
+              type="submit"
+              variant="primary"
+              disabled={
+                !(
+                  ownerData &&
+                  usernameData &&
+                  engineSize &&
+                  contactNumber &&
+                  registrationNumber &&
+                  selectedDate &&
+                  selectedRadio &&
+                  selectedCarType
+                )
+              }
+            />
           </Col>
         </Row>
       </Form>

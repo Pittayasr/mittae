@@ -31,7 +31,7 @@ const DateInput: React.FC<DateInputProps> = ({
     setSelectedDate(date);
     onDateChange(date);
   };
-  
+
   return (
     <div style={{ flexDirection: "column" }}>
       <label
@@ -50,7 +50,8 @@ const DateInput: React.FC<DateInputProps> = ({
         format="DD/MM/YYYY" // ตั้งค่าการแสดงผลเป็นแบบไทย
         placeholder="วัน/เดือน/ปี พ.ศ."
         value={selectedDate ? dayjs(selectedDate) : null}
-        inputReadOnly
+        inputReadOnly={true}
+        showToday = {false}
         style={{
           width: "100%", // ปรับขนาดความกว้างของ input
           padding: "10px", // เพิ่มช่องว่างภายใน
@@ -58,6 +59,7 @@ const DateInput: React.FC<DateInputProps> = ({
         }}
         allowClear={false}
       />
+      {/* ปุ่ม "วันนี้" */}
     </div>
   );
 };

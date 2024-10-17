@@ -16,7 +16,6 @@ const RadioButton: React.FC<RadioButtonProps> = ({
   label,
   selectedValue,
   onChange,
-  isValid = true, // ถ้าไม่มีการระบุ isValid ให้เป็น true ค่าเริ่มต้น
 }) => {
   return (
     <Form.Group>
