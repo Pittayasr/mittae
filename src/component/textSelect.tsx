@@ -45,7 +45,7 @@ const TextSelect: React.FC<TextSelectProps> = ({
         options={selectOptions} // ใช้ตัวเลือกจาก options
         onChange={handleSelectChange}
         classNamePrefix="react-select"
-        isClearable //กากบาท
+        // isClearable //กากบาท
         placeholder="ค้นหา..." // ข้อความตัวอย่างในช่อง
         isSearchable // เพิ่มฟังก์ชันค้นหา
         styles={customStyles} // ใช้ customStyles เพื่อนำลูกศรลงออก

@@ -16,6 +16,7 @@
   flex-direction: row; /* ตั้งค่าการจัดเรียงในแนวนอน */
   justify-content: space-between; /* จัดชิดซ้าย หรือคุณสามารถใช้ center หรือ space-between */
   align-items: center; /* จัดแนวกลางในแนวตั้ง */
+  width: 90%;
 }
 
 .radioButton input[type="radio"] {
@@ -62,8 +63,16 @@
   }
 }
 
-@media (max-width: 412px) {
+@media (max-width: 455px) {
   .register-and-contract-number {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  .date-idNo-carType-Input{
     display: flex;
     flex-direction: column;
     width: 100%;

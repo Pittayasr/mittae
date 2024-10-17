@@ -67,7 +67,7 @@ const FormComponent: React.FC = () => {
       >
         {/* Section 1: ข้อมูลเจ้าของรถ */}
         <Row className="mt-3">
-          <Col className="mb-4" md={4} xs={6}>
+          <Col className="mb-4" md={4} xs={12}>
             <TextInput
               label="ชื่อเจ้าของรถ"
               id="userName"
@@ -85,7 +85,7 @@ const FormComponent: React.FC = () => {
               required
             />
           </Col>
-          <Col className="mb-4" md={4} xs={12}>
+          <Col className="mb-4" md={4} xs={6}>
             <TextSelect
               label="ประเภทรถ"
               id="carType"
@@ -115,7 +115,7 @@ const FormComponent: React.FC = () => {
             </div>
             <DateInput onDateChange={handleDateChange} labelText="" />
           </Col>
-          <Col className="mb-4" md={4} xs={6}>
+          <Col className="date-idNo-carType-Input mb-4" md={4} xs={6}>
             <div className="d-flex justify-content-between align-items-center mb-1">
               <span>วันสิ้นอายุ</span>
               <ImageModal
@@ -125,7 +125,7 @@ const FormComponent: React.FC = () => {
             </div>
             <DateInput onDateChange={handleDateChange} labelText="" />
           </Col>
-          <Col className="mb-4" md={4} xs={6}> 
+          <Col className="date-idNo-carType-Input mb-4" md={4} xs={6}> 
             <DateInput onDateChange={handleDateChange} labelText="วันต่อภาษีล่าสุด" />
           </Col>
         </Row>
@@ -156,6 +156,8 @@ const FormComponent: React.FC = () => {
             {selectedCarType && (
               <TextInput
                 label={
+                  selectedCarType === "รถบรรทุก" ||
+                  selectedCarType === "รถบรรทุก(เกิน7ที่นั่ง)" ||
                   selectedCarType === "รถไฮบริด" ||
                   selectedCarType === "รถไฟฟ้า"
                     ? "น้ำหนักรถ (กิโลกรัม)"
@@ -189,7 +191,7 @@ const FormComponent: React.FC = () => {
 
         {/* Section 5: กรอกข้อมูลเจ้าของรถ ชนิดรถต่างๆ */}
         <Row>
-          <Col className="mb-4" md={6} xs={6}>
+          <Col className="date-idNo-carType-Input mb-4" md={6} xs={6}>
             {selectedRadio && (
               <TextInput
                 label={
@@ -205,7 +207,7 @@ const FormComponent: React.FC = () => {
               />
             )}
           </Col>
-          <Col className="mb-4" md={6} xs={6}>
+          <Col className="date-idNo-carType-Input mb-4" md={6} xs={6}>
             {selectedCarType && (
               <TextSelect
                 label={
