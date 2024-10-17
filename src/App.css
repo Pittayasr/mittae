@@ -12,14 +12,13 @@
 }
 
 .radioButton {
-  display: flex;               /* ใช้ Flexbox */
-  flex-direction: row;        /* ตั้งค่าการจัดเรียงในแนวนอน */
+  display: flex; /* ใช้ Flexbox */
+  flex-direction: row; /* ตั้งค่าการจัดเรียงในแนวนอน */
   justify-content: space-between; /* จัดชิดซ้าย หรือคุณสามารถใช้ center หรือ space-between */
-  align-items: center;        /* จัดแนวกลางในแนวตั้ง */
+  align-items: center; /* จัดแนวกลางในแนวตั้ง */
 }
 
 .radioButton input[type="radio"] {
-  
   width: 20px; /* ขนาดของปุ่ม */
   height: 20px; /* ขนาดของปุ่ม */
   border: solid #007bff; /* สีกรอบ */
@@ -27,7 +26,7 @@
   outline: none; /* เอา outline ออก */
   margin-inline-start: auto;
   cursor: pointer; /* แสดง cursor แบบ pointer */
- 
+
   transition: background 0.2s, border-color 0.2s; /* เพิ่มการเปลี่ยนแปลงสี */
 }
 
@@ -36,30 +35,37 @@
   cursor: pointer; /* แสดง cursor แบบ pointer */
 }
 
-
 @media (max-width: 768px) {
   .radioButton {
-   display: flex;               /* ใช้ Flexbox */
-   flex-direction: column;        /* ตั้งค่าการจัดเรียงในแนวนอน */
-   justify-content: flex-start; /* จัดชิดซ้าย หรือคุณสามารถใช้ center หรือ space-between */
-   align-items: center;        /* จัดแนวกลางในแนวตั้ง */
+    display: flex; /* ใช้ Flexbox */
+    flex-direction: column; /* ตั้งค่าการจัดเรียงในแนวนอน */
+    justify-content: flex-start; /* จัดชิดซ้าย หรือคุณสามารถใช้ center หรือ space-between */
+    align-items: center; /* จัดแนวกลางในแนวตั้ง */
   }
 
-  .noCar-tel{
+  .noCar-tel {
     display: flex;
     flex-direction: column; /* หรือ row ถ้าต้องการให้เรียงกันในแนวนอน */
     width: 100%; /* ทำให้ความกว้างเต็ม */
   }
 
-  .dateTax{
+  .dateTax {
     display: flex;
     flex-direction: column; /* หรือ row ถ้าต้องการให้เรียงกันในแนวนอน */
     width: 100%; /* ทำให้ความกว้างเต็ม */
   }
 
-  .ID-card-and-type{
+  .ID-card-and-type {
     display: flex;
     flex-direction: column; /* หรือ row ถ้าต้องการให้เรียงกันในแนวนอน */
     width: 100%; /* ทำให้ความกว้างเต็ม */
+  }
+}
+
+@media (max-width: 412px) {
+  .register-and-contract-number {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
   }
 }

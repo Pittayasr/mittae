@@ -125,15 +125,14 @@ const FormComponent: React.FC = () => {
             </div>
             <DateInput onDateChange={handleDateChange} labelText="" />
           </Col>
-          <Col className="mb-4" md={4} xs={6}>
-            <span className="mb-1">วันต่อภาษีล่าสุด</span>
-            <DateInput onDateChange={handleDateChange} labelText="" />
+          <Col className="mb-4" md={4} xs={6}> 
+            <DateInput onDateChange={handleDateChange} labelText="วันต่อภาษีล่าสุด" />
           </Col>
         </Row>
 
         {/* Section 3: ข้อมูลรถและติดต่อ */}
         <Row>
-          <Col className="mb-4" md={4} xs={6}>
+          <Col className="register-and-contract-number mb-4" md={4} xs={6}>
             <TextInput
               label="หมายเลขทะเบียนรถ"
               id="registrationNumber"
@@ -143,7 +142,7 @@ const FormComponent: React.FC = () => {
             />
           </Col>
 
-          <Col className="mb-4" md={4} xs={6}>
+          <Col className="register-and-contract-number mb-4" md={4} xs={6}>
             <TextInput
               label="เบอร์โทรศัพท์ผู้กรอกข้อมูล"
               id="contactNumber"
@@ -171,7 +170,7 @@ const FormComponent: React.FC = () => {
           </Col>
         </Row>
 
-        {/* Section 4: ข้อมูลเจ้าของรถ (เลือกประเภทและกรอกข้อมูล) */}
+        {/* Section 4 (radio button): เลือกประเภทและกรอกข้อมูล */}
         <Row>
           <Col className="mb-4" md={12} xs={12}>
             <RadioButton

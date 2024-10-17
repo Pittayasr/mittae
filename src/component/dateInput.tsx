@@ -16,20 +16,29 @@ const DateInput: React.FC<DateInputProps> = ({
   labelText,
   initialDate,
 }) => {
+  const convertToBuddhistYear = (date: Dayjs | null) => {
+    return date ? dayjs(date).year(date.year() + 543) : null; // แปลงปีให้เป็นพุทธศักราช
+  };
+
+  const convertToGregorianYear = (date: Dayjs | null) => {
+    return date ? dayjs(date).year(date.year() - 543) : null; // แปลงกลับเป็นคริสต์ศักราช
+  };
+
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(
-    initialDate || dayjs().year(2567)
-  ); // ใช้ initialDate หากมี ไม่เช่นนั้นใช้ปี 2567
+    initialDate ? convertToBuddhistYear(initialDate) : dayjs().year(2567) // ตั้งค่าเริ่มต้นเป็นปี 2567
+  );
 
   useEffect(() => {
     // เมื่อ initialDate เปลี่ยนแปลง ให้ปรับ selectedDate
     if (initialDate) {
-      setSelectedDate(initialDate);
+      setSelectedDate(convertToBuddhistYear(initialDate));
     }
   }, [initialDate]);
 
   const handleDateChange = (date: Dayjs | null) => {
+    const gregorianDate = convertToGregorianYear(date); // แปลงกลับเป็นคริสต์ศักราชสำหรับการเก็บในฐานข้อมูล
     setSelectedDate(date);
-    onDateChange(date);
+    onDateChange(gregorianDate); // ส่งค่ากลับไปในรูปแบบคริสต์ศักราช
   };
 
   return (
@@ -37,29 +46,28 @@ const DateInput: React.FC<DateInputProps> = ({
       <label
         htmlFor="date-picker"
         style={{
-          marginBottom: "8px",
-          fontSize: "16px", // ปรับขนาดของข้อความ
+          marginBottom: "5px",
+          fontSize: "16px",
         }}
       >
-        {labelText} {/* ใช้ labelText ที่ส่งผ่าน props */}
+        {labelText}
       </label>
       <DatePicker
         id="date-picker"
         locale={locale}
         onChange={handleDateChange}
-        format="DD/MM/YYYY" // ตั้งค่าการแสดงผลเป็นแบบไทย
+        format="DD/MM/YYYY"
         placeholder="วัน/เดือน/ปี พ.ศ."
-        value={selectedDate ? dayjs(selectedDate) : null}
+        value={selectedDate}
         inputReadOnly={true}
-        showToday = {false}
+        showToday={false}
         style={{
-          width: "100%", // ปรับขนาดความกว้างของ input
-          padding: "10px", // เพิ่มช่องว่างภายใน
+          width: "100%",
+          padding: "10px",
           height: "45px",
         }}
         allowClear={false}
       />
-      {/* ปุ่ม "วันนี้" */}
     </div>
   );
 };
