@@ -1,3 +1,5 @@
+// calculateTax.ts
+// ประกาศ interface สำหรับ CarDetails
 interface CarDetails {
   isTwoDoor: boolean; // ถ้าเป็นรถยนต์ 2 ประตู
   isTrailer: boolean; // ถ้าเป็นจักรยานยนต์พ่วง
@@ -8,22 +10,20 @@ interface CarDetails {
   isMotorcycle: boolean; // เพิ่มเพื่อระบุว่ารถเป็นจักรยานยนต์หรือไม่
 }
 
-const calculateTax = (car: CarDetails): number => {
+// ฟังก์ชันคำนวณภาษี
+export const calculateTax = (car: CarDetails): number => {
+  // คำนวณค่าภาษีพื้นฐาน
   const basePrb = car.isMotorcycle
-    ? car.isTrailer
-      ? 50 // ถ้าเป็นจักรยานยนต์และรถพ่วง
-      : 100 // ถ้าเป็นจักรยานยนต์แต่ไม่ใช่รถพ่วง
-    : car.isTwoDoor
-    ? 975 // ถ้าเป็นรถยนต์ 2 ประตู
-    : 675; // ถ้าเป็นรถยนต์ประเภทอื่น
-
-  let tax = 0;
-  let newRegistrationFee = 0;
+    ? (car.isTrailer ? 50 : 100) // ถ้าเป็นจักรยานยนต์และมีพ่วงหรือไม่
+    : (car.isTwoDoor ? 975 : 675); // ถ้าเป็นรถยนต์ 2 ประตูหรือประเภทอื่น
+  
+  console.log("Base PRB:", basePrb);
 
   // คำนวณภาษีตามขนาด CC
-  tax = car.cc * (car.cc > 1800 ? 0.04 : car.cc >= 601 ? 0.015 : 0.005);
+  const tax = car.cc * (car.cc > 1800 ? 0.04 : car.cc >= 601 ? 0.015 : 0.005);
+  console.log("Engine CC:", car.cc, "Tax based on CC:", tax);
 
-  // คำนวณภาษีตามน้ำหนัก (taxWeight)
+  // คำนวณภาษีตามน้ำหนัก
   let taxWeight = 0;
   if (car.weight <= 500) {
     taxWeight = 150;
@@ -59,6 +59,8 @@ const calculateTax = (car: CarDetails): number => {
     taxWeight = 3600;
   }
 
+  console.log("Weight:", car.weight, "Tax based on weight:", taxWeight);
+
   const inspectionFee = 400; // ค่าตรวจสภาพ
   const processingFee = 400; // ค่าบริการ
 
@@ -66,8 +68,9 @@ const calculateTax = (car: CarDetails): number => {
   let lateFee = 0;
 
   if (car.age > 3) {
-    const monthsLate = car.age * 12; // เปลี่ยนปีเป็นเดือน
+    const monthsLate = (car.age - 3) * 12; // คำนวณเดือนที่ล่าช้า
     lateFee += monthsLate; // ค่าปรับ 1 บาทต่อเดือน
+    console.log("Months late:", monthsLate, "Late fee (before penalty):", lateFee);
 
     if (monthsLate >= 13 && monthsLate <= 24) {
       lateFee += 0.2 * tax; // ปีแรกเพิ่ม 20%
@@ -81,11 +84,8 @@ const calculateTax = (car: CarDetails): number => {
         ? { chiangRai: 1500, other: 2500 }
         : { chiangRai: 2500, other: 3500 };
 
-      newRegistrationFee = car.isInChiangRai
-        ? registrationFeeRates.chiangRai
-        : registrationFeeRates.other;
-
-      lateFee += newRegistrationFee; // เพิ่มค่าจดทะเบียนใหม่ไปที่ lateFee
+      lateFee += car.isInChiangRai ? registrationFeeRates.chiangRai : registrationFeeRates.other;
+      console.log("Late fee (after Chiang Rai check):", lateFee);
     }
   }
 
@@ -96,24 +96,34 @@ const calculateTax = (car: CarDetails): number => {
     8: 0.3,
     9: 0.4,
   };
-  let discount = discountMap[car.age] || (car.age >= 10 ? 0.5 : 0);
+  const discount = discountMap[car.age] || (car.age >= 10 ? 0.5 : 0);
+  console.log("Car age:", car.age, "Discount:", discount);
 
   // คำนวณผลรวม
-  const total = basePrb + tax + lateFee + inspectionFee + processingFee;
-  return total * (1 - discount); // นำส่วนลดไปคำนวณ
+  const total = basePrb + tax + taxWeight + lateFee + inspectionFee + processingFee;
+  console.log("Total before discount:", total);
+
+  // Return ค่าที่คำนวณ
+  const finalTotal = total * (1 - discount);
+  console.log("Total after discount:", finalTotal);
+
+  return finalTotal;
 };
 
-// ตัวอย่างการเรียกใช้งาน
-const carDetails: CarDetails = {
-  isTwoDoor: true,
-  cc: 1200,
-  weight: 2000,
-  age: 5,
-  isInChiangRai: true,
-  isMotorcycle: false, // ไม่ใช่จักรยานยนต์
-  isTrailer: true, //
-};
 
-const totalCost = calculateTax(carDetails);
+// // ตัวอย่างการเรียกใช้งาน
+// const carDetails: CarDetails = {
+//   isTwoDoor: false, // ไม่ใช่รถยนต์ 2 ประตู
+//   isTrailer: false, // ไม่ใช่มอเตอร์ไซค์พ่วง
+//   cc: 1200,
+//   weight: 2000,
+//   age: 5,
+//   isInChiangRai: true,
+//   isMotorcycle: false, // ไม่ใช่จักรยานยนต์
+// };
 
-console.log(`Total Cost: ${totalCost}`);
+// console.log();
+
+// const totalCost = calculateTax(carDetails);
+
+// console.log(`Total Cost: ${totalCost}`);

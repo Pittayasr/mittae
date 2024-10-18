@@ -1,29 +1,32 @@
 import React, { useState } from "react";
 import TextInput from "./textInput";
 import TextSelect from "./textSelect";
-import DateInput from "./dateInput"; // นำเข้า DateInput
+import DateInput from "./dateInput";
 import Button from "./Button";
 import { Form, Row, Col } from "react-bootstrap";
 import { Dayjs } from "dayjs";
-import { provinces } from "../data/provinces"; // นำเข้า จังหวัด
-import RadioButton from "./radioButton"; // นำเข้า RadioButton
+import { provinces } from "../data/provinces";
+import RadioButton from "./radioButton";
 import ImageModal from "./Imagemodal";
+import { calculateTax } from "../data/calculateTax";
+import dayjs from "dayjs";
 
 const FormComponent: React.FC = () => {
   const [validated, setValidated] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null); // เก็บค่าวันที่ที่เลือก
-  const [selectedRadio, setSelectedRadio] = useState<string | null>(null); // เก็บค่าสำหรับ radio button
-  const [ownerData, setOwnerData] = useState<string>(""); // เก็บข้อมูลเจ้าของรถ
-  const [usernameData, setUsernameData] = useState<string>(""); // เก็บข้อมูลเจ้าของรถ
-  const [engineSize, setEngineSize] = useState<string>(""); // เก็บ CC หรือ น้ำหนักรถ
-  const [contactNumber, setContactNumber] = useState<string>(""); // เบอร์โทรศัพท์ผู้กรอกข้อมูล
-  const [registrationNumber, setRegistrationNumber] = useState<string>(""); // หมายเลขทะเบียนรถ
-  const [selectedCarType, setSelectedCarType] = useState<string | null>(null); // เก็บประเภทรถที่เลือก
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
+  const [selectedRadio, setSelectedRadio] = useState<string | null>(null);
+  const [ownerData, setOwnerData] = useState<string>("");
+  const [usernameData, setUsernameData] = useState<string>("");
+  const [engineSize, setEngineSize] = useState<string>("");
+  const [contactNumber, setContactNumber] = useState<string>("");
+  const [registrationNumber, setRegistrationNumber] = useState<string>("");
+  const [selectedCarType, setSelectedCarType] = useState<string | null>(null);
+  const [selectedProvince, setSelectedProvince] = useState<string | null>(null); // เพิ่มเพื่อเก็บข้อมูลจังหวัด
+  const [totalCost, setTotalCost] = useState<number | null>(null); // สำหรับเก็บค่าภาษีที่คำนวณได้
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // ตรวจสอบฟิลด์ที่ต้องการ
     const isFormValid =
       ownerData &&
       usernameData &&
@@ -35,26 +38,43 @@ const FormComponent: React.FC = () => {
       selectedCarType;
 
     if (isFormValid) {
-      console.log("Form submitted successfully");
-      console.log("Selected Radio:", selectedRadio); // แสดงค่า radio button ที่เลือก
-      console.log("Selected Date:", selectedDate?.format("DD/MM/YYYY")); // แสดงวันที่ที่เลือก
-      console.log("TextInput Value:", ownerData); // แสดงค่าจาก TextInput
-      console.log("TextInput Value:", usernameData); // แสดงค่าจาก TextInput
+      // สร้างอ็อบเจ็กต์ CarDetails สำหรับการคำนวณภาษี
+      const carDetails = {
+        isTwoDoor:
+          selectedCarType === "รถยนต์" &&
+          false /* เช็คว่ารถเป็น 2 ประตูหรือไม่ */,
+        isTrailer:
+          selectedCarType === "รถจักรยานยนต์" &&
+          false /* เช็คว่ามีพ่วงหรือไม่ */,
+        weight: parseFloat(engineSize),
+        cc: selectedCarType === "รถยนต์" ? parseFloat(engineSize) : 0,
+        age: selectedDate ? calculateCarAge(selectedDate) : 0,
+        isInChiangRai: selectedProvince === "เชียงราย",
+        isMotorcycle: selectedCarType === "รถจักรยานยนต์",
+      };
+
+      // คำนวณภาษี
+      const totalTax = calculateTax(carDetails);
+      setTotalCost(totalTax); // เก็บค่าภาษีใน state
     } else {
       console.log("Please fill all fields");
-      setValidated(true); // แสดง error สำหรับฟิลด์ที่ไม่ครบ
+      setValidated(true);
     }
   };
 
-  // ฟังก์ชันจัดการการเปลี่ยนแปลงวันที่
   const handleDateChange = (date: Dayjs | null) => {
     setSelectedDate(date);
   };
 
   const handleRadioChange = (value: string) => {
     setSelectedRadio(value);
-    setOwnerData(""); // ล้างค่าใน TextInput เมื่อเปลี่ยนตัวเลือก
-    setValidated(false); // Reset validation state เมื่อเปลี่ยนปุ่มวงรี
+    setOwnerData("");
+    setValidated(false);
+  };
+
+  const calculateCarAge = (registerDate: Dayjs): number => {
+    const currentYear = dayjs().year();
+    return currentYear - registerDate.year();
   };
 
   return (
@@ -65,7 +85,6 @@ const FormComponent: React.FC = () => {
         validated={validated}
         onSubmit={handleSubmit}
       >
-        {/* Section 1: ข้อมูลเจ้าของรถ */}
         <Row className="mt-3">
           <Col className="mb-4" md={4} xs={12}>
             <TextInput
@@ -81,7 +100,7 @@ const FormComponent: React.FC = () => {
               label="จังหวัด"
               id="province"
               options={provinces}
-              onChange={() => {}}
+              onChange={(value) => setSelectedProvince(value)} // เก็บข้อมูลจังหวัด
               required
             />
           </Col>
@@ -102,8 +121,6 @@ const FormComponent: React.FC = () => {
             />
           </Col>
         </Row>
-
-        {/* Section 2: วันที่ต่างๆ */}
         <Row>
           <Col className="mb-4" md={4} xs={12}>
             <div className="d-flex justify-content-between align-items-center mb-1">
@@ -125,12 +142,13 @@ const FormComponent: React.FC = () => {
             </div>
             <DateInput onDateChange={handleDateChange} labelText="" />
           </Col>
-          <Col className="date-idNo-carType-Input mb-4" md={4} xs={6}> 
-            <DateInput onDateChange={handleDateChange} labelText="วันต่อภาษีล่าสุด" />
+          <Col className="date-idNo-carType-Input mb-4" md={4} xs={6}>
+            <DateInput
+              onDateChange={handleDateChange}
+              labelText="วันต่อภาษีล่าสุด"
+            />
           </Col>
         </Row>
-
-        {/* Section 3: ข้อมูลรถและติดต่อ */}
         <Row>
           <Col className="register-and-contract-number mb-4" md={4} xs={6}>
             <TextInput
@@ -171,8 +189,7 @@ const FormComponent: React.FC = () => {
             )}
           </Col>
         </Row>
-
-        {/* Section 4 (radio button): เลือกประเภทและกรอกข้อมูล */}
+        //radio button
         <Row>
           <Col className="mb-4" md={12} xs={12}>
             <RadioButton
@@ -188,8 +205,6 @@ const FormComponent: React.FC = () => {
             />
           </Col>
         </Row>
-
-        {/* Section 5: กรอกข้อมูลเจ้าของรถ ชนิดรถต่างๆ */}
         <Row>
           <Col className="date-idNo-carType-Input mb-4" md={6} xs={6}>
             {selectedRadio && (
@@ -227,9 +242,7 @@ const FormComponent: React.FC = () => {
             )}
           </Col>
         </Row>
-
         <hr className="my-4" />
-
         {/* ปุ่มกด */}
         <Row className="mb-2">
           <Col>
@@ -253,6 +266,7 @@ const FormComponent: React.FC = () => {
             />
           </Col>
         </Row>
+        {totalCost !== null && <div>Total Cost of Tax: {totalCost}</div>}
       </Form>
     </div>
   );

@@ -24,8 +24,11 @@ const DateInput: React.FC<DateInputProps> = ({
     return date ? dayjs(date).year(date.year() - 543) : null; // แปลงกลับเป็นคริสต์ศักราช
   };
 
+  // คำนวณปีหน้าเป็นปีพุทธศักราช (พ.ศ.)
+  const nextYearBuddhist = dayjs().year() + 543;
+
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(
-    initialDate ? convertToBuddhistYear(initialDate) : dayjs().year(2567) // ตั้งค่าเริ่มต้นเป็นปี 2567
+    initialDate ? convertToBuddhistYear(initialDate) : null // ตั้งค่าเริ่มต้นเป็นปี 2567
   );
 
   useEffect(() => {
@@ -67,6 +70,7 @@ const DateInput: React.FC<DateInputProps> = ({
           height: "45px",
         }}
         allowClear={false}
+        defaultPickerValue={dayjs().year(nextYearBuddhist)} // กำหนดให้เลือกปีเริ่มต้นเป็น พ.ศ. 2567
       />
     </div>
   );
