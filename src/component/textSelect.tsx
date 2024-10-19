@@ -6,6 +6,7 @@ interface TextSelectProps {
   label: string;
   id: string;
   options: string[];
+  value: string; // เพิ่ม value ที่นี่
   onChange: (value: string | null) => void;
   required?: boolean;
   isInvalid?: boolean;
@@ -15,42 +16,48 @@ const TextSelect: React.FC<TextSelectProps> = ({
   label,
   id,
   options,
+  value,
   onChange,
   isInvalid,
 }) => {
   // แปลง options ให้กลายเป็นรูปแบบที่ใช้งานกับ react-select
   const selectOptions = options.map((option) => ({
-    label: option, // ข้อความที่แสดงใน dropdown
-    value: option, // ค่า value ที่ส่งออก
+    label: option,
+    value: option,
   }));
 
-  // กำหนดชนิดข้อมูลของ selectedOption
   const handleSelectChange = (
     selectedOption: SingleValue<{ label: string; value: string }>
   ) => {
-    const value = selectedOption ? selectedOption.value : null;
-    onChange(value);
+    const selectedValue = selectedOption ? selectedOption.value : null;
+    onChange(selectedValue);
   };
 
-  // ปรับแต่งสไตล์เพื่อนำลูกศรออก
   const customStyles = {
-    indicatorSeparator: () => ({ display: "none" }), // ซ่อนเส้นแบ่งระหว่างลูกศรและช่อง
-    dropdownIndicator: () => ({ display: "none" }), // ซ่อนลูกศรลง
+    indicatorSeparator: () => ({ display: "none" }),
+    dropdownIndicator: (provided: any) => ({
+      ...provided,
+      padding: "2px 2px 2px 0px",
+    }),
+    singleValue: (provided: any) => ({
+      ...provided,
+      padding: "0 0px", // ปรับ padding ของข้อความที่เลือก
+      margin: "0 0px", // ปรับ margin ของข้อความที่เลือก
+    }),
   };
 
   return (
     <Form.Group controlId={id}>
       <Form.Label>{label}</Form.Label>
       <Select
-        options={selectOptions} // ใช้ตัวเลือกจาก options
+        options={selectOptions}
         onChange={handleSelectChange}
         classNamePrefix="react-select"
-        // isClearable //กากบาท
-        placeholder="ค้นหา..." // ข้อความตัวอย่างในช่อง
-        isSearchable // เพิ่มฟังก์ชันค้นหา
-        styles={customStyles} // ใช้ customStyles เพื่อนำลูกศรลงออก
+        placeholder="ค้นหา..."
+        isSearchable
+        styles={customStyles}
+        value={selectOptions.find((option) => option.value === value)} // กำหนดค่า value
       />
-      {/* แสดงข้อความเมื่อมีข้อผิดพลาด */}
       {isInvalid && (
         <Form.Control.Feedback type="invalid">
           กรุณาเลือกตัวเลือก
