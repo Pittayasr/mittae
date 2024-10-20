@@ -30,7 +30,7 @@ const FormComponent: React.FC = () => {
   );
 
   useEffect(() => {
-    setBikeTypeOrDoorCount(null); // Reset when car type changes
+    setBikeTypeOrDoorCount(null); // รีเซ็ตเมื่อ selectedCarType เปลี่ยน
   }, [selectedCarType]);
 
   const handleDateChange = (
@@ -69,6 +69,18 @@ const FormComponent: React.FC = () => {
       }
       return 0;
     };
+    console.log("เดือนที่เกินมา = ", monthsLate);
+
+    const isMoreThanThreeYears = (
+      lastTaxDate: Dayjs | null,
+      expirationDate: Dayjs | null
+    ): boolean => {
+      if (lastTaxDate && expirationDate) {
+        const yearDiff = expirationDate.diff(lastTaxDate, "year");
+        return yearDiff > 3;
+      }
+      return false;
+    };
 
     const isFormValid =
       ownerData &&
@@ -82,24 +94,31 @@ const FormComponent: React.FC = () => {
 
     if (isFormValid) {
       const carDetails = {
-        isTwoDoor:
-          selectedCarType === "รถยนต์" && bikeTypeOrDoorCount === "2 ประตู",
+        isTwoDoor: bikeTypeOrDoorCount === "2 ประตู",
         isMotorcycleTrailer:
           selectedCarType === "รถจักรยานยนต์" &&
           bikeTypeOrDoorCount === "รถพ่วง",
         weight: parseFloat(engineSize),
         cc: selectedCarType === "รถยนต์" ? parseFloat(engineSize) : 0,
         age: calculateCarAge(registrationDate),
+        expiryDate: expirationDate ? expirationDate.toDate() : null, // ส่ง expirationDate
+        lastTaxDate: latestTaxPaymentDate
+          ? latestTaxPaymentDate.toDate()
+          : null, // ส่ง lastTaxDate
         isInChiangRai: selectedProvince === "เชียงราย",
         isMotorcycle: selectedCarType === "รถจักรยานยนต์",
         isCarTruck: selectedCarType == "รถบรรทุก",
-        hasMoreThanSevenSeats: selectedCarType == "รถบรรทุก(เกิน7ที่นั่ง)",
-        isHybrid: selectedCarType == "รถไฮบริด",
         isElectric: selectedCarType == "รถไฟฟ้า",
+        isHybrid: selectedCarType == "รถไฮบริด",
+        hasMoreThanSevenSeats: selectedCarType == "รถบรรทุก(เกิน7ที่นั่ง)",
         isRoadroller: selectedCarType == "รถบดถนน",
-        isCarTrailer: selectedCarType == "รถพ่วง",
         isTractor: selectedCarType == "รถแทรกเตอร์",
-        monthsLate: monthsLate(expirationDate, latestTaxPaymentDate),
+        isCarTrailer: selectedCarType == "รถพ่วง",
+        isMoreThanThreeYears: isMoreThanThreeYears(
+          latestTaxPaymentDate,
+          expirationDate
+        ),
+        monthsLate: monthsLate(latestTaxPaymentDate, expirationDate),
       };
 
       console.log("Car Details:", carDetails);
@@ -138,6 +157,7 @@ const FormComponent: React.FC = () => {
           ownerData={ownerData}
           setOwnerData={setOwnerData}
           selectedCarType={selectedCarType}
+          bikeTypeOrDoorCount={bikeTypeOrDoorCount}
           setBikeTypeOrDoorCount={setBikeTypeOrDoorCount}
         />
 

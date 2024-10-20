@@ -6,7 +6,10 @@ import ImageModal from "../Imagemodal";
 import dayjs, { Dayjs } from "dayjs";
 
 interface DateSectionProps {
-  handleDateChange: (date: Dayjs | null, type: "registration" | "expiration" | "latestTaxPayment") => void;
+  handleDateChange: (
+    date: Dayjs | null,
+    type: "registration" | "expiration" | "latestTaxPayment"
+  ) => void;
 }
 
 const DateSection: React.FC<DateSectionProps> = ({ handleDateChange }) => {
@@ -16,12 +19,15 @@ const DateSection: React.FC<DateSectionProps> = ({ handleDateChange }) => {
 
   const calculateAge = (date: Dayjs | null) => {
     if (!date) return 0;
-    return dayjs().diff(date, 'year'); // Calculate age in years
+    return dayjs().diff(date, "year"); // Calculate age in years
   };
 
-  const calculateYearDifference = (startDate: Dayjs | null, endDate: Dayjs | null) => {
+  const calculateYearDifference = (
+    startDate: Dayjs | null,
+    endDate: Dayjs | null
+  ) => {
     if (!startDate || !endDate) return 0;
-    return endDate.diff(startDate, 'year'); // Calculate the difference in years
+    return endDate.diff(startDate, "year"); // Calculate the difference in years
   };
 
   const handleRegistrationDateChange = (date: Dayjs | null) => {
@@ -40,7 +46,11 @@ const DateSection: React.FC<DateSectionProps> = ({ handleDateChange }) => {
   };
 
   const vehicleAge = calculateAge(registrationDate);
-  const yearDiffExpirationToLastTax = calculateYearDifference(lastTaxDate, expirationDate);
+  const yearDiffExpirationToLastTax = calculateYearDifference(
+    expirationDate,
+    lastTaxDate,
+  );
+  const isMoreThanThreeYears = yearDiffExpirationToLastTax > 3; // เช็คว่าระยะห่างมากกว่า 3 ปีไหม
 
   return (
     <Row>
@@ -72,7 +82,11 @@ const DateSection: React.FC<DateSectionProps> = ({ handleDateChange }) => {
         <DateInput onDateChange={handleLastTaxDateChange} labelText="" />
       </Col>
       <Col className="mb-4" md={12} xs={12}>
-        <span>ระยะห่างจากวันสิ้นอายุถึงวันต่อภาษีล่าสุด: {yearDiffExpirationToLastTax} ปี</span>
+        <span>
+          ระยะห่างจากวันสิ้นอายุถึงวันต่อภาษีล่าสุด:{" "}
+          {yearDiffExpirationToLastTax} ปี
+        </span>
+        <span>{isMoreThanThreeYears ? " => เกิน 3 ปี" : "ไม่เกิน 3 ปี"}</span>
       </Col>
     </Row>
   );

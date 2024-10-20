@@ -1,3 +1,4 @@
+// textSelect.tsx
 import React from "react";
 import Select, { SingleValue } from "react-select"; // เพิ่มชนิดข้อมูลสำหรับ react-select
 import { Form } from "react-bootstrap"; // นำเข้า react-bootstrap สำหรับ label และ layout
@@ -6,7 +7,7 @@ interface TextSelectProps {
   label: string;
   id: string;
   options: string[];
-  value: string; // เพิ่ม value ที่นี่
+  value: string | null;
   onChange: (value: string | null) => void;
   required?: boolean;
   isInvalid?: boolean;
@@ -56,7 +57,7 @@ const TextSelect: React.FC<TextSelectProps> = ({
         placeholder="ค้นหา..."
         isSearchable
         styles={customStyles}
-        value={selectOptions.find((option) => option.value === value)} // กำหนดค่า value
+        value={selectOptions.find((option) => option.value === value) || null}
       />
       {isInvalid && (
         <Form.Control.Feedback type="invalid">

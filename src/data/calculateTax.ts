@@ -1,4 +1,5 @@
 // calculateTax.ts
+import dayjs, { Dayjs } from "dayjs";
 // ประกาศ interface สำหรับ CarDetails
 interface CarDetails {
   isTwoDoor: boolean; // ถ้าเป็นรถยนต์ 2 ประตู
@@ -6,6 +7,8 @@ interface CarDetails {
   weight: number; // น้ำหนักรถ
   cc: number; // ขนาด CC
   age: number; // อายุรถ (ปี)
+  expiryDate: Date | null; // วันที่หมดอายุภาษี
+  lastTaxDate: Date | null; // วันที่จ่ายภาษีครั้งล่าสุด
   isInChiangRai: boolean; // ถ้าอยู่ในจังหวัดเชียงราย
   isMotorcycle: boolean; // เพิ่มเพื่อระบุว่ารถเป็นจักรยานยนต์หรือไม่
   isCarTruck: boolean; // เพิ่มเพื่อระบุว่ารถเป็นรถบรรทุกหรือไม่
@@ -16,6 +19,18 @@ interface CarDetails {
   isTractor: boolean; // เพิ่มเพื่อระบุว่ารถเป็นรถบรรทุกเกิน7ที่นั่งหรือไม่
   isCarTrailer: boolean; // ถ้าเป็นจักรยานยนต์พ่วง
 }
+
+// ฟังก์ชันสำหรับเช็คว่าเกิน 3 ปีไหม
+const isMoreThanThreeYears = (
+  lastTaxDate: Dayjs | null,
+  expirationDate: Dayjs | null
+): boolean => {
+  if (lastTaxDate && expirationDate) {
+    const yearDiff = expirationDate.diff(lastTaxDate, "year");
+    return yearDiff > 3;
+  }
+  return false;
+};
 
 // ฟังก์ชันคำนวณภาษี
 export const calculateTax = (car: CarDetails): number => {
@@ -38,7 +53,7 @@ export const calculateTax = (car: CarDetails): number => {
 
   // พรบ.ประจำปีตามชนิดรถ
   const finalPrb = car.isMotorcycle ? basePrbMotorcycle : basePrbCar;
-  console.log("ค่าพรบ. =", finalPrb);
+  console.log("ค่าพรบ.สุทธิ =", finalPrb);
 
   // ภาษีตามCCของรถยนต์
   const taxCarCC =
@@ -46,13 +61,15 @@ export const calculateTax = (car: CarDetails): number => {
   const totalTaxCarCC =
     car.cc > 1800 ? 5100 - taxCarCC : car.cc >= 601 ? taxCarCC - 600 : taxCarCC;
 
+  console.log("ค่าภาษีตามน้ำหนักรถยนต์ =", totalTaxCarCC);
+
   // ภาษีตามCCของรถจักรยานยนต์
   const taxMotorcycleCC = car.isMotorcycle
     ? car.isMotorcycleTrailer
       ? 50
       : 100
     : 0;
-  console.log("ค่าพรบ.ตามน้ำหนักรถจักรยานยนต์ =", taxMotorcycleCC);
+  console.log("ค่าภาษีตามน้ำหนักรถจักรยานยนต์ =", taxMotorcycleCC);
 
   // คำนวณภาษีตามน้ำหนัก
   const calculateTaxByCarWeight = (weight: number): number => {
@@ -79,21 +96,23 @@ export const calculateTax = (car: CarDetails): number => {
 
   // ภาษีตามชนิดรถ
   const finalTax = car.isMotorcycle
-    ? taxMotorcycleCC
-    : car.isTwoDoor ||
-      car.isCarTruck ||
+    ? isMoreThanThreeYears(dayjs(car.lastTaxDate), dayjs(car.expiryDate))
+      ? 372
+      : taxMotorcycleCC // ภาษีตาม CC ของจักรยานยนต์
+    : car.isCarTruck ||
       car.isElectric ||
       car.isHybrid ||
       car.hasMoreThanSevenSeats
-    ? taxCarWeight
+    ? taxCarWeight // ถ้าเป็นรถบรรทุก, รถไฟฟ้า, รถไฮบริด หรือรถบรรทุกเกิน 7 ที่นั่ง จะใช้คำนวณตามน้ำหนัก
     : car.isTwoDoor
-    ? totalTaxCarCC
+    ? totalTaxCarCC // ถ้าเป็นรถยนต์ 2 ประตู ใช้ภาษีตาม CC ของรถยนต์
     : car.isRoadroller
-    ? 100
+    ? 200 // ถ้าเป็นรถบดถนน ใช้ภาษีคงที่ 200
     : car.isMotorcycleTrailer
-    ? 100
-    : 50; // ถ้าเป็นรถ 2 ประตู หรือเข้าเงื่อนไขอื่นๆ ที่ระบุ
-  console.log("ค่าพรบ.ตามน้ำหนัก =", finalTax);
+    ? 100 // ถ้าเป็นรถจักรยานยนต์พ่วง ใช้ภาษีคงที่ 100
+    : 50; // ค่าเริ่มต้นถ้าไม่เข้าเงื่อนไขอื่นๆ
+
+  console.log("ค่าภาษีสุทธิ =", finalTax);
 
   const inspectionFee = car.isMotorcycle ? 100 : 400; // ค่าตรวจสภาพ
   const processingFee = car.isMotorcycle ? 300 : 400; // ค่าบริการ
@@ -105,7 +124,7 @@ export const calculateTax = (car: CarDetails): number => {
   if (car.age > 3) {
     const monthsLate = (car.age - 3) * 12; // คำนวณเดือนที่ล่าช้า
     lateFee += monthsLate; // ค่าปรับ 1 บาทต่อเดือน
-    
+
     if (monthsLate >= 13 && monthsLate <= 24) {
       lateFee += finalTax * 0.2; // ปีแรกเพิ่ม 20%
     } else if (monthsLate > 24 && monthsLate <= 36) {
@@ -122,19 +141,22 @@ export const calculateTax = (car: CarDetails): number => {
       lateFee += car.isInChiangRai
         ? registrationFeeRates.chiangRai
         : registrationFeeRates.other;
-      console.log("ค้าปรับล่าช้า = ", lateFee);
+      console.log("ค้าปรับล่าช้าเมื่อคิดตามจังหวัด = ", lateFee);
     }
   }
 
-  // ค่าปรับล่าช้าของรถจักรยานยนต์เมื่อเกิน 3 ปั
-  const monthsLateMotorcycle_3_years = 372;
-  const finalLateFee = car.isMotorcycle ? monthsLateMotorcycle_3_years : lateFee;
+  lateFee =
+    car.isMotorcycle &&
+    isMoreThanThreeYears(dayjs(car.lastTaxDate), dayjs(car.expiryDate))
+      ? 0
+      : lateFee;
+  console.log("ค้าปรับล่าช้า = ", lateFee);
 
   // ส่วนลดจะเพิ่ม 10% ต่อปีตั้งแต่อายุ 6 ปีขึ้นไป และจำกัดส่วนลดที่ 50%
   const discount = car.age >= 10 ? 0.5 : car.age >= 6 ? (car.age - 5) * 0.1 : 0;
 
   // คำนวณผลรวม
-  const total = finalPrb + finalTax + finalLateFee + inspectionFee + processingFee;
+  const total = finalPrb + finalTax + lateFee + inspectionFee + processingFee;
 
   // Return ค่าที่คำนวณ
   const finalTotal = total * (1 - discount);
