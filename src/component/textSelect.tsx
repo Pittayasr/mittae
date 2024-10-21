@@ -10,7 +10,8 @@ interface TextSelectProps {
   value: string | null;
   onChange: (value: string | null) => void;
   required?: boolean;
-  isInvalid?: boolean;
+  isInvalid?: boolean; // เพิ่ม prop isInvalid
+  alertText?: string; // เพิ่ม prop alertText
 }
 
 // กำหนดชนิดข้อมูลที่ถูกต้องให้กับ customStyles
@@ -35,6 +36,7 @@ const TextSelect: React.FC<TextSelectProps> = ({
   onChange,
   placeholder = "text",
   isInvalid,
+  alertText, // รับค่า alertText
 }) => {
   // แปลง options ให้กลายเป็นรูปแบบที่ใช้งานกับ react-select
   const selectOptions = options.map((option) => ({
@@ -60,10 +62,12 @@ const TextSelect: React.FC<TextSelectProps> = ({
         isSearchable
         styles={customStyles}
         value={selectOptions.find((option) => option.value === value) || null}
+        // ใช้ prop isInvalid เพื่อกำหนด class ของ react-select ถ้าจำเป็น
+        className={isInvalid ? "is-invalid" : ""}
       />
-      {isInvalid && (
+      {isInvalid && alertText && ( // แสดง alertText ถ้า isInvalid เป็น true
         <Form.Control.Feedback type="invalid">
-          กรุณาเลือกตัวเลือก
+          {alertText}
         </Form.Control.Feedback>
       )}
     </Form.Group>

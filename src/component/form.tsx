@@ -1,6 +1,6 @@
 //form.tsx
 import React, { useState, useEffect } from "react";
-import Button from "./button";
+import Button from "./Button";
 import UserInfo from "./formComponent/UserInfo";
 import DateSection from "./formComponent/DateSection";
 import VehicleInfo from "./formComponent/VehicleInfo";
@@ -29,6 +29,8 @@ const FormComponent: React.FC = () => {
     null
   );
 
+  const [isFormValid, setIsFormValid] = useState(false); // สถานะสำหรับตรวจสอบความถูกต้องของฟอร์ม
+
   useEffect(() => {
     setBikeTypeOrDoorCount(null); // รีเซ็ตเมื่อ selectedCarType เปลี่ยน
   }, [selectedCarType]);
@@ -37,12 +39,16 @@ const FormComponent: React.FC = () => {
     date: Dayjs | null,
     type: "registration" | "expiration" | "latestTaxPayment"
   ) => {
-    if (type === "registration") {
-      setRegistrationDate(date);
-    } else if (type === "expiration") {
-      setExpirationDate(date);
-    } else if (type === "latestTaxPayment") {
-      setLatestTaxPaymentDate(date);
+    switch (type) {
+      case "registration":
+        setRegistrationDate(date);
+        break;
+      case "expiration":
+        setExpirationDate(date);
+        break;
+      case "latestTaxPayment":
+        setLatestTaxPaymentDate(date);
+        break;
     }
   };
 
@@ -50,39 +56,6 @@ const FormComponent: React.FC = () => {
     setSelectedRadio(value);
     setOwnerData("");
     setValidated(false);
-  };
-
-  const handleLicensePlateChange = (value: string) => {
-    const licensePlatePattern = /^[A-Za-z0-9ก-ฮ]{1,8}$/; // รูปแบบหมายเลขทะเบียน
-    if (licensePlatePattern.test(value)) {
-      setRegistrationNumber(value); // ตั้งค่าใหม่
-    } else {
-      console.error("หมายเลขทะเบียนไม่ถูกต้อง");
-    }
-  };
-
-  const handleNumberInputChange = (
-    value: string,
-    setter: React.Dispatch<React.SetStateAction<string>>
-  ) => {
-    // ใช้ Regular Expression เพื่อตรวจสอบว่าเป็นตัวเลข 10 หลักที่เริ่มต้นด้วย 06 หรือ 08
-    const phonePattern = /^(06|08)\d{8}$/;
-
-    if (phonePattern.test(value)) {
-      setter(value); // อนุญาตเฉพาะหมายเลขโทรศัพท์ที่ถูกต้อง
-    } else {
-      console.error(
-        "กรุณากรอกหมายเลขโทรศัพท์มือถือที่ถูกต้อง (เริ่มต้นด้วย 06 หรือ 08 และมีความยาว 10 หลัก)"
-      );
-    }
-  };
-  const handleOwnerDataChange = (value: string) => {
-    // เช็คว่ากรอกเป็นหมายเลขบัตรประชาชน (13 หลัก) หรือหมายเลขพาสปอร์ต (ขึ้นต้นด้วยตัวอักษรและตามด้วยเลข 7-8 หลัก)
-    if (/^\d{13}$/.test(value) || /^[A-Z]\d{7,8}$/.test(value)) {
-      setOwnerData(value); // อัปเดต state
-    } else {
-      console.error("หมายเลขไม่ถูกต้อง");
-    }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -180,6 +153,7 @@ const FormComponent: React.FC = () => {
           setSelectedProvince={setSelectedProvince}
           selectedCarType={selectedCarType}
           setSelectedCarType={setSelectedCarType}
+          setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
         />
 
         {/* DateSection with callback for different dates */}
@@ -192,7 +166,7 @@ const FormComponent: React.FC = () => {
           selectedRadio={selectedRadio}
           setSelectedRadio={handleRadioChange}
           ownerData={ownerData}
-          setOwnerData={handleOwnerDataChange} // ใช้ handleOwnerDataChange ที่ปรับปรุงแล้ว
+          setOwnerData={setOwnerData} // Directly use state setter
           selectedCarType={selectedCarType}
           bikeTypeOrDoorCount={bikeTypeOrDoorCount}
           setBikeTypeOrDoorCount={setBikeTypeOrDoorCount}
@@ -201,18 +175,13 @@ const FormComponent: React.FC = () => {
         {/* Integrate VehicleInfo */}
         <VehicleInfo
           registrationNumber={registrationNumber}
-          setRegistrationNumber={
-            (e) => handleLicensePlateChange(e.target.value) // ส่ง e.target.value
-          }
+          setRegistrationNumber={setRegistrationNumber}
           contactNumber={contactNumber}
-          setContactNumber={
-            (e) => handleNumberInputChange(e.target.value, setContactNumber) // ส่ง e.target.value
-          }
+          setContactNumber={setContactNumber}
           engineSize={engineSize}
-          setEngineSize={
-            (e) => handleNumberInputChange(e.target.value, setEngineSize) // ส่ง e.target.value
-          }
+          setEngineSize={setEngineSize}
           selectedCarType={selectedCarType}
+          setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
         />
 
         <hr className="my-4" />
@@ -223,21 +192,7 @@ const FormComponent: React.FC = () => {
               className="w-100"
               type="submit"
               variant="primary"
-              disabled={
-                !(
-                  ownerData &&
-                  usernameData &&
-                  engineSize &&
-                  contactNumber &&
-                  registrationNumber &&
-                  registrationDate &&
-                  expirationDate &&
-                  latestTaxPaymentDate &&
-                  selectedRadio &&
-                  bikeTypeOrDoorCount &&
-                  selectedCarType
-                )
-              }
+              disabled={!isFormValid}
             />
           </Col>
         </Row>

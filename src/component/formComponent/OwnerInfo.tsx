@@ -41,7 +41,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
         <Col className="mb-4" md={12} xs={12}>
           <RadioButton
             options={[
-              "เลขที่บัตรประชาชนเจ้าของรถล่าสุด",
+              "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด",
               "หมายเลขพาสปอร์ตเจ้าของรถล่าสุด",
             ]}
             name="radioOptions"
@@ -57,14 +57,14 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
           {selectedRadio && (
             <TextInput
               label={
-                selectedRadio === "เลขที่บัตรประชาชนเจ้าของรถล่าสุด"
-                  ? "กรอกเลขที่บัตรประชาชน"
+                selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
+                  ? "กรอกหมายเลขบัตรประชาชน"
                   : "กรอกหมายเลขพาสปอร์ต"
               }
               placeholder={
-                selectedRadio === "เลขที่บัตรประชาชนเจ้าของรถล่าสุด"
-                  ? "หมายเลขบัตรประชาชน (13 หลัก)"
-                  : "หมายเลขพาสปอร์ต (8-9 หลัก)"
+                selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
+                  ? "กรอกหมายเลขบัตรประชาชน"
+                  : "กรอกหมายเลขพาสปอร์ต"
               }
               id="ownerData"
               value={ownerData}
@@ -88,6 +88,11 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
                 selectedCarType === "รถจักรยานยนต์"
                   ? ["รถส่วนบุคคล", "สาธารณะ", "รถพ่วง"]
                   : ["2 ประตู", "4 ประตู"]
+              }
+              placeholder={
+                selectedCarType === "รถจักรยานยนต์"
+                  ? "เลือกประเภท..."
+                  : "เลือกจำนวนประตู..."
               }
               onChange={setBikeTypeOrDoorCount}
               required
