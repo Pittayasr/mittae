@@ -28,6 +28,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
         label="ชื่อเจ้าของรถ"
         id="userName"
         value={usernameData}
+        placeholder="ชื่อ นามสกุล"
         onChange={(e) => setUsernameData(e.target.value)}
         required
       />
@@ -38,6 +39,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
         label="จังหวัด"
         id="province"
         options={provinces}
+        placeholder="ค้นหา..."
         onChange={(value) => setSelectedProvince(value)}
         required
       />
@@ -58,6 +60,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
           "รถพ่วง",
           "รถแทรกเตอร์"
         ]}
+        placeholder="ค้นหา..."
         onChange={(value) => setSelectedCarType(value)}
         required
       />

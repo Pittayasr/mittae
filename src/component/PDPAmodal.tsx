@@ -23,7 +23,7 @@ const PDPA_modal: React.FC<PDPA_modalProps> = ({ isVisible, onAgree }) => {
       centered
     >
       <Modal.Header className="d-flex justify-content-center">
-        <Modal.Title className="text-center">
+        <Modal.Title className="text-center text-danger">
           พระราชบัญญัติคุ้มครองข้อมูลส่วนบุลคล พ.ศ. 2562 (Personal Data
           Protection Act: PDPA)
         </Modal.Title>
@@ -64,7 +64,7 @@ const PDPA_modal: React.FC<PDPA_modalProps> = ({ isVisible, onAgree }) => {
           <Form.Check
             type="checkbox"
             id="custom-checkbox"
-            label="ข้าพเจ้าได้อ่านและยอมรับเงื่อนไขทุกประการ"
+            label="ข้าพเจ้าได้อนุญาตและยินยอมรับทราบเงื่อนไขทุกประการ"
             checked={isAgreed}
             onChange={handleAgreeChange}
             style={{ fontSize: "1rem" }}

@@ -29,6 +29,12 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
     setBikeTypeOrDoorCount(null);
   }, [selectedCarType, setBikeTypeOrDoorCount]);
 
+  // ฟังก์ชันในการจัดการการเปลี่ยนแปลงใน TextInput
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setOwnerData(value); // อัปเดต ownerData ตามค่าใน input
+  };
+
   return (
     <>
       <Row>
@@ -55,9 +61,14 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
                   ? "กรอกเลขที่บัตรประชาชน"
                   : "กรอกหมายเลขพาสปอร์ต"
               }
+              placeholder={
+                selectedRadio === "เลขที่บัตรประชาชนเจ้าของรถล่าสุด"
+                  ? "หมายเลขบัตรประชาชน (13 หลัก)"
+                  : "หมายเลขพาสปอร์ต (8-9 หลัก)"
+              }
               id="ownerData"
               value={ownerData}
-              onChange={(e) => setOwnerData(e.target.value)}
+              onChange={handleInputChange} // เรียก handleInputChange เมื่อมีการเปลี่ยนแปลง
               disabled={!selectedRadio}
               required
             />

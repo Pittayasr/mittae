@@ -2,6 +2,7 @@
 import dayjs, { Dayjs } from "dayjs";
 // ประกาศ interface สำหรับ CarDetails
 interface CarDetails {
+  isCar: boolean; //ถ้าเป็นรถยนต์
   isTwoDoor: boolean; // ถ้าเป็นรถยนต์ 2 ประตู
   isMotorcycleTrailer: boolean; // ถ้าเป็นจักรยานยนต์พ่วง
   weight: number; // น้ำหนักรถ
@@ -37,29 +38,51 @@ export const calculateTax = (car: CarDetails): number => {
   // คำนวณค่าภาษีพื้นฐาน
   const basePrbCar =
     // ตรวจสอบว่าประเภทรถเป็นรถยนต์, รถบรรทุก, รถบรรทุก (เกิน 7 ที่นั่ง), รถไฟฟ้า, รถไฮบริด
-    car.isTwoDoor ||
-    car.isCarTruck ||
-    car.isElectric ||
-    car.isHybrid ||
-    car.hasMoreThanSevenSeats // ตรวจสอบว่ารถมีเกิน 7 ที่นั่งหรือไม่ (ต้องเพิ่มพรอพเพอร์ตี้นี้ใน CarDetails)
+    (car.isCar ||
+      car.isCarTruck ||
+      car.isElectric ||
+      car.isHybrid ||
+      car.hasMoreThanSevenSeats) &&
+    car.isTwoDoor // ตรวจสอบว่ารถมีเกิน 7 ที่นั่งหรือไม่ (ต้องเพิ่มพรอพเพอร์ตี้นี้ใน CarDetails)
       ? 975 // ถ้าเป็นรถ 2 ประตู หรือเข้าเงื่อนไขอื่นๆ ที่ระบุ
       : 675; // ถ้าไม่ใช่ 2 ประตูและไม่เข้าเงื่อนไขอื่น
   console.log("ค่าพรบ.รถยนต์   =", basePrbCar);
 
   // ภาษีตามCCของรถจักรยานยนต์
-  const basePrbMotorcycle =
-    car.cc > 150 ? 695 : car.cc >= 125 ? 480 : car.cc >= 75 ? 350 : 211;
-  console.log("ค่าพรบ.รถจักรยานยนต์ =", basePrbMotorcycle);
+  const basePrbMotorcycle = car.isMotorcycle
+    ? car.cc > 150
+      ? 695
+      : car.cc >= 125
+      ? 480
+      : car.cc >= 75
+      ? 350
+      : 211
+    : 0;
+  console.log("CC ของจักรยานยนต์:", car.cc);
+  console.log("ค่าพรบ.รถจักรยานยนต์ที่คำนวณ:", basePrbMotorcycle);
 
   // พรบ.ประจำปีตามชนิดรถ
   const finalPrb = car.isMotorcycle ? basePrbMotorcycle : basePrbCar;
   console.log("ค่าพรบ.สุทธิ =", finalPrb);
 
+  console.log("ค่าCC =", car.cc);
+
   // ภาษีตามCCของรถยนต์
   const taxCarCC =
-    car.cc * (car.cc > 1800 ? 0.04 : car.cc >= 601 ? 0.015 : 0.005);
+    car.cc > 1800
+      ? car.cc * 0.04
+      : car.cc >= 601
+      ? car.cc * 0.015
+      : car.cc * 0.005;
+
+  console.log("ค่าCCก่อนคำนวณ =", taxCarCC);
+
   const totalTaxCarCC =
-    car.cc > 1800 ? 5100 - taxCarCC : car.cc >= 601 ? taxCarCC - 600 : taxCarCC;
+    car.cc > 1800
+      ? 5100 - (taxCarCC + car.cc)
+      : car.cc >= 601
+      ? taxCarCC + car.cc - 600
+      : taxCarCC + car.cc;
 
   console.log("ค่าภาษีตามน้ำหนักรถยนต์ =", totalTaxCarCC);
 
@@ -104,11 +127,11 @@ export const calculateTax = (car: CarDetails): number => {
       car.isHybrid ||
       car.hasMoreThanSevenSeats
     ? taxCarWeight // ถ้าเป็นรถบรรทุก, รถไฟฟ้า, รถไฮบริด หรือรถบรรทุกเกิน 7 ที่นั่ง จะใช้คำนวณตามน้ำหนัก
-    : car.isTwoDoor
+    : car.isCar
     ? totalTaxCarCC // ถ้าเป็นรถยนต์ 2 ประตู ใช้ภาษีตาม CC ของรถยนต์
     : car.isRoadroller
     ? 200 // ถ้าเป็นรถบดถนน ใช้ภาษีคงที่ 200
-    : car.isMotorcycleTrailer
+    : car.isCarTrailer
     ? 100 // ถ้าเป็นรถจักรยานยนต์พ่วง ใช้ภาษีคงที่ 100
     : 50; // ค่าเริ่มต้นถ้าไม่เข้าเงื่อนไขอื่นๆ
 
@@ -150,15 +173,28 @@ export const calculateTax = (car: CarDetails): number => {
     isMoreThanThreeYears(dayjs(car.lastTaxDate), dayjs(car.expiryDate))
       ? 0
       : lateFee;
-  console.log("ค้าปรับล่าช้า = ", lateFee);
+  console.log("ค่าปรับล่าช้า = ", lateFee);
 
   // ส่วนลดจะเพิ่ม 10% ต่อปีตั้งแต่อายุ 6 ปีขึ้นไป และจำกัดส่วนลดที่ 50%
   const discount = car.age >= 10 ? 0.5 : car.age >= 6 ? (car.age - 5) * 0.1 : 0;
 
   // คำนวณผลรวม
+  console.log(
+    "ค่าพรบ.สุทธิ: ",
+    finalPrb,
+    "+ ค่าภาษีสุทธิ: ",
+    finalTax,
+    "+ ค่าปรับล่าช้า: ",
+    lateFee,
+    "+ ค่าปรับล่าช้า: ",
+    inspectionFee,
+    "+ ค่าดำเนินการ: ",
+    processingFee
+  );
   const total = finalPrb + finalTax + lateFee + inspectionFee + processingFee;
 
   // Return ค่าที่คำนวณ
   const finalTotal = total * (1 - discount);
+  console.log("คำนวณทั้งหมด = ", finalTotal);
   return Math.max(finalTotal, 0); // Ensure the total is not negative
 };

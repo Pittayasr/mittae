@@ -3,14 +3,13 @@ import React from "react";
 import { Col, Row } from "react-bootstrap";
 import TextInput from "../textInput";
 
-
 interface VehicleInfoProps {
   registrationNumber: string;
-  setRegistrationNumber: (value: string) => void;
+  setRegistrationNumber: (e: React.ChangeEvent<HTMLInputElement>) => void;
   contactNumber: string;
-  setContactNumber: (value: string) => void;
+  setContactNumber: (e: React.ChangeEvent<HTMLInputElement>) => void;
   engineSize: string;
-  setEngineSize: (value: string) => void;
+  setEngineSize: (e: React.ChangeEvent<HTMLInputElement>) => void;
   selectedCarType: string | null;
 }
 
@@ -29,7 +28,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
         label="หมายเลขทะเบียนรถ"
         id="registrationNumber"
         value={registrationNumber}
-        onChange={(e) => setRegistrationNumber(e.target.value)}
+        onChange={setRegistrationNumber}
         required
       />
     </Col>
@@ -39,7 +38,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
         label="เบอร์โทรศัพท์ผู้กรอกข้อมูล"
         id="contactNumber"
         value={contactNumber}
-        onChange={(e) => setContactNumber(e.target.value)}
+        onChange={setContactNumber}
         required
       />
     </Col>
@@ -57,7 +56,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
           }
           id="engineSize"
           value={engineSize}
-          onChange={(e) => setEngineSize(e.target.value)}
+          onChange={setEngineSize}
           required
         />
       )}

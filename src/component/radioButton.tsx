@@ -35,8 +35,9 @@ const RadioButton: React.FC<RadioButtonProps> = ({
               checked={selectedValue === option}
               onChange={() => onChange(option)} // ฟังก์ชันจัดการเมื่อมีการเลือก
               style={{
-                width: "100%", // ปรับขนาดความกว้างของ input
-                padding: "10px", // เพิ่มช่องว่างภายใน
+                margin: "0px 0px 0px 10px",
+                width: "110%", // ปรับขนาดความกว้างของ input
+                padding: "10px 0px 10px 0px", // เพิ่มช่องว่างภายใน
               }}
             />
           );

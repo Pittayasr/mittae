@@ -1,6 +1,6 @@
 //form.tsx
 import React, { useState, useEffect } from "react";
-import Button from "./Button";
+import Button from "./button";
 import UserInfo from "./formComponent/UserInfo";
 import DateSection from "./formComponent/DateSection";
 import VehicleInfo from "./formComponent/VehicleInfo";
@@ -52,6 +52,39 @@ const FormComponent: React.FC = () => {
     setValidated(false);
   };
 
+  const handleLicensePlateChange = (value: string) => {
+    const licensePlatePattern = /^[A-Za-z0-9ก-ฮ]{1,8}$/; // รูปแบบหมายเลขทะเบียน
+    if (licensePlatePattern.test(value)) {
+      setRegistrationNumber(value); // ตั้งค่าใหม่
+    } else {
+      console.error("หมายเลขทะเบียนไม่ถูกต้อง");
+    }
+  };
+
+  const handleNumberInputChange = (
+    value: string,
+    setter: React.Dispatch<React.SetStateAction<string>>
+  ) => {
+    // ใช้ Regular Expression เพื่อตรวจสอบว่าเป็นตัวเลข 10 หลักที่เริ่มต้นด้วย 06 หรือ 08
+    const phonePattern = /^(06|08)\d{8}$/;
+
+    if (phonePattern.test(value)) {
+      setter(value); // อนุญาตเฉพาะหมายเลขโทรศัพท์ที่ถูกต้อง
+    } else {
+      console.error(
+        "กรุณากรอกหมายเลขโทรศัพท์มือถือที่ถูกต้อง (เริ่มต้นด้วย 06 หรือ 08 และมีความยาว 10 หลัก)"
+      );
+    }
+  };
+  const handleOwnerDataChange = (value: string) => {
+    // เช็คว่ากรอกเป็นหมายเลขบัตรประชาชน (13 หลัก) หรือหมายเลขพาสปอร์ต (ขึ้นต้นด้วยตัวอักษรและตามด้วยเลข 7-8 หลัก)
+    if (/^\d{13}$/.test(value) || /^[A-Z]\d{7,8}$/.test(value)) {
+      setOwnerData(value); // อัปเดต state
+    } else {
+      console.error("หมายเลขไม่ถูกต้อง");
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setValidated(true);
@@ -89,17 +122,21 @@ const FormComponent: React.FC = () => {
       contactNumber &&
       registrationNumber &&
       registrationDate &&
+      expirationDate &&
+      latestTaxPaymentDate &&
       selectedRadio &&
+      bikeTypeOrDoorCount &&
       selectedCarType;
 
     if (isFormValid) {
       const carDetails = {
+        isCar: selectedCarType === "รถยนต์",
         isTwoDoor: bikeTypeOrDoorCount === "2 ประตู",
         isMotorcycleTrailer:
           selectedCarType === "รถจักรยานยนต์" &&
           bikeTypeOrDoorCount === "รถพ่วง",
-        weight: parseFloat(engineSize),
-        cc: selectedCarType === "รถยนต์" ? parseFloat(engineSize) : 0,
+        weight: parseFloat(engineSize) || 0,
+        cc: parseFloat(engineSize) || 0,
         age: calculateCarAge(registrationDate),
         expiryDate: expirationDate ? expirationDate.toDate() : null, // ส่ง expirationDate
         lastTaxDate: latestTaxPaymentDate
@@ -155,7 +192,7 @@ const FormComponent: React.FC = () => {
           selectedRadio={selectedRadio}
           setSelectedRadio={handleRadioChange}
           ownerData={ownerData}
-          setOwnerData={setOwnerData}
+          setOwnerData={handleOwnerDataChange} // ใช้ handleOwnerDataChange ที่ปรับปรุงแล้ว
           selectedCarType={selectedCarType}
           bikeTypeOrDoorCount={bikeTypeOrDoorCount}
           setBikeTypeOrDoorCount={setBikeTypeOrDoorCount}
@@ -164,11 +201,17 @@ const FormComponent: React.FC = () => {
         {/* Integrate VehicleInfo */}
         <VehicleInfo
           registrationNumber={registrationNumber}
-          setRegistrationNumber={setRegistrationNumber}
+          setRegistrationNumber={
+            (e) => handleLicensePlateChange(e.target.value) // ส่ง e.target.value
+          }
           contactNumber={contactNumber}
-          setContactNumber={setContactNumber}
+          setContactNumber={
+            (e) => handleNumberInputChange(e.target.value, setContactNumber) // ส่ง e.target.value
+          }
           engineSize={engineSize}
-          setEngineSize={setEngineSize}
+          setEngineSize={
+            (e) => handleNumberInputChange(e.target.value, setEngineSize) // ส่ง e.target.value
+          }
           selectedCarType={selectedCarType}
         />
 
@@ -188,7 +231,10 @@ const FormComponent: React.FC = () => {
                   contactNumber &&
                   registrationNumber &&
                   registrationDate &&
+                  expirationDate &&
+                  latestTaxPaymentDate &&
                   selectedRadio &&
+                  bikeTypeOrDoorCount &&
                   selectedCarType
                 )
               }
