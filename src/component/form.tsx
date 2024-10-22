@@ -1,6 +1,6 @@
 //form.tsx
 import React, { useState, useEffect } from "react";
-import Button from "./button";
+import Button from "./Button";
 import UserInfo from "./formComponent/UserInfo";
 import DateSection from "./formComponent/DateSection";
 import VehicleInfo from "./formComponent/VehicleInfo";
@@ -32,10 +32,44 @@ const FormComponent: React.FC = () => {
   const [, setIsFormValid] = useState(false); // สถานะสำหรับตรวจสอบความถูกต้องของฟอร์ม
   const [showResult, setShowResult] = useState(false); // State สำหรับแสดงหน้าสรุป
   const [carOrMotorcycleLabel, setCarOrMotorcycleLabel] = useState<string>("");
+  // state สำหรับ VehicleInfo
+  const [vehicleLabel, setVehicleLabel] = useState<string>("");
 
+  // state สำหรับ OwnerInfo
+  const [ownerLabel, setOwnerLabel] = useState<string>("");
   useEffect(() => {
     setBikeTypeOrDoorCount(null); // รีเซ็ตเมื่อ selectedCarType เปลี่ยน
-  }, [selectedCarType]);
+    if (registrationDate) {
+      const age = calculateCarAge(registrationDate);
+      setCarAge(age);
+    }
+  }, [registrationDate, selectedCarType]);
+
+  const [carAge, setCarAge] = useState<{
+    years: number;
+    months: number;
+    days: number;
+  }>({ years: 0, months: 0, days: 0 });
+
+  const calculateCarAge = (
+    registerDate: Dayjs | null
+  ): { years: number; months: number; days: number } => {
+    if (!registerDate) return { years: 0, months: 0, days: 0 };
+
+    const now = dayjs();
+    const yearsDiff = now.diff(registerDate, "year");
+    const monthsDiff = now.diff(registerDate.add(yearsDiff, "year"), "month");
+    const daysDiff = now.diff(
+      registerDate.add(yearsDiff, "year").add(monthsDiff, "month"),
+      "day"
+    );
+
+    return {
+      years: yearsDiff,
+      months: monthsDiff,
+      days: daysDiff,
+    };
+  };
 
   const handleDateChange = (
     date: Dayjs | null,
@@ -44,6 +78,7 @@ const FormComponent: React.FC = () => {
     switch (type) {
       case "registration":
         setRegistrationDate(date);
+
         break;
       case "expiration":
         setExpirationDate(date);
@@ -68,16 +103,16 @@ const FormComponent: React.FC = () => {
       return registerDate ? dayjs().year() - registerDate.year() : 0;
     };
 
-    const monthsLate = (
-      expirationDate: Dayjs | null,
-      latestTaxPaymentDate: Dayjs | null
-    ): number => {
-      if (expirationDate && latestTaxPaymentDate) {
-        return Math.max(0, expirationDate.diff(latestTaxPaymentDate, "months"));
-      }
-      return 0;
-    };
-    console.log("เดือนที่เกินมา = ", monthsLate);
+    // const monthsLate = (
+    //   expirationDate: Dayjs | null,
+    //   latestTaxPaymentDate: Dayjs | null
+    // ): number => {
+    //   if (expirationDate && latestTaxPaymentDate) {
+    //     return Math.max(0, expirationDate.diff(latestTaxPaymentDate, "months"));
+    //   }
+    //   return 0;
+    // };
+    // console.log("เดือนที่เกินมา = ", monthsLate);
 
     const isMoreThanThreeYears = (
       lastTaxDate: Dayjs | null,
@@ -102,7 +137,6 @@ const FormComponent: React.FC = () => {
       selectedRadio &&
       bikeTypeOrDoorCount &&
       selectedCarType;
-
     if (isFormValid) {
       const carDetails = {
         isCar: selectedCarType === "รถยนต์",
@@ -113,6 +147,7 @@ const FormComponent: React.FC = () => {
         weight: parseFloat(engineSize) || 0,
         cc: parseFloat(engineSize) || 0,
         age: calculateCarAge(registrationDate),
+        registrationDate: registrationDate ? registrationDate.toDate() : null,
         expiryDate: expirationDate ? expirationDate.toDate() : null, // ส่ง expirationDate
         lastTaxDate: latestTaxPaymentDate
           ? latestTaxPaymentDate.toDate()
@@ -130,7 +165,7 @@ const FormComponent: React.FC = () => {
           latestTaxPaymentDate,
           expirationDate
         ),
-        monthsLate: monthsLate(latestTaxPaymentDate, expirationDate),
+        // monthsLate: monthsLate(latestTaxPaymentDate, expirationDate),
       };
 
       console.log("Car Details:", carDetails);
@@ -142,6 +177,7 @@ const FormComponent: React.FC = () => {
 
   const handleBack = () => {
     setShowResult(false); // ย้อนกลับไปยังหน้าฟอร์ม
+    setValidated(false);
   };
 
   const handleConfirm = () => {
@@ -184,6 +220,7 @@ const FormComponent: React.FC = () => {
           totalCost={totalCost}
           onBack={handleBack} // ส่งฟังก์ชันย้อนกลับ
           onConfirm={handleConfirm} // ส่งฟังก์ชันตกลง
+          carAge={carAge}
         />
       ) : (
         <Form
@@ -206,6 +243,9 @@ const FormComponent: React.FC = () => {
           {/* DateSection with callback for different dates */}
           <DateSection
             handleDateChange={handleDateChange} // Callback to handle date changes
+            registrationDate={registrationDate} // ส่งค่า registrationDate
+            expirationDate={expirationDate} // ส่งค่า expirationDate
+            latestTaxPaymentDate={latestTaxPaymentDate} // ส่งค่า latestTaxPaymentDate
           />
 
           {/* Integrate OwnerInfo */}
@@ -218,8 +258,8 @@ const FormComponent: React.FC = () => {
             setBikeTypeOrDoorCount={setBikeTypeOrDoorCount}
             bikeTypeOrDoorCount={bikeTypeOrDoorCount}
             setIsFormValid={setIsFormValid}
-            carOrMotorcycleLabel={carOrMotorcycleLabel}
-            setCarOrMotorcycleLabel={setCarOrMotorcycleLabel}
+            carOrMotorcycleLabel={ownerLabel} // ส่ง ownerLabel
+            setCarOrMotorcycleLabel={setOwnerLabel} // ใช้ setOwnerLabel สำหรับ OwnerInfo
           />
 
           {/* Integrate VehicleInfo */}
@@ -232,6 +272,9 @@ const FormComponent: React.FC = () => {
             setEngineSize={setEngineSize}
             selectedCarType={selectedCarType}
             setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
+            CCorWeight={vehicleLabel} // ส่ง vehicleLabel
+            setVehicleLabel={setVehicleLabel} // ใช้ setVehicleLabel สำหรับ VehicleInfo
+            setCCorWeight={setCarOrMotorcycleLabel}
           />
 
           <hr className="my-4" />
@@ -254,7 +297,8 @@ const FormComponent: React.FC = () => {
                     latestTaxPaymentDate &&
                     selectedRadio &&
                     bikeTypeOrDoorCount &&
-                    selectedCarType
+                    selectedCarType &&
+                    (vehicleLabel ? engineSize : true)
                   )
                 }
               />

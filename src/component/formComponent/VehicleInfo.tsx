@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// VehicleInfo.tsx
+import React, { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import TextInput from "../textInput";
 
@@ -10,8 +11,9 @@ interface VehicleInfoProps {
   engineSize: string;
   setEngineSize: (value: string) => void;
   selectedCarType: string | null;
-  setIsFormValid: (isValid: boolean) => void; 
+  setIsFormValid: (isValid: boolean) => void;
   CCorWeight: string;
+  setVehicleLabel: React.Dispatch<React.SetStateAction<string>>; // Add this line
   setCCorWeight: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -26,6 +28,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
   setIsFormValid,
   CCorWeight,
   setCCorWeight,
+  setVehicleLabel, // Add this line
 }) => {
   const [isInvalidContact, setIsInvalidContact] = useState(false);
   const [isInvalidLicense, setIsInvalidLicense] = useState(false);
@@ -67,15 +70,21 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
     setIsFormValid(!isInvalidLicense && !isInvalidContact && !invalid); // เช็คความถูกต้อง
   };
 
+  // Update label when selectedCarType changes
   useEffect(() => {
     if (selectedCarType) {
       const label =
-        selectedCarType === "รถจักรยานยนต์"
-          ? "ประเภทของรถมอเตอร์ไซค์"
-          : "จำนวนประตูรถยนต์";
-      setCarOrMotorcycleLabel(label); // Set label based on selectedCarType
+        selectedCarType === "รถบรรทุก" ||
+        selectedCarType === "รถบรรทุก(เกิน7ที่นั่ง)" ||
+        selectedCarType === "รถไฮบริด" ||
+        selectedCarType === "รถไฟฟ้า"
+          ? "น้ำหนักรถ (กิโลกรัม)"
+          : "ขนาดความจุ CC";
+
+      setCCorWeight(label); // Set label for engine size or weight
+      setVehicleLabel(label); // Save label to use in summary.tsx
     }
-  }, [selectedCarType, setBikeTypeOrDoorCount, setCarOrMotorcycleLabel]);
+  }, [selectedCarType, setCCorWeight, setVehicleLabel]);
 
   return (
     <Row>
@@ -112,7 +121,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
               ? contactNumber.length > 10
                 ? "กรุณากรอกหมายเลขโทรศัพท์ที่ถูกต้อง (เริ่มด้วย 06, 08 หรือ 09)"
                 : "กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก"
-              : ""  
+              : ""
           }
         />
       </Col>
@@ -120,14 +129,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
       <Col className="mb-4" md={4} xs={12}>
         {selectedCarType && (
           <TextInput
-            label={
-              selectedCarType === "รถบรรทุก" ||
-              selectedCarType === "รถบรรทุก(เกิน7ที่นั่ง)" ||
-              selectedCarType === "รถไฮบริด" ||
-              selectedCarType === "รถไฟฟ้า"
-                ? "น้ำหนักรถ (กิโลกรัม)"
-                : "ขนาดความจุ CC"
-            }
+            label={CCorWeight}
             placeholder={
               selectedCarType === "รถบรรทุก" ||
               selectedCarType === "รถบรรทุก(เกิน7ที่นั่ง)" ||
@@ -137,11 +139,24 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
                 : "กรอกความจุของรถ(CC)"
             }
             id="engineSize"
-            value={engineSize}
+            value={
+              selectedCarType === "รถพ่วง" ||
+              selectedCarType === "รถบดถนน" ||
+              selectedCarType === "รถแทรกเตอร์"
+                ? engineSize === "1"
+                  ? "1" // ใช้ "0" แทน ""
+                  : engineSize
+                : engineSize
+            }
             onChange={(e) => handleEngineSizeChange(e.target.value)}
             required
             isInvalid={isInvalidEngineSize}
             alertText="กรุณากรอกขนาดเครื่องยนต์ให้ถูกต้อง"
+            disabled={
+              selectedCarType === "รถพ่วง" ||
+              selectedCarType === "รถบดถนน" ||
+              selectedCarType === "รถแทรกเตอร์"
+            } // เพิ่มเงื่อนไขล็อค
           />
         )}
       </Col>

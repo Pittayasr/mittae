@@ -1,7 +1,6 @@
 // summary.tsx
 import React from "react";
-import Button from "./button";
-import { Row, Col } from "react-bootstrap";
+import { Col, Row, Button } from "react-bootstrap";
 
 interface SummaryProps {
   ownerData: string;
@@ -17,6 +16,7 @@ interface SummaryProps {
   bikeTypeOrDoorCount: string | null;
   selectedCarType: string | null;
   totalCost: number | null;
+  carAge: { years: number; months: number; days: number };
   onBack: () => void; // ฟังก์ชันสำหรับย้อนกลับ
   onConfirm: () => void; // ฟังก์ชันสำหรับส่งข้อมูล
 }
@@ -35,6 +35,7 @@ const Summary: React.FC<SummaryProps> = ({
   bikeTypeOrDoorCount,
   selectedCarType,
   totalCost,
+  carAge,
   onBack,
   onConfirm,
 }) => {
@@ -44,9 +45,6 @@ const Summary: React.FC<SummaryProps> = ({
       <ul className="list-unstyled">
         <li>
           <strong>ชื่อเจ้าของรถ:</strong> {usernameData}
-        </li>
-        <li>
-          <strong>ชื่อเจ้าของ:</strong> {ownerData}
         </li>
         <li>
           <li>
@@ -72,6 +70,10 @@ const Summary: React.FC<SummaryProps> = ({
           {latestTaxPaymentDate?.toLocaleDateString()}
         </li>
         <li>
+          <strong>อายุรถ:</strong> {carAge.years} ปี {carAge.months} เดือน{" "}
+          {carAge.days} วัน {/* Display the car age here */}
+        </li>
+        <li>
           <strong>{selectedRadio}:</strong> {ownerData}
         </li>
         <li>
@@ -86,26 +88,20 @@ const Summary: React.FC<SummaryProps> = ({
       )}
 
       <hr className="my-4" />
-      <Row className="justify-content-end">
-        <Col xs={2}>
-          <Button
-            label="ย้อนกลับ"
-            className="w-100 mb-2" // เพิ่ม margin ด้านล่าง
-            variant="secondary"
-            type="button" // ประเภทปุ่มเป็น 'button'
-            onClick={onBack} // เรียกใช้ฟังก์ชันย้อนกลับ
-          />
-        </Col>
-        <Col xs={2}>
-          <Button
-            label="ตกลง"
-            className="w-100"
-            variant="primary"
-            type="submit" // ประเภทปุ่มเป็น 'submit'
-            onClick={onConfirm} // เรียกใช้ฟังก์ชันตกลง
-          />
-        </Col>
-      </Row>
+      <footer>
+        <Row className="justify-content-end">
+          <Col xs="auto" style={{ minWidth: "120px" }}>
+            <Button className="w-100" variant="reset" onClick={onBack}>
+              ย้อนกลับ
+            </Button>
+          </Col>
+          <Col xs="auto" style={{ minWidth: "120px" }}>
+            <Button className="w-100" variant="primary" onClick={onConfirm}>
+              ตกลง
+            </Button>
+          </Col>
+        </Row>
+      </footer>
     </div>
   );
 };

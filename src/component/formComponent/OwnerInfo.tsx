@@ -33,7 +33,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
 
   // useEffect to reset bikeTypeOrDoorCount when selectedCarType changes
   useEffect(() => {
-    setBikeTypeOrDoorCount(null);
+    // setBikeTypeOrDoorCount(null);
 
     if (selectedCarType) {
       const label =

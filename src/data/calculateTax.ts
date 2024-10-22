@@ -27,8 +27,8 @@ const isMoreThanThreeYears = (
   expirationDate: Dayjs | null
 ): boolean => {
   if (lastTaxDate && expirationDate) {
-    const yearDiff = expirationDate.diff(lastTaxDate, "year");
-    return yearDiff > 3;
+    const monthDiff = expirationDate.diff(lastTaxDate, "month");
+    return monthDiff > 36;
   }
   return false;
 };
@@ -142,18 +142,26 @@ export const calculateTax = (car: CarDetails): number => {
   console.log("ค่าตรวจสภาพ =", inspectionFee);
   console.log("ค่าดำเนินการ =", processingFee);
 
+  console.log("อายุรถ =", car.age);
+
   // ค่าปรับสำหรับการล่าช้า
   let lateFee = 0;
   if (car.age > 3) {
-    const monthsLate = (car.age - 3) * 12; // คำนวณเดือนที่ล่าช้า
+    const monthsLate =
+      car.expiryDate && car.lastTaxDate
+        ? dayjs(car.lastTaxDate).diff(dayjs(car.expiryDate), "month")
+        : 0; // คำนวณเดือนที่ล่าช้า
     lateFee += monthsLate; // ค่าปรับ 1 บาทต่อเดือน
+    console.log("ค่าปรับคิดตามเดือน =", lateFee);
 
-    if (monthsLate >= 13 && monthsLate <= 24) {
-      lateFee += finalTax * 0.2; // ปีแรกเพิ่ม 20%
-    } else if (monthsLate > 24 && monthsLate <= 36) {
+    if (monthsLate >= 12 && monthsLate <= 23) {
+      lateFee += finalTax * 0.2;
+      console.log("ค่าปรับคิดตามเดือนแรก =", lateFee); // ปีแรกเพิ่ม 20%
+    } else if (monthsLate >= 24 && monthsLate <= 36) {
+      console.log("ค่าปรับคิดตามสอง =", lateFee);
       lateFee += finalTax * 0.4; // ปีที่สองเพิ่ม 40%
     } else if (monthsLate > 36) {
-      lateFee += 300; // ค่าปรับส่งมอบแผ่นป้ายล่าช้า
+      lateFee = lateFee + finalTax * 0.4 + 300; // ค่าปรับส่งมอบแผ่นป้ายล่าช้า
 
       // เงื่อนไขค่าจดทะเบียนใหม่
       const registrationFeeRates = car.isMotorcycle

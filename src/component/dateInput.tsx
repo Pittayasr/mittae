@@ -1,4 +1,3 @@
-//dateInput.tsx
 import React, { useState, useEffect } from "react";
 import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
@@ -8,41 +7,48 @@ import "antd/dist/reset.css";
 
 interface DateInputProps {
   onDateChange: (date: Dayjs | null) => void;
-  labelText: string; // เพิ่ม props สำหรับ labelText
-  initialDate?: Dayjs; // เพิ่ม prop สำหรับวันที่เริ่มต้น
+  labelText: string;
+  initialDate?: Dayjs;
+  value?: Dayjs | null; // Add value prop for controlled input
 }
 
 const DateInput: React.FC<DateInputProps> = ({
   onDateChange,
   labelText,
   initialDate,
+  value, // Destructure value from props
 }) => {
   const convertToBuddhistYear = (date: Dayjs | null) => {
-    return date ? dayjs(date).year(date.year() + 543) : null; // แปลงปีให้เป็นพุทธศักราช
+    return date ? dayjs(date).year(date.year() + 543) : null;
   };
 
   const convertToGregorianYear = (date: Dayjs | null) => {
-    return date ? dayjs(date).year(date.year() - 543) : null; // แปลงกลับเป็นคริสต์ศักราช
+    return date ? dayjs(date).year(date.year() - 543) : null;
   };
 
-  // คำนวณปีหน้าเป็นปีพุทธศักราช (พ.ศ.)
   const nextYearBuddhist = dayjs().year() + 543;
 
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(
-    initialDate ? convertToBuddhistYear(initialDate) : null // ตั้งค่าเริ่มต้นเป็นปี 2567
+    initialDate ? convertToBuddhistYear(initialDate) : null
   );
 
   useEffect(() => {
-    // เมื่อ initialDate เปลี่ยนแปลง ให้ปรับ selectedDate
     if (initialDate) {
       setSelectedDate(convertToBuddhistYear(initialDate));
     }
   }, [initialDate]);
 
+  useEffect(() => {
+    // Update selectedDate when value prop changes
+    if (value) {
+      setSelectedDate(convertToBuddhistYear(value));
+    }
+  }, [value]);
+
   const handleDateChange = (date: Dayjs | null) => {
-    const gregorianDate = convertToGregorianYear(date); // แปลงกลับเป็นคริสต์ศักราชสำหรับการเก็บในฐานข้อมูล
+    const gregorianDate = convertToGregorianYear(date);
     setSelectedDate(date);
-    onDateChange(gregorianDate); // ส่งค่ากลับไปในรูปแบบคริสต์ศักราช
+    onDateChange(gregorianDate); // Send back in Gregorian format
   };
 
   return (
@@ -62,7 +68,7 @@ const DateInput: React.FC<DateInputProps> = ({
         onChange={handleDateChange}
         format="DD/MM/YYYY"
         placeholder="วัน/เดือน/ปี พ.ศ."
-        value={selectedDate}
+        value={selectedDate} // Use selectedDate for controlled input
         inputReadOnly={true}
         showToday={false}
         style={{
@@ -71,7 +77,7 @@ const DateInput: React.FC<DateInputProps> = ({
           height: "45px",
         }}
         allowClear={false}
-        defaultPickerValue={dayjs().year(nextYearBuddhist)} // กำหนดให้เลือกปีเริ่มต้นเป็น พ.ศ. 2567
+        defaultPickerValue={dayjs().year(nextYearBuddhist)}
       />
     </div>
   );

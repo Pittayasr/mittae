@@ -8,7 +8,7 @@ interface TextInputProps {
   placeholder?: string;
   alertText?: string;
   required?: boolean;
-  value?: string;
+  value?: string ;
   disabled?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   isInvalid?: boolean; // เพิ่ม props สำหรับ isInvalid
@@ -32,7 +32,7 @@ const TextInput: React.FC<TextInputProps> = ({
       <Form.Control
         type={type}
         required={required}
-        value={value}
+        value={value }
         disabled={disabled}
         placeholder={placeholder}
         onChange={onChange}
