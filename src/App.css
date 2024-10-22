@@ -16,7 +16,7 @@
   flex-direction: row; /* ตั้งค่าการจัดเรียงในแนวนอน */
   justify-content: space-between; /* จัดชิดซ้าย หรือคุณสามารถใช้ center หรือ space-between */
   align-items: center; /* จัดแนวกลางในแนวตั้ง */
-  width: 90%;
+  width: 100%;
 }
 
 .radioButton input[type="radio"] {
@@ -26,14 +26,15 @@
   border-radius: 50%; /* ทำให้เป็นวงกลม */
   outline: none; /* เอา outline ออก */
   margin-inline-start: auto;
+  margin: 3px 5px 0px 0px;
   cursor: pointer; /* แสดง cursor แบบ pointer */
 
   transition: background 0.2s, border-color 0.2s; /* เพิ่มการเปลี่ยนแปลงสี */
 }
 
 .radioButton label {
+  display: flex; /* ใช้ Flexbox */
   margin-left: 5px; /* ช่องว่างระหว่าง label และ radio button */
-
   cursor: pointer; /* แสดง cursor แบบ pointer */
 }
 

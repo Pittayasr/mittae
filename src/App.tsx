@@ -1,6 +1,6 @@
 import { useState } from "react";
 import PDPA_modal from "./component/PDPAmodal";
-import ReadMEmodal from "./component/ReadMEmodal";
+import ReadMEmodal from "./component/readMEmodal";
 import FormComponent from "./component/form";
 import "./App.css";
 

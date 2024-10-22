@@ -10,7 +10,9 @@ interface VehicleInfoProps {
   engineSize: string;
   setEngineSize: (value: string) => void;
   selectedCarType: string | null;
-  setIsFormValid: (isValid: boolean) => void; // เพิ่ม prop สำหรับเช็คความถูกต้อง
+  setIsFormValid: (isValid: boolean) => void; 
+  CCorWeight: string;
+  setCCorWeight: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const VehicleInfo: React.FC<VehicleInfoProps> = ({
@@ -22,6 +24,8 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
   setEngineSize,
   selectedCarType,
   setIsFormValid,
+  CCorWeight,
+  setCCorWeight,
 }) => {
   const [isInvalidContact, setIsInvalidContact] = useState(false);
   const [isInvalidLicense, setIsInvalidLicense] = useState(false);
@@ -30,9 +34,14 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
   const handleLicenseChange = (value: string) => {
     setRegistrationNumber(value);
     const licensePlatePattern = /^[A-Za-z0-9ก-ฮ]{1,8}$/;
-    const invalid = value.length < 3 || !licensePlatePattern.test(value);
+    const isLengthInvalid = value.length > 0 && value.length < 3;
+    const isFormatInvalid =
+      value.length > 3 && !licensePlatePattern.test(value);
+
+    const invalid = isLengthInvalid || isFormatInvalid;
     setIsInvalidLicense(invalid);
-    setIsFormValid(!invalid && !isInvalidContact && !isInvalidEngineSize); // เช็คความถูกต้อง
+
+    setIsFormValid(!isInvalidContact && !invalid && !isInvalidEngineSize); // เช็คความถูกต้อง
   };
 
   const handleContactChange = (value: string) => {
@@ -43,7 +52,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
     // เพิ่มการตรวจสอบความยาวของหมายเลขโทรศัพท์
     const phonePattern = /^(06|08|09)\d{8}$/;
     const isLengthInvalid = value.length > 0 && value.length < 10;
-    const isFormatInvalid = value.length === 10 && !phonePattern.test(value);
+    const isFormatInvalid = value.length >= 10 && !phonePattern.test(value);
 
     const invalid = isLengthInvalid || isFormatInvalid;
     setIsInvalidContact(invalid);
@@ -57,6 +66,16 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
     setIsInvalidEngineSize(invalid);
     setIsFormValid(!isInvalidLicense && !isInvalidContact && !invalid); // เช็คความถูกต้อง
   };
+
+  useEffect(() => {
+    if (selectedCarType) {
+      const label =
+        selectedCarType === "รถจักรยานยนต์"
+          ? "ประเภทของรถมอเตอร์ไซค์"
+          : "จำนวนประตูรถยนต์";
+      setCarOrMotorcycleLabel(label); // Set label based on selectedCarType
+    }
+  }, [selectedCarType, setBikeTypeOrDoorCount, setCarOrMotorcycleLabel]);
 
   return (
     <Row>
@@ -90,10 +109,10 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
           isInvalid={isInvalidContact}
           alertText={
             isInvalidContact
-              ? contactNumber.length < 10
-                ? "กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก"
-                : "กรุณากรอกหมายเลขโทรศัพท์ที่ถูกต้อง (เริ่มด้วย 06, 08 หรือ 09)"
-              : ""
+              ? contactNumber.length > 10
+                ? "กรุณากรอกหมายเลขโทรศัพท์ที่ถูกต้อง (เริ่มด้วย 06, 08 หรือ 09)"
+                : "กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก"
+              : ""  
           }
         />
       </Col>

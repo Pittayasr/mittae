@@ -1,6 +1,6 @@
 //form.tsx
 import React, { useState, useEffect } from "react";
-import Button from "./Button";
+import Button from "./button";
 import UserInfo from "./formComponent/UserInfo";
 import DateSection from "./formComponent/DateSection";
 import VehicleInfo from "./formComponent/VehicleInfo";
@@ -9,6 +9,7 @@ import { Form, Row, Col } from "react-bootstrap";
 import { Dayjs } from "dayjs";
 import { calculateTax } from "../data/calculateTax";
 import dayjs from "dayjs";
+import Summary from "./summary";
 
 const FormComponent: React.FC = () => {
   const [validated, setValidated] = useState(false);
@@ -28,8 +29,9 @@ const FormComponent: React.FC = () => {
   const [bikeTypeOrDoorCount, setBikeTypeOrDoorCount] = useState<string | null>(
     null
   );
-
-  const [isFormValid, setIsFormValid] = useState(false); // สถานะสำหรับตรวจสอบความถูกต้องของฟอร์ม
+  const [, setIsFormValid] = useState(false); // สถานะสำหรับตรวจสอบความถูกต้องของฟอร์ม
+  const [showResult, setShowResult] = useState(false); // State สำหรับแสดงหน้าสรุป
+  const [carOrMotorcycleLabel, setCarOrMotorcycleLabel] = useState<string>("");
 
   useEffect(() => {
     setBikeTypeOrDoorCount(null); // รีเซ็ตเมื่อ selectedCarType เปลี่ยน
@@ -134,70 +136,132 @@ const FormComponent: React.FC = () => {
       console.log("Car Details:", carDetails);
       const totalTax = calculateTax(carDetails);
       setTotalCost(totalTax);
+      setShowResult(true); // เปลี่ยนเป็น true เพื่อแสดงหน้าสรุป
     }
+  };
+
+  const handleBack = () => {
+    setShowResult(false); // ย้อนกลับไปยังหน้าฟอร์ม
+  };
+
+  const handleConfirm = () => {
+    // ส่งข้อมูลไปยังเซิร์ฟเวอร์หรือดำเนินการที่คุณต้องการ
+    console.log("ข้อมูลที่ถูกส่ง:", {
+      ownerData,
+      usernameData,
+      engineSize,
+      contactNumber,
+      registrationNumber,
+      registrationDate,
+      expirationDate,
+      latestTaxPaymentDate,
+      selectedRadio,
+      bikeTypeOrDoorCount,
+      selectedCarType,
+      totalCost,
+    });
+    // ถ้าต้องการให้ผู้ใช้ได้รับข้อมูลหรือเปลี่ยนหน้าหลังจากส่งข้อมูล
   };
 
   return (
     <div className="container mx-auto">
-      <Form
-        className="form"
-        noValidate
-        validated={validated}
-        onSubmit={handleSubmit}
-      >
-        {/* UserInfo */}
-        <UserInfo
-          usernameData={usernameData}
-          setUsernameData={setUsernameData}
-          selectedProvince={selectedProvince}
-          setSelectedProvince={setSelectedProvince}
-          selectedCarType={selectedCarType}
-          setSelectedCarType={setSelectedCarType}
-          setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
-        />
-
-        {/* DateSection with callback for different dates */}
-        <DateSection
-          handleDateChange={handleDateChange} // Callback to handle date changes
-        />
-
-        {/* Integrate OwnerInfo */}
-        <OwnerInfo
-          selectedRadio={selectedRadio}
-          setSelectedRadio={handleRadioChange}
+      {showResult ? (
+        <Summary
+          carOrMotorcycleLabel={carOrMotorcycleLabel}
           ownerData={ownerData}
-          setOwnerData={setOwnerData} // Directly use state setter
-          selectedCarType={selectedCarType}
-          bikeTypeOrDoorCount={bikeTypeOrDoorCount}
-          setBikeTypeOrDoorCount={setBikeTypeOrDoorCount}
-        />
-
-        {/* Integrate VehicleInfo */}
-        <VehicleInfo
-          registrationNumber={registrationNumber}
-          setRegistrationNumber={setRegistrationNumber}
-          contactNumber={contactNumber}
-          setContactNumber={setContactNumber}
+          usernameData={usernameData}
           engineSize={engineSize}
-          setEngineSize={setEngineSize}
+          contactNumber={contactNumber}
+          registrationNumber={registrationNumber}
+          registrationDate={registrationDate ? registrationDate.toDate() : null}
+          expirationDate={expirationDate ? expirationDate.toDate() : null}
+          latestTaxPaymentDate={
+            latestTaxPaymentDate ? latestTaxPaymentDate.toDate() : null
+          }
+          selectedRadio={selectedRadio}
+          bikeTypeOrDoorCount={bikeTypeOrDoorCount}
           selectedCarType={selectedCarType}
-          setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
+          totalCost={totalCost}
+          onBack={handleBack} // ส่งฟังก์ชันย้อนกลับ
+          onConfirm={handleConfirm} // ส่งฟังก์ชันตกลง
         />
+      ) : (
+        <Form
+          className="form"
+          noValidate
+          validated={validated}
+          onSubmit={handleSubmit}
+        >
+          {/* UserInfo */}
+          <UserInfo
+            usernameData={usernameData}
+            setUsernameData={setUsernameData}
+            selectedProvince={selectedProvince}
+            setSelectedProvince={setSelectedProvince}
+            selectedCarType={selectedCarType}
+            setSelectedCarType={setSelectedCarType}
+            setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
+          />
 
-        <hr className="my-4" />
-        <Row className="mb-2">
-          <Col>
-            <Button
-              label="ต่อไป"
-              className="w-100"
-              type="submit"
-              variant="primary"
-              disabled={!isFormValid}
-            />
-          </Col>
-        </Row>
-      </Form>
-      {totalCost !== null && <div>ค่าภาษีรวม: {totalCost}</div>}
+          {/* DateSection with callback for different dates */}
+          <DateSection
+            handleDateChange={handleDateChange} // Callback to handle date changes
+          />
+
+          {/* Integrate OwnerInfo */}
+          <OwnerInfo
+            selectedRadio={selectedRadio}
+            setSelectedRadio={handleRadioChange}
+            ownerData={ownerData}
+            setOwnerData={setOwnerData}
+            selectedCarType={selectedCarType}
+            setBikeTypeOrDoorCount={setBikeTypeOrDoorCount}
+            bikeTypeOrDoorCount={bikeTypeOrDoorCount}
+            setIsFormValid={setIsFormValid}
+            carOrMotorcycleLabel={carOrMotorcycleLabel}
+            setCarOrMotorcycleLabel={setCarOrMotorcycleLabel}
+          />
+
+          {/* Integrate VehicleInfo */}
+          <VehicleInfo
+            registrationNumber={registrationNumber}
+            setRegistrationNumber={setRegistrationNumber}
+            contactNumber={contactNumber}
+            setContactNumber={setContactNumber}
+            engineSize={engineSize}
+            setEngineSize={setEngineSize}
+            selectedCarType={selectedCarType}
+            setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
+          />
+
+          <hr className="my-4" />
+          <Row className="mb-2">
+            <Col>
+              <Button
+                label="ต่อไป"
+                className="w-100"
+                type="submit"
+                variant="primary"
+                disabled={
+                  !(
+                    ownerData &&
+                    usernameData &&
+                    engineSize &&
+                    contactNumber &&
+                    registrationNumber &&
+                    registrationDate &&
+                    expirationDate &&
+                    latestTaxPaymentDate &&
+                    selectedRadio &&
+                    bikeTypeOrDoorCount &&
+                    selectedCarType
+                  )
+                }
+              />
+            </Col>
+          </Row>
+        </Form>
+      )}
     </div>
   );
 };

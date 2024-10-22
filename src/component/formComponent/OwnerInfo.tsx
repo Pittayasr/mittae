@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"; // นำเข้า useEffect
+import React, { useEffect, useState } from "react"; // Importing React and useState
 import { Col, Row } from "react-bootstrap";
 import RadioButton from "../radioButton";
 import TextInput from "../textInput";
@@ -12,6 +12,9 @@ interface OwnerInfoProps {
   selectedCarType: string | null;
   setBikeTypeOrDoorCount: (value: string | null) => void;
   bikeTypeOrDoorCount: string | null;
+  setIsFormValid: (isValid: boolean) => void;
+  carOrMotorcycleLabel: string;
+  setCarOrMotorcycleLabel: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const OwnerInfo: React.FC<OwnerInfoProps> = ({
@@ -22,17 +25,44 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
   selectedCarType,
   setBikeTypeOrDoorCount,
   bikeTypeOrDoorCount,
+  setIsFormValid,
+  carOrMotorcycleLabel,
+  setCarOrMotorcycleLabel,
 }) => {
-  useEffect(() => {
-    // รีเซ็ต bikeTypeOrDoorCount เมื่อ selectedCarType เปลี่ยนแปลง
-    console.log("Resetting bikeTypeOrDoorCount due to selectedCarType change");
-    setBikeTypeOrDoorCount(null);
-  }, [selectedCarType, setBikeTypeOrDoorCount]);
+  const [isInvalidOwnerInfo, setInvalidOwnerInfo] = useState(false);
 
-  // ฟังก์ชันในการจัดการการเปลี่ยนแปลงใน TextInput
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // useEffect to reset bikeTypeOrDoorCount when selectedCarType changes
+  useEffect(() => {
+    setBikeTypeOrDoorCount(null);
+
+    if (selectedCarType) {
+      const label =
+        selectedCarType === "รถจักรยานยนต์"
+          ? "ประเภทของรถมอเตอร์ไซค์"
+          : "จำนวนประตูรถยนต์";
+      setCarOrMotorcycleLabel(label); // Set label based on selectedCarType
+    }
+  }, [selectedCarType, setBikeTypeOrDoorCount, setCarOrMotorcycleLabel]);
+
+  // Function to handle changes in owner information
+  const handleOwnerInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setOwnerData(value); // อัปเดต ownerData ตามค่าใน input
+    let invalid = false;
+
+    // Validate based on selected radio option
+    if (selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด") {
+      const idCardPattern = /^\d{13}$/; // ID card pattern
+      invalid = value.length > 0 && !idCardPattern.test(value);
+    } else if (selectedRadio === "หมายเลขพาสปอร์ตเจ้าของรถล่าสุด") {
+      const passportPattern = /^[A-Za-z0-9]{8}$/; // Passport pattern
+      invalid = value.length > 0 && !passportPattern.test(value);
+    }
+
+    setOwnerData(value);
+    setInvalidOwnerInfo(invalid);
+    setIsFormValid(
+      !invalid && !!selectedRadio && !!selectedCarType && !!bikeTypeOrDoorCount
+    );
   };
 
   return (
@@ -68,7 +98,19 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
               }
               id="ownerData"
               value={ownerData}
-              onChange={handleInputChange} // เรียก handleInputChange เมื่อมีการเปลี่ยนแปลง
+              onChange={handleOwnerInfoChange}
+              isInvalid={isInvalidOwnerInfo}
+              alertText={
+                isInvalidOwnerInfo
+                  ? selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
+                    ? ownerData.length < 13
+                      ? "กรอกหมายเลขบัตรประชาชนให้ครบถ้วน"
+                      : "หมายเลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก"
+                    : ownerData.length < 8
+                    ? "กรอกหมายเลขพาสปอร์ตให้ครบถ้วน"
+                    : "กรอกหมายเลขพาสปอร์ตให้ถูกต้อง"
+                  : ""
+              }
               disabled={!selectedRadio}
               required
             />
@@ -78,11 +120,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
           {selectedCarType && (
             <TextSelect
               value={bikeTypeOrDoorCount ?? ""}
-              label={
-                selectedCarType === "รถจักรยานยนต์"
-                  ? "ประเภทของรถมอเตอร์ไซค์"
-                  : "จำนวนประตูรถยนต์"
-              }
+              label={carOrMotorcycleLabel}
               id="bikeTypeAdditional"
               options={
                 selectedCarType === "รถจักรยานยนต์"

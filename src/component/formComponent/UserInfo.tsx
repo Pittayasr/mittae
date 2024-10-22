@@ -28,7 +28,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
 
   const handleNameChange = (value: string) => {
     // Pattern ที่อนุญาตให้กรอกตัวอักษรไทย รวมทั้งสระ ตัวอักษรภาษาอังกฤษ และช่องว่าง
-    const namePattern = /^[ก-ฮก-ฮ์่-๋A-Za-z\s]+$/; // อนุญาตให้ใช้ตัวอักษรไทย (รวมทั้งสระ) และตัวอักษรภาษาอังกฤษและช่องว่าง
+    const namePattern = /^[ก-ฮA-Za-z][ก-ฮะ-์่-๋A-Za-z\s]*$/;
     const invalid = value.length > 0 && !namePattern.test(value); // เช็คความถูกต้อง
 
     setUsernameData(value);
