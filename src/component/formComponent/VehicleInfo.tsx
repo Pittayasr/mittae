@@ -13,7 +13,7 @@ interface VehicleInfoProps {
   selectedCarType: string | null;
   setIsFormValid: (isValid: boolean) => void;
   CCorWeight: string;
-  setVehicleLabel: React.Dispatch<React.SetStateAction<string>>; // Add this line
+
   setCCorWeight: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -28,7 +28,6 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
   setIsFormValid,
   CCorWeight,
   setCCorWeight,
-  setVehicleLabel, // Add this line
 }) => {
   const [isInvalidContact, setIsInvalidContact] = useState(false);
   const [isInvalidLicense, setIsInvalidLicense] = useState(false);
@@ -82,9 +81,8 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
           : "ขนาดความจุ CC";
 
       setCCorWeight(label); // Set label for engine size or weight
-      setVehicleLabel(label); // Save label to use in summary.tsx
     }
-  }, [selectedCarType, setCCorWeight, setVehicleLabel]);
+  }, [selectedCarType, setCCorWeight]);
 
   return (
     <Row>
@@ -119,7 +117,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
           alertText={
             isInvalidContact
               ? contactNumber.length > 10
-                ? "กรุณากรอกหมายเลขโทรศัพท์ที่ถูกต้อง (เริ่มด้วย 06, 08 หรือ 09)"
+                ? "กรุณากรอกหมายเลขโทรศัพท์ 10 หลักและเริ่มด้วย 06, 08 หรือ 09"
                 : "กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก"
               : ""
           }
@@ -136,18 +134,14 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
               selectedCarType === "รถไฮบริด" ||
               selectedCarType === "รถไฟฟ้า"
                 ? "กรอกน้ำหนักรถ(กิโลกรัม)"
+                : selectedCarType === "รถพ่วง" ||
+                  selectedCarType === "รถบดถนน" ||
+                  selectedCarType === "รถแทรกเตอร์"
+                ? "ไม่ต้องใส่"
                 : "กรอกความจุของรถ(CC)"
             }
             id="engineSize"
-            value={
-              selectedCarType === "รถพ่วง" ||
-              selectedCarType === "รถบดถนน" ||
-              selectedCarType === "รถแทรกเตอร์"
-                ? engineSize === "1"
-                  ? "1" // ใช้ "0" แทน ""
-                  : engineSize
-                : engineSize
-            }
+            value={engineSize}
             onChange={(e) => handleEngineSizeChange(e.target.value)}
             required
             isInvalid={isInvalidEngineSize}

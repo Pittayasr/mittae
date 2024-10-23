@@ -29,9 +29,9 @@ const DateSection: React.FC<DateSectionProps> = ({
 
   return (
     <Row>
-      <Col className="mb-4" md={4} xs={12}>
+      <Col className="date-idNo-carType-Input mb-4" md={4} xs={6}>
         <div className="d-flex justify-content-between align-items-center mb-1">
-          <span>วันที่จดทะเบียน</span>
+          <span >วันที่จดทะเบียน</span>
           <ImageModal
             imageUrl="/src/data/registerDate.png"
             buttonText="ดูรูปตัวอย่าง"
@@ -58,7 +58,7 @@ const DateSection: React.FC<DateSectionProps> = ({
           value={expirationDate} // Directly use expirationDate as Dayjs
         />
       </Col>
-      <Col className="date-idNo-carType-Input mb-4" md={4} xs={6}>
+      <Col className="date-idNo-carType-Input mb-4" md={4} xs={12}>
         <div className="d-flex justify-content-between align-items-center mb-1">
           <span>วันต่อภาษีล่าสุด</span>
         </div>

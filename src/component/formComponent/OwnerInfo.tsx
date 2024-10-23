@@ -42,7 +42,12 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
           : "จำนวนประตูรถยนต์";
       setCarOrMotorcycleLabel(label); // Set label based on selectedCarType
     }
-  }, [selectedCarType, setBikeTypeOrDoorCount, setCarOrMotorcycleLabel]);
+  }, [
+    selectedCarType,
+    setBikeTypeOrDoorCount,
+    carOrMotorcycleLabel,
+    setCarOrMotorcycleLabel,
+  ]);
 
   // Function to handle changes in owner information
   const handleOwnerInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,58 +89,63 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
       </Row>
       <Row>
         <Col className="date-idNo-carType-Input mb-4" md={6} xs={6}>
-          {selectedRadio && (
-            <TextInput
-              label={
-                selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
-                  ? "กรอกหมายเลขบัตรประชาชน"
-                  : "กรอกหมายเลขพาสปอร์ต"
-              }
-              placeholder={
-                selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
-                  ? "กรอกหมายเลขบัตรประชาชน"
-                  : "กรอกหมายเลขพาสปอร์ต"
-              }
-              id="ownerData"
-              value={ownerData}
-              onChange={handleOwnerInfoChange}
-              isInvalid={isInvalidOwnerInfo}
-              alertText={
-                isInvalidOwnerInfo
-                  ? selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
-                    ? ownerData.length < 13
-                      ? "กรอกหมายเลขบัตรประชาชนให้ครบถ้วน"
-                      : "หมายเลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก"
-                    : ownerData.length < 8
-                    ? "กรอกหมายเลขพาสปอร์ตให้ครบถ้วน"
-                    : "กรอกหมายเลขพาสปอร์ตให้ถูกต้อง"
-                  : ""
-              }
-              disabled={!selectedRadio}
-              required
-            />
-          )}
+          <TextInput
+            label={
+              selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
+                ? "กรอกหมายเลขบัตรประชาชน"
+                : selectedRadio === "หมายเลขพาสปอร์ตเจ้าของรถล่าสุด"
+                ? "กรอกหมายเลขบัตรประชาชน"
+                : "โปรดเลือกประเภทข้อมูลเจ้าของรถ"
+            }
+            placeholder={
+              selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
+                ? "กรอกหมายเลขบัตรประชาชน"
+                : selectedRadio === "หมายเลขพาสปอร์ตเจ้าของรถล่าสุด"
+                ? "กรอกหมายเลขพาสปอร์ต"
+                : ""
+            }
+            id="ownerData"
+            value={ownerData}
+            onChange={handleOwnerInfoChange}
+            isInvalid={isInvalidOwnerInfo}
+            alertText={
+              isInvalidOwnerInfo
+                ? selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
+                  ? ownerData.length < 13
+                    ? "กรอกหมายเลขบัตรประชาชนให้ครบถ้วน"
+                    : "หมายเลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก"
+                  : ownerData.length < 8
+                  ? "กรอกหมายเลขพาสปอร์ตให้ครบถ้วน"
+                  : "กรอกหมายเลขพาสปอร์ตให้ถูกต้อง"
+                : ""
+            }
+            disabled={!selectedRadio}
+            required
+          />
         </Col>
         <Col className="date-idNo-carType-Input mb-4" md={6} xs={6}>
-          {selectedCarType && (
-            <TextSelect
-              value={bikeTypeOrDoorCount ?? ""}
-              label={carOrMotorcycleLabel}
-              id="bikeTypeAdditional"
-              options={
-                selectedCarType === "รถจักรยานยนต์"
-                  ? ["รถส่วนบุคคล", "สาธารณะ", "รถพ่วง"]
-                  : ["2 ประตู", "4 ประตู"]
-              }
-              placeholder={
-                selectedCarType === "รถจักรยานยนต์"
-                  ? "เลือกประเภท..."
-                  : "เลือกจำนวนประตู..."
-              }
-              onChange={setBikeTypeOrDoorCount}
-              required
-            />
-          )}
+          <TextSelect
+            value={bikeTypeOrDoorCount ?? ""}
+            label={
+              !selectedCarType ? "โปรดเลือกประเภทรถ" : carOrMotorcycleLabel
+            }
+            id="bikeTypeAdditional"
+            options={
+              selectedCarType === "รถจักรยานยนต์"
+                ? ["รถส่วนบุคคล", "สาธารณะ", "รถพ่วง"]
+                : ["2 ประตู", "4 ประตู"]
+            }
+            placeholder={
+              !selectedCarType
+                ? ""
+                : selectedCarType === "รถจักรยานยนต์"
+                ? "เลือกประเภท..."
+                : "เลือกจำนวนประตู..."
+            }
+            onChange={setBikeTypeOrDoorCount}
+            required
+            isDisabled={!selectedCarType}
+          />
         </Col>
       </Row>
     </>

@@ -12,6 +12,7 @@ interface TextSelectProps {
   required?: boolean;
   isInvalid?: boolean; // เพิ่ม prop isInvalid
   alertText?: string; // เพิ่ม prop alertText
+  isDisabled?: boolean;
 }
 
 // กำหนดชนิดข้อมูลที่ถูกต้องให้กับ customStyles
@@ -37,6 +38,7 @@ const TextSelect: React.FC<TextSelectProps> = ({
   placeholder = "text",
   isInvalid,
   alertText, // รับค่า alertText
+  isDisabled = false,
 }) => {
   // แปลง options ให้กลายเป็นรูปแบบที่ใช้งานกับ react-select
   const selectOptions = options.map((option) => ({
@@ -59,6 +61,7 @@ const TextSelect: React.FC<TextSelectProps> = ({
         onChange={handleSelectChange}
         classNamePrefix="react-select"
         placeholder={placeholder} // ข้อความก่อนกรอกข้อมูล
+        isDisabled={isDisabled}
         isSearchable
         styles={customStyles}
         value={selectOptions.find((option) => option.value === value) || null}

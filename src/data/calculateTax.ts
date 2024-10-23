@@ -19,6 +19,13 @@ interface CarDetails {
   isRoadroller: boolean; // เพิ่มเพื่อระบุว่ารถเป็นรถบรรทุกเกิน7ที่นั่งหรือไม่
   isTractor: boolean; // เพิ่มเพื่อระบุว่ารถเป็นรถบรรทุกเกิน7ที่นั่งหรือไม่
   isCarTrailer: boolean; // ถ้าเป็นจักรยานยนต์พ่วง
+
+  finalTotal: number;
+  finalPrb: number;
+  finalTax: number;
+  lateFee: Number;
+  inspectionFee: number;
+  processingFee: number;
 }
 
 // ฟังก์ชันสำหรับเช็คว่าเกิน 3 ปีไหม
@@ -34,7 +41,16 @@ const isMoreThanThreeYears = (
 };
 
 // ฟังก์ชันคำนวณภาษี
-export const calculateTax = (car: CarDetails): number => {
+export const calculateTax = (
+  car: CarDetails
+): {
+  finalTotal: number;
+  finalPrb: number;
+  finalTax: number;
+  lateFee: number;
+  inspectionFee: number;
+  processingFee: number;
+} => {
   // คำนวณค่าภาษีพื้นฐาน
   const basePrbCar =
     // ตรวจสอบว่าประเภทรถเป็นรถยนต์, รถบรรทุก, รถบรรทุก (เกิน 7 ที่นั่ง), รถไฟฟ้า, รถไฮบริด
@@ -194,7 +210,7 @@ export const calculateTax = (car: CarDetails): number => {
     finalTax,
     "+ ค่าปรับล่าช้า: ",
     lateFee,
-    "+ ค่าปรับล่าช้า: ",
+    "+ ค่าตรวจสภาพ: ",
     inspectionFee,
     "+ ค่าดำเนินการ: ",
     processingFee
@@ -204,5 +220,13 @@ export const calculateTax = (car: CarDetails): number => {
   // Return ค่าที่คำนวณ
   const finalTotal = total * (1 - discount);
   console.log("คำนวณทั้งหมด = ", finalTotal);
-  return Math.max(finalTotal, 0); // Ensure the total is not negative
+
+  return {
+    finalTotal: Math.max(finalTotal, 0), // Ensure the total is not negative
+    finalPrb,
+    finalTax,
+    lateFee,
+    inspectionFee,
+    processingFee,
+  };
 };

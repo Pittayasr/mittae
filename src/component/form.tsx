@@ -1,6 +1,6 @@
 //form.tsx
 import React, { useState, useEffect } from "react";
-import Button from "./Button";
+import Button from "./button";
 import UserInfo from "./formComponent/UserInfo";
 import DateSection from "./formComponent/DateSection";
 import VehicleInfo from "./formComponent/VehicleInfo";
@@ -26,22 +26,36 @@ const FormComponent: React.FC = () => {
   const [selectedCarType, setSelectedCarType] = useState<string | null>(null);
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
   const [totalCost, setTotalCost] = useState<number | null>(null);
+  const [finalPrb, setFinalPrb] = useState<number | null>(null);
+  const [finalTax, setFinalTax] = useState<number | null>(null);
+  const [lateFee, setLateFee] = useState<number | null>(null);
+  const [inspectionFee, setInspectionFee] = useState<number | null>(null);
+  const [processingFee, setProcessingFee] = useState<number | null>(null);
+
   const [bikeTypeOrDoorCount, setBikeTypeOrDoorCount] = useState<string | null>(
     null
   );
   const [, setIsFormValid] = useState(false); // สถานะสำหรับตรวจสอบความถูกต้องของฟอร์ม
   const [showResult, setShowResult] = useState(false); // State สำหรับแสดงหน้าสรุป
-  const [carOrMotorcycleLabel, setCarOrMotorcycleLabel] = useState<string>("");
   // state สำหรับ VehicleInfo
-  const [vehicleLabel, setVehicleLabel] = useState<string>("");
-
+  const [CCorWeightLabel, setCCorWeightLabel] = useState<string>("");
   // state สำหรับ OwnerInfo
   const [ownerLabel, setOwnerLabel] = useState<string>("");
   useEffect(() => {
-    setBikeTypeOrDoorCount(null); // รีเซ็ตเมื่อ selectedCarType เปลี่ยน
+    // setBikeTypeOrDoorCount(null); // รีเซ็ตเมื่อ selectedCarType เปลี่ยน
     if (registrationDate) {
       const age = calculateCarAge(registrationDate);
       setCarAge(age);
+    }
+
+    if (
+      selectedCarType === "รถพ่วง" ||
+      selectedCarType === "รถบดถนน" ||
+      selectedCarType === "รถแทรกเตอร์"
+    ) {
+      setEngineSize("-"); // ล็อคให้เป็น "0"
+    } else {
+      setEngineSize(""); // คืนค่าเป็นค่าว่างเมื่อไม่ใช่ประเภทรถดังกล่าว
     }
   }, [registrationDate, selectedCarType]);
 
@@ -137,6 +151,7 @@ const FormComponent: React.FC = () => {
       selectedRadio &&
       bikeTypeOrDoorCount &&
       selectedCarType;
+
     if (isFormValid) {
       const carDetails = {
         isCar: selectedCarType === "รถยนต์",
@@ -165,12 +180,33 @@ const FormComponent: React.FC = () => {
           latestTaxPaymentDate,
           expirationDate
         ),
-        // monthsLate: monthsLate(latestTaxPaymentDate, expirationDate),
+        finalTotal: 0, // Placeholder until the calculation is made
+        finalPrb: 0, // Placeholder until the calculation is made
+        finalTax: 0, // Placeholder until the calculation is made
+        lateFee: 0,
+        inspectionFee: 0, // Placeholder until the calculation is made
+        processingFee: 0, // Placeholder until the calculation is made
       };
 
       console.log("Car Details:", carDetails);
-      const totalTax = calculateTax(carDetails);
-      setTotalCost(totalTax);
+      const { finalTotal, finalPrb, finalTax, lateFee, inspectionFee, processingFee } =
+        calculateTax(carDetails);
+
+      setTotalCost(finalTotal);
+      setFinalPrb(finalPrb);
+      setFinalTax(finalTax);
+      setLateFee(lateFee);
+      setInspectionFee(inspectionFee);
+      setProcessingFee(processingFee);
+
+      carDetails.finalTotal = finalTotal;
+      carDetails.finalPrb = finalPrb;
+      carDetails.finalTax = finalTax;
+      carDetails.lateFee = lateFee;
+      carDetails.inspectionFee = inspectionFee;
+      carDetails.processingFee = processingFee;
+      
+
       setShowResult(true); // เปลี่ยนเป็น true เพื่อแสดงหน้าสรุป
     }
   };
@@ -203,7 +239,8 @@ const FormComponent: React.FC = () => {
     <div className="container mx-auto">
       {showResult ? (
         <Summary
-          carOrMotorcycleLabel={carOrMotorcycleLabel}
+          carOrMotorcycleLabel={ownerLabel}
+          CCorWeight={CCorWeightLabel}
           ownerData={ownerData}
           usernameData={usernameData}
           engineSize={engineSize}
@@ -218,6 +255,11 @@ const FormComponent: React.FC = () => {
           bikeTypeOrDoorCount={bikeTypeOrDoorCount}
           selectedCarType={selectedCarType}
           totalCost={totalCost}
+          prbCost={finalPrb} // ส่งค่าพรบ.สุทธิ
+          taxCost={finalTax} // ส่งค่าภาษีสุทธิ
+          lateFee={lateFee}
+          inspectionCost={inspectionFee} // ส่งค่าตรวจสภาพ
+          processingCost={processingFee} // ส่งค่าดำเนินการ
           onBack={handleBack} // ส่งฟังก์ชันย้อนกลับ
           onConfirm={handleConfirm} // ส่งฟังก์ชันตกลง
           carAge={carAge}
@@ -272,14 +314,13 @@ const FormComponent: React.FC = () => {
             setEngineSize={setEngineSize}
             selectedCarType={selectedCarType}
             setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
-            CCorWeight={vehicleLabel} // ส่ง vehicleLabel
-            setVehicleLabel={setVehicleLabel} // ใช้ setVehicleLabel สำหรับ VehicleInfo
-            setCCorWeight={setCarOrMotorcycleLabel}
+            CCorWeight={CCorWeightLabel} // ส่ง vehicleLabel
+            setCCorWeight={setCCorWeightLabel}
           />
 
           <hr className="my-4" />
-          <Row className="mb-2">
-            <Col>
+          <Row className="mb-2 justify-content-center">
+            <Col xs="auto" style={{ width: "500px" }}>
               <Button
                 label="ต่อไป"
                 className="w-100"
@@ -287,18 +328,20 @@ const FormComponent: React.FC = () => {
                 variant="primary"
                 disabled={
                   !(
-                    ownerData &&
-                    usernameData &&
-                    engineSize &&
-                    contactNumber &&
-                    registrationNumber &&
-                    registrationDate &&
-                    expirationDate &&
-                    latestTaxPaymentDate &&
-                    selectedRadio &&
-                    bikeTypeOrDoorCount &&
-                    selectedCarType &&
-                    (vehicleLabel ? engineSize : true)
+                    (
+                      ownerData &&
+                      usernameData &&
+                      engineSize &&
+                      contactNumber &&
+                      registrationNumber &&
+                      registrationDate &&
+                      expirationDate &&
+                      latestTaxPaymentDate &&
+                      selectedRadio &&
+                      bikeTypeOrDoorCount &&
+                      selectedCarType
+                    )
+                    // (vehicleLabel ? engineSize : true)
                   )
                 }
               />

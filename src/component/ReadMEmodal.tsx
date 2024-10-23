@@ -21,7 +21,7 @@ const PDPA_modal: React.FC<PDPA_modalProps> = ({ isVisible, onAgree }) => {
       <Modal.Body className="px-4">
         <p className="text-center mb-4">🙏 ขอบคุณที่ใช้บริการของเรา</p>
 
-        <p className="text-center font-weight-bold mb-3">
+        <p className="font-weight-bold mb-3">
           เอกสารที่ต้องส่งให้แอดมินตรวจสอบ
         </p>
         <ul className="list-unstyled mb-4">
@@ -34,7 +34,7 @@ const PDPA_modal: React.FC<PDPA_modalProps> = ({ isVisible, onAgree }) => {
 
         <hr />
 
-        <p className="text-center font-weight-bold mb-3">ขั้นตอนการทำงาน</p>
+        <p className="font-weight-bold mb-3">ขั้นตอนการทำงาน</p>
         <ul className="list-unstyled mb-4">
           <li className="mb-2">📌 1. ลูกค้าส่งเอกสารมาให้ตรวจสอบ</li>
           <li className="mb-2">

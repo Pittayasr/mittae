@@ -9,14 +9,14 @@ interface DateInputProps {
   onDateChange: (date: Dayjs | null) => void;
   labelText: string;
   initialDate?: Dayjs;
-  value?: Dayjs | null; // Add value prop for controlled input
+  value?: Dayjs | null; 
 }
 
 const DateInput: React.FC<DateInputProps> = ({
   onDateChange,
   labelText,
   initialDate,
-  value, // Destructure value from props
+  value, 
 }) => {
   const convertToBuddhistYear = (date: Dayjs | null) => {
     return date ? dayjs(date).year(date.year() + 543) : null;
@@ -48,7 +48,7 @@ const DateInput: React.FC<DateInputProps> = ({
   const handleDateChange = (date: Dayjs | null) => {
     const gregorianDate = convertToGregorianYear(date);
     setSelectedDate(date);
-    onDateChange(gregorianDate); // Send back in Gregorian format
+    onDateChange(gregorianDate); 
   };
 
   return (
