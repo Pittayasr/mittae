@@ -35,15 +35,21 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
 
   const handleLicenseChange = (value: string) => {
     setRegistrationNumber(value);
-    const licensePlatePattern = /^[A-Za-z0-9ก-ฮ]{1,8}$/;
+
+    // รูปแบบของทะเบียนรถไทย: เลข 1-2 ตัว (ถ้ามี) + ตัวอักษรไทย 1-2 ตัว + ตัวเลข 1-4 ตัว
+    const licensePlatePattern = /^(\d{1,2})?[ก-ฮ]{1,2}\d{1,4}$/;
+
+    // ตรวจสอบความยาวขั้นต่ำ (ไม่ควรน้อยกว่า 3 ตัวอักษร)
     const isLengthInvalid = value.length > 0 && value.length < 3;
-    const isFormatInvalid =
-      value.length > 3 && !licensePlatePattern.test(value);
+
+    // ตรวจสอบรูปแบบที่ไม่ถูกต้อง
+    const isFormatInvalid = !licensePlatePattern.test(value);
 
     const invalid = isLengthInvalid || isFormatInvalid;
     setIsInvalidLicense(invalid);
 
-    setIsFormValid(!isInvalidContact && !invalid && !isInvalidEngineSize); // เช็คความถูกต้อง
+    // ตรวจสอบความถูกต้องของฟอร์มทั้งหมด
+    setIsFormValid(!isInvalidContact && !invalid && !isInvalidEngineSize);
   };
 
   const handleContactChange = (value: string) => {
@@ -93,7 +99,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
           value={registrationNumber}
           onChange={(e) => handleLicenseChange(e.target.value)}
           required
-          placeholder="กรอกหมายเลขทะเบียนรถ"
+          placeholder="ตัวอย่าง: 1กข9xxx"
           isInvalid={isInvalidLicense}
           alertText={
             isInvalidLicense
@@ -107,11 +113,11 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
 
       <Col className="register-and-contract-number mb-4" md={4} xs={6}>
         <TextInput
-          label="เบอร์โทรศัพท์ผู้กรอกข้อมูล"
+          label="หมายเลขโทรศัพท์ผู้กรอกข้อมูล"
           id="contactNumber"
           value={contactNumber}
           onChange={(e) => handleContactChange(e.target.value)}
-          placeholder="กรอกหมายเลขโทรศัพท์"
+          placeholder="หมายเลขโทรศัพท์10หลัก"
           required
           isInvalid={isInvalidContact}
           alertText={
