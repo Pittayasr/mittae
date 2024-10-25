@@ -1,3 +1,4 @@
+// tsconfig.json
 {
   "files": [],
   "references": [
@@ -5,9 +6,9 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
-    "types": ["jquery"], // เพิ่มบรรทัดนี้
+    "types": ["jquery"], 
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
-    // คุณสามารถเพิ่มตัวเลือกอื่น ๆ ที่คุณต้องการได้ที่นี่
+    
   }
 }

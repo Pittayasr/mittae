@@ -85,11 +85,11 @@ const Summary: React.FC<SummaryProps> = ({
 
     try {
       const response = await axios.post(
-        "http://your-vps-ip-address:5000/submit-summary",
+        "http://your-vps-ip-address:5000/submit-summary", // เปลี่ยนเป็น IP ของ VPS
         data
       );
       console.log("Data sent successfully:", response.data);
-      onConfirm(); // เรียกใช้ฟังก์ชันเมื่อส่งข้อมูลสำเร็จ
+      onConfirm(); // ฟังก์ชันสำหรับการส่งข้อมูลสำเร็จ
     } catch (error) {
       console.error("Error sending data:", error);
     }
@@ -134,13 +134,13 @@ const Summary: React.FC<SummaryProps> = ({
         </Col>
 
         <Col md={6}>
-          <h5>ข้อมูลเพิ่มเติม</h5>
+          <h5 className="mb-3">ข้อมูลเพิ่มเติม</h5>
           <ul className="list-unstyled">
             <li className="mb-1">
               <strong>หมายเลขโทรศัพท์ติดต่อ:</strong> {contactNumber}
             </li>
             <li className="mb-1">
-              <strong>{selectedRadio}:</strong> {ownerData}
+              <strong>{selectedRadio}:</strong> {ownerData} {/* ประเภทข้อมูลเจ้าของรถ */}
             </li>
           </ul>
 
