@@ -23,7 +23,7 @@ interface CarDetails {
   finalTotal: number;
   finalPrb: number;
   finalTax: number;
-  lateFee: Number;
+  lateFee: number;
   inspectionFee: number;
   processingFee: number;
 }
@@ -68,9 +68,9 @@ export const calculateTax = (
   const basePrbMotorcycle = car.isMotorcycle
     ? car.cc > 150
       ? 695
-      : car.cc >= 125
+      : car.cc > 125
       ? 480
-      : car.cc >= 75
+      : car.cc >= 77
       ? 350
       : 211
     : 0;

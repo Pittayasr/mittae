@@ -1,21 +1,29 @@
 // summary.tsx
-import React from "react";
+import React, { useState } from "react";
 import { Col, Row, Button, Form } from "react-bootstrap";
 import dayjs from "dayjs";
-import "dayjs/locale/th"; // สำหรับภาษาไทย
-import axios from "axios";
+import "dayjs/locale/th";
+import { db } from "../../firebaseConfig";
+import { collection, addDoc } from "firebase/firestore";
+import AlertModal from "./alertModal";
 
-const formatDate = (date: Date | null) => {
-  if (!date) return "-";
-  const formattedDate = dayjs(date).locale("th").format("D MMMM YYYY");
-  const buddhistYear = dayjs(date).year() + 543;
-  return formattedDate.replace(`${dayjs(date).year()}`, `${buddhistYear}`);
+// const formatDate = (date: Date | null) => {
+//   if (!date) return "-";
+//   const formattedDate = dayjs(date).locale("th").format("D MMMM YYYY");
+//   const buddhistYear = dayjs(date).year() + 543;
+//   return formattedDate.replace(`${dayjs(date).year()}`, `${buddhistYear}`);
+// };
+
+const formatDateForFirestore = (date: Date | null) => {
+  if (!date) return null;
+  return dayjs(date).startOf("day").toDate(); // Set time to 00:00:00
 };
 
 interface SummaryProps {
   ownerData: string;
   usernameData: string;
-  engineSize: string;
+  selectedProvince: string | null;
+  engineSize: string | null;
   contactNumber: string;
   registrationNumber: string;
   CCorWeight: string;
@@ -40,15 +48,16 @@ interface SummaryProps {
 const Summary: React.FC<SummaryProps> = ({
   ownerData,
   usernameData,
+  selectedProvince,
   engineSize,
   contactNumber,
   registrationNumber,
   registrationDate,
   expirationDate,
-  CCorWeight,
-  carOrMotorcycleLabel,
+  // CCorWeight,
+  // carOrMotorcycleLabel,
   latestTaxPaymentDate,
-  selectedRadio,
+  // selectedRadio,
   bikeTypeOrDoorCount,
   selectedCarType,
   totalCost,
@@ -59,50 +68,88 @@ const Summary: React.FC<SummaryProps> = ({
   processingCost,
   carAge,
   onBack,
-  onConfirm,
 }) => {
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  const handleOpenModal = () => {
+    setModalMessage("คุณต้องการยืนยันว่าข้อมูลถูกต้องใช่ไหม?");
+    setSuccess(false);
+    setShowModal(true);
+  };
+
   const handleConfirm = async () => {
     const data = {
-      ownerData,
-      usernameData,
-      engineSize,
-      contactNumber,
-      registrationNumber,
-      registrationDate,
-      expirationDate,
-      latestTaxPaymentDate,
-      selectedRadio,
-      bikeTypeOrDoorCount,
-      selectedCarType,
-      totalCost,
-      prbCost,
-      taxCost,
-      lateFee,
-      inspectionCost,
-      processingCost,
-      carAge,
+      ownerData: ownerData || "",
+      usernameData: usernameData || "",
+      selectedProvince: selectedProvince || "",
+      engineSize: engineSize || "0",
+      contactNumber: contactNumber || "",
+      registrationNumber: registrationNumber || "",
+      registrationDate: registrationDate ? registrationDate : new Date(),
+      expirationDate: expirationDate ? expirationDate : new Date(),
+      latestTaxPaymentDate: latestTaxPaymentDate
+        ? latestTaxPaymentDate
+        : new Date(),
+      bikeTypeOrDoorCount: bikeTypeOrDoorCount || "",
+      selectedCarType: selectedCarType || "",
+      totalCost: totalCost || 0,
+      prbCost: prbCost || 0,
+      taxCost: taxCost || 0,
+      lateFee: lateFee || 0,
+      inspectionCost: inspectionCost || 0,
+      processingCost: processingCost || 0,
+      carAge: carAge || { years: 0, months: 0, days: 0 },
+    };
+
+    const updatedData = {
+      usernameData: data.usernameData,
+      province: data.selectedProvince,
+      vehicleType: data.selectedCarType,
+      bikeTypeOrDoorCount: data.bikeTypeOrDoorCount,
+      weightOrCC: data.engineSize,
+      registrationDate: formatDateForFirestore(data.registrationDate),
+      expirationDate: formatDateForFirestore(data.expirationDate), // formatDate only to show on UI, not here
+      latestTaxPaymentDate: formatDateForFirestore(data.latestTaxPaymentDate),
+      vehicleAge: data.carAge,
+      contactNumber: data.contactNumber,
+      ownerData: data.ownerData,
+      prbCost: data.prbCost,
+      registrationNumber: data.registrationNumber,
+      taxCost: data.taxCost,
+      lateFee: data.lateFee,
+      inspectionCost: data.inspectionCost,
+      processingCost: data.processingCost,
+      totalCost: data.totalCost,
     };
 
     try {
-      const response = await axios.post(
-        "http://your-vps-ip-address:5000/submit-summary", // เปลี่ยนเป็น IP ของ VPS
-        data
-      );
-      console.log("Data sent successfully:", response.data);
-      onConfirm(); // ฟังก์ชันสำหรับการส่งข้อมูลสำเร็จ
-    } catch (error) {
-      console.error("Error sending data:", error);
+      const docRef = await addDoc(collection(db, "summary"), updatedData);
+      console.log("Document written with ID: ", docRef.id);
+      setModalMessage("ข้อมูลถูกส่งสำเร็จแล้ว!");
+      setSuccess(true);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      setModalMessage("การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง");
+      setSuccess(false);
     }
+    setShowModal(true);
   };
+
   return (
     <Form>
       <h2 className="text-center mb-4">สรุปข้อมูล</h2>
+
       <Row>
-        <Col md={6}>
+        {/* <Col md={6}>
           <h5 className="mb-3">ข้อมูลรถ</h5>
           <ul className="list-unstyled">
             <li className="mb-1">
               <strong>ชื่อเจ้าของรถ:</strong> {usernameData}
+            </li>
+            <li className="mb-1">
+              <strong>จังหวัด:</strong> {selectedProvince}
             </li>
             <li className="mb-1">
               <strong>ประเภทรถ:</strong> {selectedCarType}
@@ -111,7 +158,7 @@ const Summary: React.FC<SummaryProps> = ({
               <strong>{carOrMotorcycleLabel}:</strong> {bikeTypeOrDoorCount}
             </li>
             <li className="mb-1">
-              <strong>{CCorWeight}:</strong> {engineSize}
+              <strong>✅ค่าพรบ.ตาม{CCorWeight}🚘:</strong> {engineSize}
             </li>
             <li className="mb-1">
               <strong>หมายเลขทะเบียนรถ:</strong> {registrationNumber}
@@ -131,39 +178,69 @@ const Summary: React.FC<SummaryProps> = ({
               {carAge.days} วัน
             </li>
           </ul>
-        </Col>
+        </Col> */}
 
-        <Col md={6}>
-          <h5 className="mb-3">ข้อมูลเพิ่มเติม</h5>
+        <Col>
+          {/* <h5 className="mb-3">ข้อมูลเพิ่มเติม</h5>
           <ul className="list-unstyled">
             <li className="mb-1">
               <strong>หมายเลขโทรศัพท์ติดต่อ:</strong> {contactNumber}
             </li>
             <li className="mb-1">
-              <strong>{selectedRadio}:</strong> {ownerData} {/* ประเภทข้อมูลเจ้าของรถ */}
+              <strong>{selectedRadio}:</strong> {ownerData}
             </li>
-          </ul>
+          </ul> */}
 
           {totalCost !== null && (
             <ul className="list-unstyled mt-4">
-              <h5 className="mt-3">ค่าใช้จ่าย</h5>
-              <li className="mb-1">
-                <strong>ค่าพรบ.สุทธิ:</strong> {prbCost} บาท
+              {/* <h5 className="mt-3">ค่าใช้จ่าย</h5> */}
+              {/* <li className="mb-1">
+                <strong>✅ค่าพรบ.ตาม{CCorWeight}🚘:</strong> {prbCost} บาท
               </li>
               <li className="mb-1">
-                <strong>ค่าภาษีสุทธิ:</strong> {taxCost?.toFixed(2)} บาท
+                <strong>✅ค่าภาษีประจำปี:</strong> {taxCost?.toFixed(2)} บาท
               </li>
               <li className="mb-1">
-                <strong>ค่าปรับล่าช้า:</strong> {lateFee?.toFixed(2)} บาท
+                <strong>➕ค่าปรับชำระล่าช้า:</strong> {lateFee?.toFixed(2)} บาท
               </li>
               <li className="mb-1">
-                <strong>ค่าตรวจสภาพ:</strong> {inspectionCost} บาท
+                <strong>✅ค่าตรวจสภาพรถเอกชน🛣️:</strong> {inspectionCost} บาท
               </li>
               <li className="mb-1">
-                <strong>ค่าดำเนินการ:</strong> {processingCost} บาท
+                <strong>✅ค่าบริการและดำเนินการ♎:</strong> {processingCost} บาท
+              </li> */}
+              <li className="mb-1">
+                <strong>
+                  🙏⭐ขออนุญาตแจ้งยอดค่าใช้จ่ายรวมทั้งสิ้น :{" "}
+                  {totalCost?.toFixed(2)} บาทค่ะ
+                </strong>
               </li>
               <li className="mb-1">
-                <strong>ค่าใช้จ่ายทั้งหมด:</strong> {totalCost?.toFixed(2)} บาท
+                <strong>✅1.🎯รบกวนลูกค้าโอนเงินชำระเรียบร้อยแล้ว</strong>
+              </li>
+              <li className="mb-1">
+                <strong>
+                  ✅2.💵แจ้งส่งสลิป🧾ยืนยันเพื่อให้ทางเราดำเนินการต่อไป🙏
+                </strong>
+              </li>
+              <li className="mb-1">
+                <strong>
+                  ✅3.ท่านจะได้รับ📑พ.ร.บ.ทันทีเมื่อชำระเงินเรียบร้อย
+                </strong>
+              </li>
+              <li className="mb-1">
+                <strong>
+                  ✅4.แอดมินจะดำเนินการแจ้งนัดหมายเข้าไปรับรถ(หากต้องมีการตรวจสภาพรถเอกชน
+                  ตรอ)
+                </strong>
+              </li>
+              <li className="mb-4">
+                <strong>✅ขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป🙏❤️</strong>
+              </li>
+              <li className="mb-1">
+                <strong>
+                  📢สักครู่หลังจากชำระเงินแล้วท่านจะได้รับข้อความSMSยืนยันความคุ้มครองฯพ.ร.บ.ไปยังหมายเลขโทรศัพท์ที่ท่านแจ้งมานะคะ❤️
+                </strong>
               </li>
             </ul>
           )}
@@ -174,18 +251,47 @@ const Summary: React.FC<SummaryProps> = ({
 
       <footer>
         <Row className="justify-content-end">
-          <Col xs="auto" style={{ minWidth: "120px" }}>
-            <Button className="w-100" variant="secondary" onClick={onBack}>
+          <Col
+            xs="auto"
+            style={{ minWidth: "120px", backgroundColor: "white" }}
+          >
+            <Button className="w-100 btn btn-light" onClick={onBack}>
               ย้อนกลับ
             </Button>
           </Col>
           <Col xs="auto" style={{ minWidth: "120px" }}>
-            <Button className="w-100" variant="primary" onClick={handleConfirm}>
-              ตกลง
+            <Button
+              className="w-100"
+              variant="primary"
+              onClick={handleOpenModal}
+            >
+              ส่ง
             </Button>
           </Col>
         </Row>
       </footer>
+
+      <AlertModal
+        show={showModal}
+        onBack={() => {
+          setShowModal(false);
+        }}
+        onSuccess={() => {
+          window.location.reload();
+          onBack();
+          setShowModal(false);
+        }}
+        onConfirm={
+          success
+            ? () => {
+                onBack();
+                setShowModal(false);
+              }
+            : handleConfirm
+        }
+        message={modalMessage}
+        success={success}
+      />
     </Form>
   );
 };

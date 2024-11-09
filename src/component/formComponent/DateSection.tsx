@@ -21,17 +21,19 @@ const DateSection: React.FC<DateSectionProps> = ({
   expirationDate,
   latestTaxPaymentDate,
 }) => {
-  const yearDiffExpirationToLastTax =
-    expirationDate && latestTaxPaymentDate
-      ? latestTaxPaymentDate.diff(expirationDate, "month")
-      : 0;
-  const isMoreThanThreeYears = yearDiffExpirationToLastTax > 36;
+  // const yearDiffExpirationToLastTax =
+  //   expirationDate && latestTaxPaymentDate
+  //     ? latestTaxPaymentDate.diff(expirationDate, "month")
+  //     : 0;
+  // const isMoreThanThreeYears = yearDiffExpirationToLastTax > 36;
 
   return (
     <Row>
+
+      {/* วันที่จดทะเบียน */}
       <Col className="date-idNo-carType-Input mb-4" md={4} xs={6}>
         <div className="d-flex justify-content-between align-items-center mb-1">
-          <span >วันที่จดทะเบียน</span>
+          <span>วันที่จดทะเบียน</span>
           <ImageModal
             imageUrl="/src/data/registerDate.png"
             buttonText="ดูรูปตัวอย่าง"
@@ -44,6 +46,8 @@ const DateSection: React.FC<DateSectionProps> = ({
         />
         {/* <span>อายุรถ: {carAge.years} ปี {carAge.months} เดือน {carAge.days} วัน</span> */}
       </Col>
+
+      {/* วันสิ้นอายุ */}
       <Col className="date-idNo-carType-Input mb-4" md={4} xs={6}>
         <div className="d-flex justify-content-between align-items-center mb-1">
           <span>วันสิ้นอายุ</span>
@@ -58,6 +62,8 @@ const DateSection: React.FC<DateSectionProps> = ({
           value={expirationDate} // Directly use expirationDate as Dayjs
         />
       </Col>
+
+      {/* วันต่อภาษีล่าสุด */}
       <Col className="date-idNo-carType-Input mb-4" md={4} xs={12}>
         <div className="d-flex justify-content-between align-items-center mb-1">
           <span>วันต่อภาษีล่าสุด</span>
@@ -68,13 +74,13 @@ const DateSection: React.FC<DateSectionProps> = ({
           value={latestTaxPaymentDate} // Directly use latestTaxPaymentDate as Dayjs
         />
       </Col>
-      <Col className="mb-4" md={12} xs={12}>
+      {/* <Col className="mb-4" md={12} xs={12}>
         <span>
           ระยะห่างจากวันสิ้นอายุถึงวันต่อภาษีล่าสุด:{" "}
           {yearDiffExpirationToLastTax} เดือน
         </span>
         <span>{isMoreThanThreeYears ? " => เกิน 3 ปี" : "ไม่เกิน 3 ปี"}</span>
-      </Col>
+      </Col> */}
     </Row>
   );
 };

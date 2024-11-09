@@ -59,8 +59,8 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
 
     // เพิ่มการตรวจสอบความยาวของหมายเลขโทรศัพท์
     const phonePattern = /^(06|08|09)\d{8}$/;
-    const isLengthInvalid = value.length > 0 && value.length < 10;
     const isFormatInvalid = value.length >= 10 && !phonePattern.test(value);
+    const isLengthInvalid = value.length > 0 && value.length < 10;
 
     const invalid = isLengthInvalid || isFormatInvalid;
     setIsInvalidContact(invalid);
@@ -86,12 +86,13 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
           ? "น้ำหนักรถ (กิโลกรัม)"
           : "ขนาดความจุ CC";
 
-      setCCorWeight(label); // Set label for engine size or weight
+      setCCorWeight(label);
     }
   }, [selectedCarType, setCCorWeight]);
 
   return (
     <Row>
+      {/* หมายเลขทะเบียนรถ */}
       <Col className="register-and-contract-number mb-4" md={4} xs={6}>
         <TextInput
           label="หมายเลขทะเบียนรถ"
@@ -105,12 +106,13 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
             isInvalidLicense
               ? registrationNumber.length < 3
                 ? "กรุณากรอกหมายเลขทะเบียนรถให้ครบถ้วน"
-                : "กรอกเกินจำนวน กรุณากรอกหมายเลขทะเบียนรถให้ถูกต้อง"
+                : "กรุณากรอกหมายเลขทะเบียนรถให้ถูกต้อง"
               : ""
           }
         />
       </Col>
 
+      {/* หมายเลขโทรศัพท์ผู้กรอกข้อมูล */}
       <Col className="register-and-contract-number mb-4" md={4} xs={6}>
         <TextInput
           label="หมายเลขโทรศัพท์ผู้กรอกข้อมูล"
@@ -130,8 +132,9 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
         />
       </Col>
 
-      <Col className="mb-4" md={4} xs={12}>
-        {selectedCarType && (
+      {/* น้ำหนักรถหรือCC */}
+      {selectedCarType && (
+        <Col className="mb-4" md={4} xs={12}>
           <TextInput
             label={CCorWeight}
             placeholder={
@@ -158,8 +161,8 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
               selectedCarType === "รถแทรกเตอร์"
             } // เพิ่มเงื่อนไขล็อค
           />
-        )}
-      </Col>
+        </Col>
+      )}
     </Row>
   );
 };

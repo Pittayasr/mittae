@@ -22,7 +22,12 @@ const ImageModal: React.FC<ImageModalProps> = ({
         variant="button"
         onClick={handleShow}
         aria-label={buttonText}
-        style={{ padding: "0px", paddingBottom: "0px", color: "blue" }}
+        style={{
+          padding: "0px",
+          paddingBottom: "0px",
+          color: "blue",
+          textDecoration: "underline",
+        }}
       >
         {buttonText}
       </Button>

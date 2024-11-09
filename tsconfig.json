@@ -8,7 +8,11 @@
   "compilerOptions": {
     "types": ["jquery"], 
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "module": "CommonJS",
+    "rootDir": "./src",                       // กำหนด root ไดเรกทอรีสำหรับไฟล์ source
+    "outDir": "./dist",
+    "allowJs": true,                      // กำหนด output ไดเรกทอรี
     
   }
 }

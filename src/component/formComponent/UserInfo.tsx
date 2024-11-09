@@ -27,17 +27,24 @@ const UserInfo: React.FC<UserInfoProps> = ({
   const [isInvalidName, setInvalidName] = useState(false);
 
   const handleNameChange = (value: string) => {
-    // Pattern ที่อนุญาตให้กรอกตัวอักษรไทย รวมทั้งสระ ตัวอักษรภาษาอังกฤษ และช่องว่าง
-    const namePattern = /^[ก-ฮA-Za-z][ก-ฮะ-์่-๋A-Za-z\s]*$/;
-    const invalid = value.length > 0 && !namePattern.test(value); // เช็คความถูกต้อง
-
+    const namePattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z\s]*$/;
+    const invalid = value.length > 0 && !namePattern.test(value);
+  
     setUsernameData(value);
-    setInvalidName(invalid); // ตั้งค่า isInvalidName
-    setIsFormValid(!invalid && !selectedProvince && !selectedCarType); // เช็คความถูกต้องของฟอร์มทั้งหมด
+    setInvalidName(invalid);
+    
+    // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
+    setIsFormValid(
+      !invalid &&
+      selectedProvince !== null &&
+      selectedCarType !== null
+    );
   };
+  
 
   return (
     <Row className="mt-3">
+      {/* ชื่อเจ้าของรถ */}
       <Col className="mb-4" md={4} xs={12}>
         <TextInput
           label="ชื่อเจ้าของรถ"
@@ -46,10 +53,12 @@ const UserInfo: React.FC<UserInfoProps> = ({
           placeholder="ชื่อ นามสกุล"
           onChange={(e) => handleNameChange(e.target.value)}
           isInvalid={isInvalidName} // เช็คความถูกต้อง
-          alertText="กรุณากรอกชื่อเป็นตัวอักษรเท่านั้น" // ข้อความแจ้งเตือน
+          alertText="กรุณากรอกชื่อเป็นตัวหนังสือภาษาไทยเท่านั้น" // ข้อความแจ้งเตือน
           required
         />
       </Col>
+
+      {/* จังหวัด */}
       <Col className="mb-4" md={4} xs={6}>
         <TextSelect
           value={selectedProvince || ""}
@@ -61,6 +70,8 @@ const UserInfo: React.FC<UserInfoProps> = ({
           required
         />
       </Col>
+
+      {/* ประเภทรถ */}
       <Col className="mb-4" md={4} xs={6}>
         <TextSelect
           value={selectedCarType || ""}

@@ -72,8 +72,8 @@ const PDPA_modal: React.FC<PDPA_modalProps> = ({ isVisible, onAgree }) => {
           />
         </Form>
       </Modal.Body>
-      <Modal.Footer className="d-flex">
-        <Button variant="primary" onClick={onAgree} disabled={!isAgreed}>
+      <Modal.Footer className="d-flex justify-content-center">
+        <Button variant="primary" onClick={onAgree} disabled={!isAgreed} style={{ width: "300px" }}>
           ตกลง
         </Button>
       </Modal.Footer>

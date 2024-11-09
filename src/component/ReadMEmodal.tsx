@@ -1,11 +1,11 @@
 import { Modal, Button } from "react-bootstrap";
 
-interface PDPA_modalProps {
+interface readMeModalProps {
   isVisible: boolean;
   onAgree: () => void;
 }
 
-const PDPA_modal: React.FC<PDPA_modalProps> = ({ isVisible, onAgree }) => {
+const readMeModal: React.FC<readMeModalProps> = ({ isVisible, onAgree }) => {
   return (
     <Modal
       show={isVisible}
@@ -51,8 +51,8 @@ const PDPA_modal: React.FC<PDPA_modalProps> = ({ isVisible, onAgree }) => {
           🚩 กรุณาตรวจสอบเอกสารให้ครบถ้วน
         </p>
       </Modal.Body>
-      <Modal.Footer className="">
-        <Button variant="primary" onClick={onAgree}>
+      <Modal.Footer className="justify-content-center">
+        <Button variant="primary" onClick={onAgree} style={{ width: "300px" }}>
           ถัดไป
         </Button>
       </Modal.Footer>
@@ -60,4 +60,4 @@ const PDPA_modal: React.FC<PDPA_modalProps> = ({ isVisible, onAgree }) => {
   );
 };
 
-export default PDPA_modal;
+export default readMeModal;

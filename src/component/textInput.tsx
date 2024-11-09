@@ -8,10 +8,19 @@ interface TextInputProps {
   placeholder?: string;
   alertText?: string;
   required?: boolean;
-  value?: string ;
+  value?: string;
   disabled?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  isInvalid?: boolean; // เพิ่ม props สำหรับ isInvalid
+  isInvalid?: boolean;
+  inputMode?:
+    | "search"
+    | "text"
+    | "none"
+    | "tel"
+    | "url"
+    | "email"
+    | "numeric"
+    | "decimal";
 }
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -24,7 +33,8 @@ const TextInput: React.FC<TextInputProps> = ({
   disabled = false,
   value,
   onChange,
-  isInvalid, // รับค่า isInvalid
+  isInvalid,
+  inputMode,
 }) => {
   return (
     <Form.Group controlId={id}>
@@ -32,15 +42,14 @@ const TextInput: React.FC<TextInputProps> = ({
       <Form.Control
         type={type}
         required={required}
-        value={value }
+        value={value}
         disabled={disabled}
         placeholder={placeholder}
         onChange={onChange}
-        isInvalid={isInvalid} // กำหนด isInvalid ให้กับ input
+        isInvalid={isInvalid}
+        inputMode={inputMode}
       />
-      <Form.Control.Feedback type="invalid">
-        {alertText}
-      </Form.Control.Feedback>
+      <Form.Control.Feedback type="invalid">{alertText}</Form.Control.Feedback>
     </Form.Group>
   );
 };
