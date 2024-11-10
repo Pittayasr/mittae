@@ -68,12 +68,17 @@ const PDPA_modal: React.FC<PDPA_modalProps> = ({ isVisible, onAgree }) => {
             checked={isAgreed}
             onChange={handleAgreeChange}
             style={{ fontSize: "1rem" }}
-            className="mx-auto"
+            className="custom-checkbox mx-auto"
           />
         </Form>
       </Modal.Body>
       <Modal.Footer className="d-flex justify-content-center">
-        <Button variant="primary" onClick={onAgree} disabled={!isAgreed} style={{ width: "300px" }}>
+        <Button
+          variant="success"
+          onClick={onAgree}
+          disabled={!isAgreed}
+          style={{ width: "300px" }}
+        >
           ตกลง
         </Button>
       </Modal.Footer>

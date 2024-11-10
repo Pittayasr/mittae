@@ -76,6 +76,11 @@
   }
 }
 
+.custom-checkbox input[type="checkbox"]:checked {
+  background-color: green; 
+  border-color: green;
+}
+
 /* .custom-link {
   text-decoration: none; 
 }

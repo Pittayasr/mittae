@@ -246,7 +246,7 @@ const FormComponent: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto">
+    <div className="form-container mx-auto">
       {showResult ? (
         <Summary
           carOrMotorcycleLabel={ownerLabel}

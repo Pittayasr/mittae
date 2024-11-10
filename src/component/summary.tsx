@@ -271,27 +271,27 @@ const Summary: React.FC<SummaryProps> = ({
         </Row>
       </footer>
 
-      <AlertModal
-        show={showModal}
-        onBack={() => {
-          setShowModal(false);
-        }}
-        onSuccess={() => {
-          window.location.reload();
-          onBack();
-          setShowModal(false);
-        }}
-        onConfirm={
-          success
-            ? () => {
-                onBack();
-                setShowModal(false);
-              }
-            : handleConfirm
-        }
-        message={modalMessage}
-        success={success}
-      />
+        <AlertModal
+          show={showModal}
+          onBack={() => {
+            setShowModal(false);
+          }}
+          onSuccess={() => {
+            window.location.reload();
+            onBack();
+            setShowModal(false);
+          }}
+          onConfirm={
+            success
+              ? () => {
+                  onBack();
+                  setShowModal(false);
+                }
+              : handleConfirm
+          }
+          message={modalMessage}
+          success={success}
+        />
     </Form>
   );
 };

@@ -1,6 +1,7 @@
+// selectFormModal.tsx
 import React from "react";
-import { Modal, Button } from "react-bootstrap";
-import { Col, Row } from "react-bootstrap";
+import { Modal, Button, Col, Row } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 interface SelectFormModalProps {
   isVisible: boolean;
@@ -12,9 +13,19 @@ interface SelectFormModalProps {
 const SelectFormModal: React.FC<SelectFormModalProps> = ({
   isVisible,
   onClose,
-  onNavigateToReadMe,
-  onNavigateToPrint,
 }) => {
+  const navigate = useNavigate();
+
+  const handleNavigateToForm = () => {
+    navigate("/ReadMEmodal");
+    onClose();
+  };
+
+  const handleNavigateToPrint = () => {
+    navigate("/print");
+    onClose();
+  };
+
   return (
     <Modal
       show={isVisible}
@@ -26,15 +37,15 @@ const SelectFormModal: React.FC<SelectFormModalProps> = ({
       centered
     >
       <Modal.Header>
-        <Modal.Title>เลือกฟอร์ม</Modal.Title>
+        <Modal.Title>บริการของร้าน</Modal.Title>
       </Modal.Header>
       <Modal.Body className="text-center">
         <Row>
           <Col className="mb-2" xs={12}>
             <Button
-              variant="primary"
+              variant="success"
               className="mb-3 w-75"
-              onClick={onNavigateToReadMe}
+              onClick={handleNavigateToForm}
             >
               ไปยังหน้ากรอกฟอร์ม
             </Button>
@@ -42,9 +53,9 @@ const SelectFormModal: React.FC<SelectFormModalProps> = ({
 
           <Col className="mb-2" xs={12}>
             <Button
-              variant="primary"
+              variant="success"
               className="w-75"
-              onClick={onNavigateToPrint}
+              onClick={handleNavigateToPrint}
             >
               ไปยังหน้าระบบปริ้นเอกสาร
             </Button>

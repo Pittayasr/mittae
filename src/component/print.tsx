@@ -1,47 +1,45 @@
 import React, { useState, useEffect } from "react";
-import { Col, Row, Form, Button } from "react-bootstrap";
+import { Col, Row, Form, Button, Alert } from "react-bootstrap";
 import TextInput from "./textInput";
 import TextSelect from "./textSelect";
+import { useNavigate } from "react-router-dom";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Print: React.FC = () => {
+  const navigate = useNavigate();
   const [selectTypePrint, setSelectTypePrint] = useState<string | null>(null);
   const [pagePrint, setPagePrint] = useState<string>("");
   const [copiesSetPrint, setCopiesSetPrint] = useState<string>("");
-  const [totalPrice, setTotalPrice] = useState<number>(0);
+  // const [totalPrice, setTotalPrice] = useState<number>(0);
 
   useEffect(() => {
-    // คำนวณจำนวนแผ่นทั้งหมด
-    const pageCount = parseInt(pagePrint, 10) || 0;
-    const copiesCount = parseInt(copiesSetPrint, 10) || 1;
-    const totalPageCount = pageCount * copiesCount;
-
-    let pricePerPage = 0;
-
-    if (selectTypePrint === "ขาวดำ") {
-      // ใช้เงื่อนไขใหม่ในการคำนวณราคา
-      if (totalPageCount <= 4) {
-        pricePerPage = 5;
-      } else {
-        pricePerPage = 1;
-      }
-    } else if (selectTypePrint === "สี") {
-      pricePerPage = 5; // เริ่มต้นที่ 5 บาทสำหรับการปริ้นสี
-    }
-
-    setTotalPrice(pricePerPage * totalPageCount);
+    //   // คำนวณจำนวนแผ่นทั้งหมด
+    //   const pageCount = parseInt(pagePrint, 10) || 0;
+    //   const copiesCount = parseInt(copiesSetPrint, 10) || 1;
+    //   const totalPageCount = pageCount * copiesCount;
+    //   let pricePerPage = 0;
+    //   if (selectTypePrint === "ขาวดำ") {
+    //     if (totalPageCount <= 4) {
+    //       pricePerPage = 5;
+    //     } else {
+    //       pricePerPage = 1;
+    //     }
+    //   } else if (selectTypePrint === "สี") {
+    //     pricePerPage = 5; // เริ่มต้นที่ 5 บาทสำหรับการปริ้นสี
+    //   }
+    //   // setTotalPrice(pricePerPage * totalPageCount);
   }, [selectTypePrint, pagePrint, copiesSetPrint]);
 
   return (
-    <div className="container mx-auto mt-1">
+    <div className="form-container mx-auto mt-1">
       <Form>
-        <h2 className="text-center mb-4 text-primary">ระบบปริ้นเอกสาร</h2>
+        <h2 className="text-center mb-4 text-success">ระบบปริ้นเอกสาร</h2>
 
         {/* Alert */}
-        <div className="alert alert-warning d-flex align-items-center mb-4">
+        <Alert variant="success" className="d-flex align-items-center mb-4">
           <i className="fas fa-exclamation-triangle me-2"></i>
           <span>กรุณาอ่านและกรอกข้อมูลให้ครบถ้วนก่อนส่ง</span>
-        </div>
+        </Alert>
 
         {/* Instructions */}
         <ul className="list-unstyled mb-4">
@@ -124,12 +122,12 @@ const Print: React.FC = () => {
           </Col>
         </Row>
 
-        {/* Total Price */}
+        {/* Total Price
         <Row>
           <Col className="text-center">
             <h4 className="text-success">รวมค่าใช้จ่าย: {totalPrice} บาท</h4>
           </Col>
-        </Row>
+        </Row> */}
 
         <hr className="my-4" />
 
@@ -137,12 +135,17 @@ const Print: React.FC = () => {
           {/* Submit Button */}
           <Row className="justify-content-end">
             <Col xs="auto" style={{ minWidth: "150px" }}>
-              <Button variant="light" type="submit" className="w-100 ">
+              <Button
+                variant="outline-success"
+                type="button"
+                className="w-100 "
+                onClick={() => navigate("/selectFormModal")}
+              >
                 ย้อนกลับ
               </Button>
             </Col>
             <Col xs="auto" style={{ minWidth: "150px" }}>
-              <Button variant="primary" type="submit" className="w-100 ">
+              <Button variant="success" type="submit" className="w-100 ">
                 ส่ง
               </Button>
             </Col>
