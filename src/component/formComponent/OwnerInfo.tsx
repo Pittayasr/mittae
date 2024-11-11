@@ -129,6 +129,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
               }
               id="ownerData"
               value={ownerData}
+              type="numeric"
               onChange={handleOwnerInfoChange}
               isInvalid={isInvalidOwnerInfo}
               alertText={

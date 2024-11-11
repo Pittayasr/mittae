@@ -24,12 +24,12 @@ function App() {
   };
 
   const handleNavigateToForm = () => {
-    setShowSelectFormModal(false);
+    // setShowSelectFormModal(false);
     navigate("/form");
   };
 
   const handleNavigateToPrint = () => {
-    setShowSelectFormModal(false);
+    // setShowSelectFormModal(false);
     navigate("/print");
   };
 
@@ -75,7 +75,7 @@ function App() {
 
 function AppWrapper() {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <App />
     </Router>
   );

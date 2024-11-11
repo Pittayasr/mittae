@@ -72,7 +72,7 @@ const Print: React.FC = () => {
               label="ประเภทการปริ้น"
               id="selectTypePrint"
               options={["ขาวดำ", "สี"]}
-              placeholder="สีหรือขาวดำ"
+              placeholder="สี/ขาวดำ"
               value={selectTypePrint}
               onChange={(value) => setSelectTypePrint(value)}
               required
@@ -85,7 +85,7 @@ const Print: React.FC = () => {
             <TextInput
               label="จำนวนหน้าเอกสาร"
               id="pagePrint"
-              type="number"
+              type="numeric"
               inputMode="numeric"
               value={pagePrint}
               onChange={(e) => {
@@ -105,7 +105,7 @@ const Print: React.FC = () => {
             <TextInput
               label="จำนวนชุดที่ต้องการปริ้น"
               id="copiesSetPrint"
-              type="number"
+              type="numeric"
               inputMode="numeric"
               value={copiesSetPrint}
               onChange={(e) => {

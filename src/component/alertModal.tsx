@@ -30,14 +30,14 @@ const AlertModal: React.FC<AlertModalProps> = ({
       <Modal.Header closeButton={success}>
         <Modal.Title className="d-flex align-items-center">
           {success ? (
-            <>
+            <>  
               <FaCheckCircle className="text-success me-2" />
               ส่งสำเร็จ
             </>
           ) : (
             <>
               <FaExclamationTriangle className="text-warning me-2" />
-              ยืนยันการส่งข้อมูล
+              ยืนยันการส่งข้อมูล 
             </>
           )}
         </Modal.Title>
@@ -52,10 +52,10 @@ const AlertModal: React.FC<AlertModalProps> = ({
           </Button>
         ) : (
           <>
-            <Button variant="dark" onClick={onBack}>
+            <Button variant="outline-success" onClick={onBack}>
               ยกเลิก
             </Button>
-            <Button variant="primary" onClick={onConfirm}>
+            <Button variant="success" onClick={onConfirm}>
               ยืนยัน
             </Button>
           </>

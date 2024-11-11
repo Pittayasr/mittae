@@ -74,7 +74,7 @@ const Summary: React.FC<SummaryProps> = ({
   const [success, setSuccess] = useState(false);
 
   const handleOpenModal = () => {
-    setModalMessage("คุณต้องการยืนยันว่าข้อมูลถูกต้องใช่ไหม?");
+    setModalMessage("คุณต้องการยืนยันว่าข้อมูลทั้งหมดถูกต้องใช่ไหม?");
     setSuccess(false);
     setShowModal(true);
   };
@@ -127,7 +127,9 @@ const Summary: React.FC<SummaryProps> = ({
     try {
       const docRef = await addDoc(collection(db, "summary"), updatedData);
       console.log("Document written with ID: ", docRef.id);
-      setModalMessage("ข้อมูลถูกส่งสำเร็จแล้ว!");
+      setModalMessage(
+        "ข้อมูลถูกส่งสำเร็จแล้ว! ✅\nขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป 🙏❤️\n\n📢 สักครู่หลังจากชำระเงินแล้ว\nท่านจะได้รับข้อความ SMS ยืนยันความคุ้มครองฯพ.ร.บ.\nไปยังหมายเลขโทรศัพท์ที่ท่านแจ้งมานะคะ ❤️"
+      );
       setSuccess(true);
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -251,17 +253,16 @@ const Summary: React.FC<SummaryProps> = ({
 
       <footer>
         <Row className="justify-content-end">
-          <Col
-            xs="auto"
-            style={{ minWidth: "150px", backgroundColor: "white" }}
-          >
-            <Button className="w-100" variant="outline-success" onClick={onBack}>
+          <Col className="form-button-container" xs="auto"  >
+            <Button
+              className="form-button mx-3"
+              variant="outline-success"
+              onClick={onBack}
+            >
               ย้อนกลับ
             </Button>
-          </Col>
-          <Col xs="auto" style={{ minWidth: "150px" }}>
             <Button
-              className="w-100"
+              className="form-button"
               variant="success"
               onClick={handleOpenModal}
             >
@@ -271,27 +272,27 @@ const Summary: React.FC<SummaryProps> = ({
         </Row>
       </footer>
 
-        <AlertModal
-          show={showModal}
-          onBack={() => {
-            setShowModal(false);
-          }}
-          onSuccess={() => {
-            window.location.reload();
-            onBack();
-            setShowModal(false);
-          }}
-          onConfirm={
-            success
-              ? () => {
-                  onBack();
-                  setShowModal(false);
-                }
-              : handleConfirm
-          }
-          message={modalMessage}
-          success={success}
-        />
+      <AlertModal
+        show={showModal}
+        onBack={() => {
+          setShowModal(false);
+        }}
+        onSuccess={() => {
+          window.location.reload();
+          onBack();
+          setShowModal(false);
+        }}
+        onConfirm={
+          success
+            ? () => {
+                onBack();
+                setShowModal(false);
+              }
+            : handleConfirm
+        }
+        message={modalMessage}
+        success={success}
+      />
     </Form>
   );
 };

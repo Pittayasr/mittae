@@ -77,7 +77,7 @@ const PDPA_modal: React.FC<PDPA_modalProps> = ({ isVisible, onAgree }) => {
           variant="success"
           onClick={onAgree}
           disabled={!isAgreed}
-          style={{ width: "300px" }}
+          className="w-50"
         >
           ตกลง
         </Button>

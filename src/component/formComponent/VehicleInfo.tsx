@@ -118,6 +118,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
           label="หมายเลขโทรศัพท์ผู้กรอกข้อมูล"
           id="contactNumber"
           value={contactNumber}
+          type="numeric"
           onChange={(e) => handleContactChange(e.target.value)}
           placeholder="หมายเลขโทรศัพท์10หลัก"
           required
@@ -155,6 +156,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
             required
             isInvalid={isInvalidEngineSize}
             alertText="กรุณากรอกขนาดเครื่องยนต์ให้ถูกต้อง"
+            type="numeric"
             disabled={
               selectedCarType === "รถพ่วง" ||
               selectedCarType === "รถบดถนน" ||
