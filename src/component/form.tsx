@@ -1,11 +1,11 @@
 //form.tsx
 import React, { useState, useEffect } from "react";
-import Button from "./button";
 import UserInfo from "./formComponent/UserInfo";
 import DateSection from "./formComponent/DateSection";
 import VehicleInfo from "./formComponent/VehicleInfo";
 import OwnerInfo from "./formComponent/OwnerInfo";
-import { Form, Row, Col } from "react-bootstrap";
+import ReadMe from "./README";
+import { Form, Row, Col, Button } from "react-bootstrap";
 import { Dayjs } from "dayjs";
 import { calculateTax } from "../data/calculateTax";
 import dayjs from "dayjs";
@@ -36,6 +36,7 @@ const FormComponent: React.FC = () => {
   );
   const [isFormValid, setIsFormValid] = useState(false); // สถานะสำหรับตรวจสอบความถูกต้องของฟอร์ม
   const [showResult, setShowResult] = useState(false); // State สำหรับแสดงหน้าสรุป
+  const [showReadME, setShowReadME] = useState(true);
   const [CCorWeightLabel, setCCorWeightLabel] = useState<string>("");
   const [ownerLabel, setOwnerLabel] = useState<string>("");
 
@@ -226,6 +227,11 @@ const FormComponent: React.FC = () => {
     setValidated(false);
   };
 
+  const handleNextPage = () => setShowReadME(false);
+  const handleBackToReadMe = () => {
+    setShowReadME(true);
+  };
+
   const handleConfirm = () => {
     // ส่งข้อมูลไปยังเซิร์ฟเวอร์หรือดำเนินการที่คุณต้องการ
     console.log("ข้อมูลที่ถูกส่ง:", {
@@ -247,34 +253,8 @@ const FormComponent: React.FC = () => {
 
   return (
     <div className="form-container mx-auto">
-      {showResult ? (
-        <Summary
-          carOrMotorcycleLabel={ownerLabel}
-          CCorWeight={CCorWeightLabel}
-          ownerData={ownerData}
-          usernameData={usernameData}
-          selectedProvince={selectedProvince}
-          engineSize={engineSize}
-          contactNumber={contactNumber}
-          registrationNumber={registrationNumber}
-          registrationDate={registrationDate ? registrationDate.toDate() : null}
-          expirationDate={expirationDate ? expirationDate.toDate() : null}
-          latestTaxPaymentDate={
-            latestTaxPaymentDate ? latestTaxPaymentDate.toDate() : null
-          }
-          selectedRadio={selectedRadio}
-          bikeTypeOrDoorCount={bikeTypeOrDoorCount}
-          selectedCarType={selectedCarType}
-          totalCost={totalCost}
-          prbCost={finalPrb} // ส่งค่าพรบ.สุทธิ
-          taxCost={finalTax} // ส่งค่าภาษีสุทธิ
-          lateFee={lateFee}
-          inspectionCost={inspectionFee} // ส่งค่าตรวจสภาพ
-          processingCost={processingFee} // ส่งค่าดำเนินการ
-          carAge={carAge}
-          onBack={handleBack} // ส่งฟังก์ชันย้อนกลับ
-          onConfirm={handleConfirm} // ส่งฟังก์ชันตกลง
-        />
+      {showReadME ? (
+        <ReadMe onAgree={handleNextPage} />
       ) : (
         <Form
           className="form"
@@ -331,18 +311,61 @@ const FormComponent: React.FC = () => {
 
           <hr className="my-4" />
 
-          <Row className="mb-2 justify-content-center">
-            <Col xs="auto" style={{ width: "500px" }}>
-              <Button
-                label="ถัดไป"
-                className="w-100"
-                type="submit"
-                variant="primary"
-                disabled={!isFormValid}
-              />
-            </Col>
-          </Row>
+          <footer>
+            <Row className="mb-2 ">
+              <Col className="mb-2 form-button-container">
+                <Button
+                  // label="ย้อนกลับ"
+                  className="form-button"
+                  type="button"
+                  variant="outline-success"
+                  onClick={handleBackToReadMe}
+                >
+                  ย้อนกลับ
+                </Button>
+                <Button
+                  // label="ถัดไป"
+                  className="form-button"
+                  type="submit"
+                  variant="success"
+                  disabled={!isFormValid}
+                >
+                  ถัดไป
+                </Button>
+              </Col>
+            </Row>
+          </footer>
         </Form>
+      )}
+
+      {showResult && (
+        <Summary
+          carOrMotorcycleLabel={ownerLabel}
+          CCorWeight={CCorWeightLabel}
+          ownerData={ownerData}
+          usernameData={usernameData}
+          selectedProvince={selectedProvince}
+          engineSize={engineSize}
+          contactNumber={contactNumber}
+          registrationNumber={registrationNumber}
+          registrationDate={registrationDate ? registrationDate.toDate() : null}
+          expirationDate={expirationDate ? expirationDate.toDate() : null}
+          latestTaxPaymentDate={
+            latestTaxPaymentDate ? latestTaxPaymentDate.toDate() : null
+          }
+          selectedRadio={selectedRadio}
+          bikeTypeOrDoorCount={bikeTypeOrDoorCount}
+          selectedCarType={selectedCarType}
+          totalCost={totalCost}
+          prbCost={finalPrb} // ส่งค่าพรบ.สุทธิ
+          taxCost={finalTax} // ส่งค่าภาษีสุทธิ
+          lateFee={lateFee}
+          inspectionCost={inspectionFee} // ส่งค่าตรวจสภาพ
+          processingCost={processingFee} // ส่งค่าดำเนินการ
+          carAge={carAge}
+          onBack={handleBack} // ส่งฟังก์ชันย้อนกลับ
+          onConfirm={handleConfirm} // ส่งฟังก์ชันตกลง
+        />
       )}
     </div>
   );

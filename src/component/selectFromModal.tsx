@@ -17,7 +17,7 @@ const SelectFormModal: React.FC<SelectFormModalProps> = ({
   const navigate = useNavigate();
 
   const handleNavigateToForm = () => {
-    navigate("/ReadMEmodal");
+    navigate("/form");
     onClose();
   };
 

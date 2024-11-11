@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Col, Row, Form, Button, Alert } from "react-bootstrap";
 import TextInput from "./textInput";
 import TextSelect from "./textSelect";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Print: React.FC = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [selectTypePrint, setSelectTypePrint] = useState<string | null>(null);
   const [pagePrint, setPagePrint] = useState<string>("");
   const [copiesSetPrint, setCopiesSetPrint] = useState<string>("");
@@ -69,10 +69,10 @@ const Print: React.FC = () => {
         <Row className="mb-3">
           <Col xs={6} md={4} className="mb-3">
             <TextSelect
-              label="เลือกประเภทการปริ้น"
+              label="ประเภทการปริ้น"
               id="selectTypePrint"
               options={["ขาวดำ", "สี"]}
-              placeholder="เลือกประสีหรือขาวดำ"
+              placeholder="สีหรือขาวดำ"
               value={selectTypePrint}
               onChange={(value) => setSelectTypePrint(value)}
               required
@@ -131,25 +131,10 @@ const Print: React.FC = () => {
 
         <hr className="my-4" />
 
-        <footer>
-          {/* Submit Button */}
-          <Row className="justify-content-end">
-            <Col xs="auto" style={{ minWidth: "150px" }}>
-              <Button
-                variant="outline-success"
-                type="button"
-                className="w-100 "
-                onClick={() => navigate("/selectFormModal")}
-              >
-                ย้อนกลับ
-              </Button>
-            </Col>
-            <Col xs="auto" style={{ minWidth: "150px" }}>
-              <Button variant="success" type="submit" className="w-100 ">
-                ส่ง
-              </Button>
-            </Col>
-          </Row>
+        <footer className="d-flex justify-content-center">
+          <Button variant="success" type="submit" className="w-50">
+            ส่ง
+          </Button>
         </footer>
       </Form>
     </div>

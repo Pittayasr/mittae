@@ -25,7 +25,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
         style={{
           padding: "0px",
           paddingBottom: "0px",
-          color: "blue",
+          color: "green",
           textDecoration: "underline",
         }}
       >

@@ -253,16 +253,16 @@ const Summary: React.FC<SummaryProps> = ({
         <Row className="justify-content-end">
           <Col
             xs="auto"
-            style={{ minWidth: "120px", backgroundColor: "white" }}
+            style={{ minWidth: "150px", backgroundColor: "white" }}
           >
-            <Button className="w-100 btn btn-light" onClick={onBack}>
+            <Button className="w-100" variant="outline-success" onClick={onBack}>
               ย้อนกลับ
             </Button>
           </Col>
-          <Col xs="auto" style={{ minWidth: "120px" }}>
+          <Col xs="auto" style={{ minWidth: "150px" }}>
             <Button
               className="w-100"
-              variant="primary"
+              variant="success"
               onClick={handleOpenModal}
             >
               ส่ง

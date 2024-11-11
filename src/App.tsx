@@ -1,45 +1,30 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
+  useLocation,
   useNavigate,
 } from "react-router-dom";
 import PDPA_modal from "./component/PDPAmodal";
-import ReadMEmodal from "./component/ReadMEmodal";
-import SelectFormModal from "./component/selectFromModal";
 import FormComponent from "./component/form";
 import Print from "./component/print";
 import "./App.css";
+import SelectFormModal from "./component/selectFromModal";
 
 function App() {
-  const [isPDPAAgreed, setIsPDPAAgreed] = useState<boolean>(false);
-  const [showReadMe, setShowReadMe] = useState(false);
-  const [showSelectFormModal, setShowSelectFormModal] = useState(false);
+  const [isPDPAAgreed, setIsPDPAAgreed] = useState(false);
+  const [showSelectFormModal, setShowSelectFormModal] = useState(true);
+  const location = useLocation();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // เช็คจาก localStorage ว่าผู้ใช้เคยยอมรับ PDPA แล้วหรือยัง
-    const pdpaStatus = localStorage.getItem("isPDPAAgreed");
-    if (pdpaStatus === "true") {
-      setIsPDPAAgreed(true); // หากเคยยอมรับให้ตั้งค่าเป็น true
-    }
-  }, []);
 
   const handlePDPAAgree = () => {
     setIsPDPAAgreed(true);
-    localStorage.setItem("isPDPAAgreed", "true"); // เก็บสถานะลงใน localStorage
-    setShowSelectFormModal(true);
   };
 
-  const handleNavigateToReadMe = () => {
+  const handleNavigateToForm = () => {
     setShowSelectFormModal(false);
-    setShowReadMe(true);
-  };
-
-  const handleReadMeAgree = () => {
-    setShowReadMe(false);
     navigate("/form");
   };
 
@@ -48,24 +33,19 @@ function App() {
     navigate("/print");
   };
 
+  if (
+    !isPDPAAgreed &&
+    (location.pathname === "/form" || location.pathname === "/print")
+  ) {
+    return <PDPA_modal isVisible={!isPDPAAgreed} onAgree={handlePDPAAgree} />;
+  }
+
+  // const handleReadMeAgree = () => {
+  //   setShowReadMe(false);
+  // };
+
   return (
-    <div className="container my-2">
-      {/* PDPA Modal: จะแสดงเฉพาะหากยังไม่ได้ยอมรับ */}
-      {!isPDPAAgreed && (
-        <PDPA_modal isVisible={!isPDPAAgreed} onAgree={handlePDPAAgree} />
-      )}
-
-      {/* Select Form Modal */}
-      <SelectFormModal
-        isVisible={showSelectFormModal}
-        onClose={() => setShowSelectFormModal(false)}
-        onNavigateToReadMe={handleNavigateToReadMe}
-        onNavigateToPrint={handleNavigateToPrint}
-      />
-
-      {/* ReadMe Modal */}
-      <ReadMEmodal isVisible={showReadMe} onAgree={handleReadMeAgree} />
-
+    <div className="container my-3">
       <Routes>
         <Route
           path="/form"
@@ -76,7 +56,18 @@ function App() {
           element={isPDPAAgreed ? <Print /> : <Navigate to="/" />}
         />
         {/* Default route */}
-        <Route />
+        <Route
+          path="/"
+          element={
+            <SelectFormModal
+              isVisible={showSelectFormModal}
+              onClose={() => setShowSelectFormModal(false)}
+              onNavigateToReadMe={handleNavigateToForm}
+              onNavigateToPrint={handleNavigateToPrint}
+            />
+          }
+        />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </div>
   );

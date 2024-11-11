@@ -22,14 +22,18 @@
 .radioButton input[type="radio"] {
   width: 20px; /* ขนาดของปุ่ม */
   height: 20px; /* ขนาดของปุ่ม */
-  border: solid #007bff; /* สีกรอบ */
+  border: solid seagreen; /* สีกรอบ */
   border-radius: 50%; /* ทำให้เป็นวงกลม */
   outline: none; /* เอา outline ออก */
   margin-inline-start: auto;
   margin: 3px 5px 0px 0px;
   cursor: pointer; /* แสดง cursor แบบ pointer */
-
   transition: background 0.2s, border-color 0.2s; /* เพิ่มการเปลี่ยนแปลงสี */
+}
+
+.radioButton input[type="radio"]:checked {
+  background-color: seagreen;
+  border-color: seagreen;
 }
 
 .radioButton label {
@@ -66,6 +70,17 @@
     flex-direction: column;
     width: 100%;
   }
+
+  .form-button-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* จัดให้อยู่กึ่งกลาง */
+    width: 100%; /* ขยายความกว้างของ Col ให้เต็ม */
+  }
+
+  .form-button {
+    min-width: 150px;
+  }
 }
 
 @media (max-width: 767px) {
@@ -77,7 +92,7 @@
 }
 
 .custom-checkbox input[type="checkbox"]:checked {
-  background-color: green; 
+  background-color: green;
   border-color: green;
 }
 

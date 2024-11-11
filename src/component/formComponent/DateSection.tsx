@@ -31,21 +31,21 @@ const DateSection: React.FC<DateSectionProps> = ({
     <Row>
 
       {/* วันที่จดทะเบียน */}
-      <Col className="date-idNo-carType-Input mb-4" md={4} xs={6}>
-        <div className="d-flex justify-content-between align-items-center mb-1">
-          <span>วันที่จดทะเบียน</span>
-          <ImageModal
-            imageUrl="/src/data/registerDate.png"
-            buttonText="ดูรูปตัวอย่าง"
+        <Col className="date-idNo-carType-Input mb-4" md={4} xs={6}>
+          <div className="d-flex justify-content-between align-items-center mb-1">
+            <span>วันที่จดทะเบียน</span>
+            <ImageModal
+              imageUrl="/src/data/registerDate.png"
+              buttonText="ดูรูปตัวอย่าง"
+            />
+          </div>
+          <DateInput
+            onDateChange={(date) => handleDateChange(date, "registration")}
+            labelText=""
+            value={registrationDate} // Directly use registrationDate as Dayjs
           />
-        </div>
-        <DateInput
-          onDateChange={(date) => handleDateChange(date, "registration")}
-          labelText=""
-          value={registrationDate} // Directly use registrationDate as Dayjs
-        />
-        {/* <span>อายุรถ: {carAge.years} ปี {carAge.months} เดือน {carAge.days} วัน</span> */}
-      </Col>
+          {/* <span>อายุรถ: {carAge.years} ปี {carAge.months} เดือน {carAge.days} วัน</span> */}
+        </Col>
 
       {/* วันสิ้นอายุ */}
       <Col className="date-idNo-carType-Input mb-4" md={4} xs={6}>
