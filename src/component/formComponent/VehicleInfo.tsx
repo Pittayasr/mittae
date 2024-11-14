@@ -4,6 +4,7 @@ import { Col, Row } from "react-bootstrap";
 import TextInput from "../textInput";
 
 interface VehicleInfoProps {
+  isInvalid: boolean;
   registrationNumber: string;
   setRegistrationNumber: (value: string) => void;
   contactNumber: string;
@@ -13,11 +14,11 @@ interface VehicleInfoProps {
   selectedCarType: string | null;
   setIsFormValid: (isValid: boolean) => void;
   CCorWeight: string;
-
   setCCorWeight: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const VehicleInfo: React.FC<VehicleInfoProps> = ({
+  isInvalid,
   registrationNumber,
   setRegistrationNumber,
   contactNumber,
@@ -101,7 +102,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
           onChange={(e) => handleLicenseChange(e.target.value)}
           required
           placeholder="ตัวอย่าง: 1กข9xxx"
-          isInvalid={isInvalidLicense}
+          isInvalid={isInvalidLicense || isInvalid}
           alertText={
             isInvalidLicense
               ? registrationNumber.length < 3
@@ -122,7 +123,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
           onChange={(e) => handleContactChange(e.target.value)}
           placeholder="หมายเลขโทรศัพท์10หลัก"
           required
-          isInvalid={isInvalidContact}
+          isInvalid={isInvalidContact || isInvalid}
           alertText={
             isInvalidContact
               ? contactNumber.length > 10
@@ -154,7 +155,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
             value={engineSize}
             onChange={(e) => handleEngineSizeChange(e.target.value)}
             required
-            isInvalid={isInvalidEngineSize}
+            isInvalid={isInvalidEngineSize || isInvalid}
             alertText="กรุณากรอกขนาดเครื่องยนต์ให้ถูกต้อง"
             type="numeric"
             disabled={

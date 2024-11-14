@@ -42,6 +42,8 @@ const FormComponent: React.FC = () => {
   const [showReadME, setShowReadME] = useState(true);
   const [CCorWeightLabel, setCCorWeightLabel] = useState<string>("");
 
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
   useEffect(() => {
     // setBikeTypeOrDoorCount(null); // รีเซ็ตเมื่อ selectedCarType เปลี่ยน
     if (registrationDate) {
@@ -141,9 +143,18 @@ const FormComponent: React.FC = () => {
     setValidated(false);
   };
 
+  // const handleCarTypeChange = (value: string | null) => {
+  //   if (value !== selectedCarType) {
+  //     setBikeTypeOrDoorCount(""); // รีเซ็ตค่า bikeTypeOrDoorCount เมื่อ selectedCarType เปลี่ยน
+  //     setValidated(false); // รีเซ็ตสถานะ validated
+  //     setSelectedCarType(value); // อัปเดตค่า selectedCarType
+  //   }
+  // };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setValidated(true);
+    setIsSubmitted(true);
 
     const calculateCarAge = (registerDate: Dayjs | null): number => {
       return registerDate ? dayjs().year() - registerDate.year() : 0;
@@ -221,7 +232,7 @@ const FormComponent: React.FC = () => {
       carDetails.processingFee = processingFee;
 
       setShowForm(false); // ซ่อน Form
-      setShowResult(true); // เปลี่ยนเป็น true เพื่อแสดงหน้าสรุป
+      setShowResult(true); // แสดงหน้าสรุป
     }
   };
 
@@ -268,6 +279,7 @@ const FormComponent: React.FC = () => {
         >
           {/* UserInfo */}
           <UserInfo
+            isInvalid={isSubmitted && !isFormValid}
             usernameData={usernameData}
             setUsernameData={setUsernameData}
             selectedProvince={selectedProvince}
@@ -279,14 +291,17 @@ const FormComponent: React.FC = () => {
 
           {/* DateSection with callback for different dates */}
           <DateSection
+            isInvalid={isSubmitted && !isFormValid}
             handleDateChange={handleDateChange} // Callback to handle date changes
             registrationDate={registrationDate} // ส่งค่า registrationDate
             expirationDate={expirationDate} // ส่งค่า expirationDate
             latestTaxPaymentDate={latestTaxPaymentDate} // ส่งค่า latestTaxPaymentDate
+            setIsFormValid={setIsFormValid}
           />
 
           {/* Integrate OwnerInfo */}
           <OwnerInfo
+            isInvalid={isSubmitted && !isFormValid}
             selectedRadio={selectedRadio}
             setSelectedRadio={handleRadioChange}
             ownerData={ownerData}
@@ -301,6 +316,7 @@ const FormComponent: React.FC = () => {
 
           {/* Integrate VehicleInfo */}
           <VehicleInfo
+            isInvalid={isSubmitted && !isFormValid}
             registrationNumber={registrationNumber}
             setRegistrationNumber={setRegistrationNumber}
             contactNumber={contactNumber}
@@ -308,9 +324,9 @@ const FormComponent: React.FC = () => {
             engineSize={engineSize}
             setEngineSize={setEngineSize}
             selectedCarType={selectedCarType}
-            setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
             CCorWeight={CCorWeightLabel} // ส่ง vehicleLabel
             setCCorWeight={setCCorWeightLabel}
+            setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
           />
 
           <hr className="my-4" />

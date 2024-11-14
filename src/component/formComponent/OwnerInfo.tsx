@@ -1,3 +1,4 @@
+// OwnerInfo.tsx
 import React, { useEffect, useState } from "react"; // Importing React and useState
 import { Col, Row } from "react-bootstrap";
 import RadioButton from "../radioButton";
@@ -5,6 +6,7 @@ import TextInput from "../textInput";
 import TextSelect from "../textSelect";
 
 interface OwnerInfoProps {
+  isInvalid: boolean;
   selectedRadio: string | null;
   setSelectedRadio: (value: string) => void;
   ownerData: string;
@@ -18,6 +20,7 @@ interface OwnerInfoProps {
 }
 
 const OwnerInfo: React.FC<OwnerInfoProps> = ({
+  isInvalid,
   selectedRadio,
   setSelectedRadio,
   ownerData,
@@ -43,6 +46,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
           ? "ประเภทของรถมอเตอร์ไซค์"
           : "จำนวนประตูรถยนต์";
       setCarOrMotorcycleLabel(label); // Set label based on selectedCarType
+      setBikeTypeOrDoorCount(null);
     }
   }, [
     selectedCarType,
@@ -103,7 +107,8 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
             label="ประเภทข้อมูลเจ้าของรถ"
             selectedValue={selectedRadio}
             onChange={setSelectedRadio}
-            isValid={selectedRadio !== null}
+            isInvalid={isInvalid} // จะเป็น true เมื่อไม่มีการเลือกค่า
+            alertText="กรุณาเลือกประเภทข้อมูลเจ้าของรถ" // ข้อความแจ้งเตือน
           />
         </Col>
       </Row>
@@ -131,7 +136,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
               value={ownerData}
               type="numeric"
               onChange={handleOwnerInfoChange}
-              isInvalid={isInvalidOwnerInfo}
+              isInvalid={isInvalidOwnerInfo || isInvalid}
               alertText={
                 isInvalidOwnerInfo
                   ? selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
@@ -153,7 +158,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
         {selectedCarType && (
           <Col className="date-idNo-carType-Input mb-4" md={6} xs={6}>
             <TextSelect
-              value={bikeTypeOrDoorCount ?? ""}
+              value={bikeTypeOrDoorCount ?? null}
               label={
                 !selectedCarType
                   ? "โปรดเลือกประเภทรถก่อน"
@@ -174,7 +179,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
               }
               onChange={setBikeTypeOrDoorCount}
               required
-              isDisabled={!selectedCarType}
+              isInvalid={isInvalid}
             />
           </Col>
         )}

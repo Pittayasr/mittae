@@ -6,16 +6,18 @@ import TextSelect from "../textSelect";
 import { provinces } from "../../data/provinces";
 
 interface UserInfoProps {
+  isInvalid: boolean;  
   usernameData: string;
   setUsernameData: (value: string) => void;
   selectedProvince: string | null;
   setSelectedProvince: (value: string | null) => void;
   selectedCarType: string | null;
   setSelectedCarType: (value: string | null) => void;
-  setIsFormValid: (isValid: boolean) => void; // เพิ่ม prop สำหรับเช็คความถูกต้อง
+  setIsFormValid: (isValid: boolean) => void; 
 }
 
 const UserInfo: React.FC<UserInfoProps> = ({
+  isInvalid,
   usernameData,
   setUsernameData,
   selectedProvince,
@@ -52,9 +54,9 @@ const UserInfo: React.FC<UserInfoProps> = ({
           value={usernameData}
           placeholder="ชื่อ นามสกุล"
           onChange={(e) => handleNameChange(e.target.value)}
-          isInvalid={isInvalidName} // เช็คความถูกต้อง
-          alertText="กรุณากรอกชื่อเป็นตัวหนังสือภาษาไทยเท่านั้น" // ข้อความแจ้งเตือน
           required
+          isInvalid={isInvalidName || isInvalid} // เช็คความถูกต้อง
+          alertText="กรุณากรอกชื่อเป็นตัวหนังสือภาษาไทยเท่านั้น" // ข้อความแจ้งเตือน
         />
       </Col>
 
@@ -68,6 +70,8 @@ const UserInfo: React.FC<UserInfoProps> = ({
           placeholder="ค้นหา..."
           onChange={(value) => setSelectedProvince(value)}
           required
+          isInvalid={isInvalid}
+          alertText="กรุณาเลือกจังหวัด"
         />
       </Col>
 
@@ -91,6 +95,8 @@ const UserInfo: React.FC<UserInfoProps> = ({
           placeholder="ค้นหา..."
           onChange={(value) => setSelectedCarType(value)}
           required
+          isInvalid={isInvalid}
+          alertText="กรุณาเลือกจังหวัด"
         />
       </Col>
     </Row>

@@ -7,7 +7,8 @@ interface RadioButtonProps {
   label: string;
   selectedValue?: string | null;
   onChange: (value: string) => void;
-  isValid?: boolean; // เพิ่ม prop สำหรับการจัดการสถานะ validation
+  isInvalid?: boolean; // เพิ่ม prop สำหรับจัดการสถานะ validation
+  alertText?: string; // เพิ่มข้อความแจ้งเตือน
 }
 
 const RadioButton: React.FC<RadioButtonProps> = ({
@@ -16,6 +17,8 @@ const RadioButton: React.FC<RadioButtonProps> = ({
   label,
   selectedValue,
   onChange,
+  isInvalid = false, // ค่าเริ่มต้นของ isInvalid
+  alertText = "กรุณาเลือกตัวเลือก", // ข้อความเตือนเริ่มต้น
 }) => {
   return (
     <Form.Group>
@@ -39,9 +42,15 @@ const RadioButton: React.FC<RadioButtonProps> = ({
                 width: "110%", // ปรับขนาดความกว้างของ input
                 padding: "10px 0px 10px 0px", // เพิ่มช่องว่างภายใน
               }}
+              isInvalid={isInvalid && !selectedValue}
             />
           );
         })}
+        {!selectedValue && (
+          <Form.Control.Feedback type="invalid">
+            {alertText}
+          </Form.Control.Feedback>
+        )}
       </div>
     </Form.Group>
   );

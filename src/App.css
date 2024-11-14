@@ -48,13 +48,29 @@
   justify-content: end; /* จัดให้อยู่กึ่งกลาง */
   align-items: end;
   width: 100%; /* ขยายความกว้างของ Col ให้เต็ม */
-  
 }
 
 .form-button {
   width: 50%;
   min-width: 100px;
-  max-width: 150px; 
+  max-width: 150px;
+}
+
+/* กำหนดกรอบสีแดงเมื่อมีข้อผิดพลาด */
+.select-is-invalid .react-select__control {
+  border-color: red !important; /* กรอบสีแดง */
+}
+
+/* กรอบเมื่อเลือก (focus) */
+.select-is-invalid .react-select__control--is-focused {
+  border-color: red !important; /* กรอบสีแดงเมื่อเลือก */
+  box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.25) !important; /* เพิ่มเงาแดง */
+}
+
+/* กรอบเมื่อเลือก (focus) */
+.select-is-valid .react-select__control--is-focused {
+  border-color: #80bdff !important; /* กรอบสีฟ้าเมื่อเลือก */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important; /* เพิ่มเงาฟ้า */
 }
 
 @media (max-width: 767px) {
@@ -77,6 +93,17 @@
     flex-direction: column; /* หรือ row ถ้าต้องการให้เรียงกันในแนวนอน */
     width: 100%; /* ทำให้ความกว้างเต็ม */
   }
+
+  .date-idNo-carType-Input {
+    display: flex;
+    flex-direction: column;
+    margin-left: 0px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 1024px) {
+  
 }
 
 @media (max-width: 553px) {
@@ -102,14 +129,6 @@
   }
 }
 
-@media (max-width: 767px) {
-  .date-idNo-carType-Input {
-    display: flex;
-    flex-direction: column;
-    margin-left: 0px;
-    width: 100%;
-  }
-}
 
 .custom-checkbox input[type="checkbox"]:checked {
   background-color: green;

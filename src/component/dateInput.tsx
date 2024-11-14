@@ -1,3 +1,4 @@
+// dateInput.tsx
 import React, { useState, useEffect } from "react";
 import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
@@ -10,12 +11,16 @@ interface DateInputProps {
   labelText: string;
   initialDate?: Dayjs;
   value?: Dayjs | null;
+  isInvalid?: boolean;
+  alertText?: string;
 }
 
 const DateInput: React.FC<DateInputProps> = ({
   onDateChange,
   labelText,
   value,
+  isInvalid = false, // ตั้งค่าเริ่มต้นเป็น false
+  alertText, // ข้อความแจ้งเตือนเริ่มต้น
 }) => {
   const convertToBuddhistYear = (date: Dayjs | null) => {
     return date ? dayjs(date).year(date.year() + 543) : null;
@@ -68,10 +73,16 @@ const DateInput: React.FC<DateInputProps> = ({
           width: "100%",
           padding: "10px",
           height: "45px",
+          borderColor: isInvalid ? "red" : undefined,
         }}
         allowClear={false}
         defaultPickerValue={dayjs().year(nextYearBuddhist)}
       />
+      {isInvalid && (
+        <p style={{ color: "red", fontSize: "14px", marginTop: "5px" }}>
+          {alertText}
+        </p>
+      )}
     </div>
   );
 };
