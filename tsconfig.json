@@ -1,19 +1,23 @@
-// tsconfig.json
 {
+  "compilerOptions": {
+    "types": ["jquery", "multer", "node"],
+    "composite": true,
+    "noEmit": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "rootDir": "./",
+    "outDir": "./dist",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "typeRoots": ["./node_modules/@types", "./src/types"]
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
   ],
-  "compilerOptions": {
-    "types": ["jquery"], 
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "module": "CommonJS",
-    "rootDir": "./src",                       // กำหนด root ไดเรกทอรีสำหรับไฟล์ source
-    "outDir": "./dist",
-    "allowJs": true,                      // กำหนด output ไดเรกทอรี
-    
-  }
+  "include": ["server.ts", "../server.ts"]
 }
-

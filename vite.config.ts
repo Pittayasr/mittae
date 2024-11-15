@@ -16,4 +16,14 @@ export default defineConfig({
       },
     },
   ],
+  server: {
+    proxy: {
+      "/upload-image": "http://localhost:3001", // ตั้งค่าให้การเรียก API ไปที่เซิร์ฟเวอร์
+    },
+  },
+  build: {
+    rollupOptions: {
+      external: ['sharp', 'node:crypto', 'node:child_process'],
+    },
+  },
 });
