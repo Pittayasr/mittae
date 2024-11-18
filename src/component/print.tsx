@@ -1,21 +1,21 @@
 // print.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   calculatePrice,
   calculateFileColorPercentage,
 } from "../data/calculatePrint";
 import { Col, Row, Form, Button, Alert, Modal, Spinner } from "react-bootstrap";
-import TextInput from "./textInput";
-import TextSelect from "./textSelect";
-import FileInput from "./fileInput";
-import AlertModal from "./alertModal";
+import TextInput from "./textFillComponent/textInput";
+import TextSelect from "./textFillComponent/textSelect";
+import FileInput from "./textFillComponent/fileInput";
+import AlertModal from "./textFillComponent/alertModal";
 import { db } from "../../firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Print: React.FC = () => {
   const [selectTypePrint, setSelectTypePrint] = useState<string | null>(null);
-  const [pagePrint, setPagePrint] = useState<string>(""); // Page count as string
+  const [pagePrint, setPagePrint] = useState<number>(0); // Page count as string
   const [copiesSetPrint, setCopiesSetPrint] = useState<string>(""); // Copies count as string
   const [selectedFile, setSelectedFile] = useState<File | null>(null); // Selected file
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -29,22 +29,16 @@ const Print: React.FC = () => {
   const [modalMessage, setModalMessage] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const handleOpenModal = () => {
-    setModalMessage(
-      `รวมค่าใช้จ่าย: ${totalPrice} บาท \nเปอร์เซ็นต์ของสีในเอกสาร: ${textColorPercentage} %\nคุณต้องการยืนยันว่า\nข้อมูลทั้งหมดถูกต้องใช่ไหม?`
-    );
-    setShowModal(true);
-  };
+  useEffect(() => {
+    // เมื่อ `showModal` เป็น false เราจะปิด Modal จริงๆ
+    if (totalPrice > 0 && textColorPercentage !== null && !showModal) {
+      setModalMessage(
+        `รวมค่าใช้จ่าย: ${totalPrice} บาท \nเปอร์เซ็นต์ของสีในเอกสาร: ${textColorPercentage} %\nคุณต้องการยืนยันว่า\nข้อมูลทั้งหมดถูกต้องใช่ไหม?`
+      );
 
-  // useEffect(() => {
-  //   const fetchPrice = async () => {
-  //     // Only proceed if valid data exists
-
-  //   };
-
-  //   fetchPrice();
-  // }, [selectedFile, selectTypePrint, pagePrint, copiesSetPrint]);
-
+      setShowModal(true);
+    }
+  }, [totalPrice, textColorPercentage, showModal]);
   // Helper function to check if a value is a valid number
   const isValidNumber = (value: string) => {
     const parsedValue = parseInt(value, 10);
@@ -52,36 +46,28 @@ const Print: React.FC = () => {
   };
 
   const handleConfirm = async () => {
-    if (
-      !selectTypePrint ||
-      !isValidNumber(pagePrint) ||
-      !isValidNumber(copiesSetPrint) ||
-      !selectedFile
-    ) {
+    if (!selectTypePrint || !isValidNumber(copiesSetPrint) || !selectedFile) {
       setIsSubmitted(true);
       return;
     }
-
     setIsCalculating(true);
 
     try {
       const price = await calculatePrice(
         selectTypePrint,
-        pagePrint,
         copiesSetPrint,
         selectedFile
       );
-      setTotalPrice(price);
+      setTotalPrice(price.totalPrice);
+      setPagePrint(price.pageCount);
 
       const colorPercentage = await calculateFileColorPercentage(selectedFile);
       setTextColorPercentage(colorPercentage);
-
-      handleOpenModal(); // เรียกเปิดโมดัลที่แสดงข้อมูลรวมก่อน
     } catch (error) {
       console.error("Error during submission: ", error);
       setModalMessage("การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง");
       setSuccess(false);
-      setShowModal(true); // แสดงโมดัลผิดพลาด
+      setShowModal(true);
     } finally {
       setIsCalculating(false); // Hide loader
     }
@@ -105,7 +91,6 @@ const Print: React.FC = () => {
         `ข้อมูลถูกส่งสำเร็จแล้ว! ✅\nขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป 🙏❤️`
       );
       setSuccess(true);
-      setShowModal(true); // แสดงข้อความสำเร็จหลังส่งข้อมูล
     } catch (error) {
       console.error("Error during submission: ", error);
       setModalMessage("การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง");
@@ -115,11 +100,7 @@ const Print: React.FC = () => {
   };
 
   const onBack = () => {
-    setSelectTypePrint(null);
-    setPagePrint("");
-    setCopiesSetPrint("");
-    setSelectedFile(null);
-    setIsSubmitted(false);
+    console.log("onBack called");
     setTotalPrice(0);
     setTextColorPercentage(null);
     setShowModal(false);
@@ -162,7 +143,7 @@ const Print: React.FC = () => {
 
         {/* Form Fields */}
         <Row className="mb-3">
-          <Col xs={6} md={6} className="mb-3">
+          <Col xs={12} md={6} className="mb-3">
             <TextSelect
               label="ประเภทการปริ้น"
               id="selectTypePrint"
@@ -179,7 +160,7 @@ const Print: React.FC = () => {
             />
           </Col>
 
-          <Col xs={6} md={6} className="mb-3">
+          {/* <Col xs={6} md={6} className="mb-3">
             <TextInput
               label="จำนวนหน้าเอกสาร"
               id="pagePrint"
@@ -192,9 +173,9 @@ const Print: React.FC = () => {
               isInvalid={isSubmitted && !isValidNumber(pagePrint)}
               alertText="กรุณากรอกจำนวนหน้าให้ถูกต้อง"
             />
-          </Col>
+          </Col> */}
 
-          <Col xl={6} lg={12} className="mb-3">
+          <Col xs={12} md={6} xl={6} lg={6} className="mb-3">
             <TextInput
               label="จำนวนชุดที่ต้องการปริ้น"
               id="copiesSetPrint"
@@ -214,12 +195,12 @@ const Print: React.FC = () => {
         </Row>
 
         {/* Display Price */}
-        <Row>
+        {/* <Row>
           <Col className="text-center">
             <h4>รวมค่าใช้จ่าย: {totalPrice} บาท</h4>
             {<p>เปอร์เซ็นต์ของสีในเอกสาร: {textColorPercentage}%</p>}
           </Col>
-        </Row>
+        </Row> */}
 
         <hr className="mb-4" />
 
@@ -232,17 +213,20 @@ const Print: React.FC = () => {
         {/* Loader Modal */}
         <Modal show={isCalculating} centered>
           <Modal.Body className="text-center">
-            <Spinner animation="border" role="status" className="mb-3" />
-            <p>กำลังประมวลผล...</p>
+            <Spinner animation="border" role="status" className="my-3" />
+            <p >กำลังประมวลผล...</p>
           </Modal.Body>
         </Modal>
 
         <AlertModal
           show={showModal}
           onBack={() => {
+            console.log("Cancel clicked, closing modal...");
             setShowModal(false);
+            onBack();
           }}
           onSuccess={() => {
+            console.log("Cancel clicked, closing modal...");
             window.location.reload();
             onBack();
             setShowModal(false);

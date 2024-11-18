@@ -5,11 +5,12 @@ import DateSection from "./formComponent/DateSection";
 import VehicleInfo from "./formComponent/VehicleInfo";
 import OwnerInfo from "./formComponent/OwnerInfo";
 import ReadMe from "./readME";
-import { Form, Row, Col, Button } from "react-bootstrap";
+import { Form, Row, Col, Button, Alert } from "react-bootstrap";
 import { Dayjs } from "dayjs";
 import { calculateTax } from "../data/calculateTax";
 import dayjs from "dayjs";
 import Summary from "./summary";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const FormComponent: React.FC = () => {
   const [registrationDate, setRegistrationDate] = useState<Dayjs | null>(null);
@@ -41,8 +42,6 @@ const FormComponent: React.FC = () => {
   const [showForm, setShowForm] = useState(true);
   const [showReadME, setShowReadME] = useState(true);
   const [CCorWeightLabel, setCCorWeightLabel] = useState<string>("");
-
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect(() => {
     // setBikeTypeOrDoorCount(null); // รีเซ็ตเมื่อ selectedCarType เปลี่ยน
@@ -154,7 +153,6 @@ const FormComponent: React.FC = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setValidated(true);
-    setIsSubmitted(true);
 
     const calculateCarAge = (registerDate: Dayjs | null): number => {
       return registerDate ? dayjs().year() - registerDate.year() : 0;
@@ -279,7 +277,7 @@ const FormComponent: React.FC = () => {
         >
           {/* UserInfo */}
           <UserInfo
-            isInvalid={isSubmitted && !isFormValid}
+            isInvalid={validated && !usernameData}
             usernameData={usernameData}
             setUsernameData={setUsernameData}
             selectedProvince={selectedProvince}
@@ -291,7 +289,10 @@ const FormComponent: React.FC = () => {
 
           {/* DateSection with callback for different dates */}
           <DateSection
-            isInvalid={isSubmitted && !isFormValid}
+            isInvalid={
+              validated &&
+              (!registrationDate || !expirationDate || !latestTaxPaymentDate)
+            }
             handleDateChange={handleDateChange} // Callback to handle date changes
             registrationDate={registrationDate} // ส่งค่า registrationDate
             expirationDate={expirationDate} // ส่งค่า expirationDate
@@ -301,7 +302,7 @@ const FormComponent: React.FC = () => {
 
           {/* Integrate OwnerInfo */}
           <OwnerInfo
-            isInvalid={isSubmitted && !isFormValid}
+            isInvalid={validated && (!ownerData || !selectedRadio)}
             selectedRadio={selectedRadio}
             setSelectedRadio={handleRadioChange}
             ownerData={ownerData}
@@ -316,7 +317,10 @@ const FormComponent: React.FC = () => {
 
           {/* Integrate VehicleInfo */}
           <VehicleInfo
-            isInvalid={isSubmitted && !isFormValid}
+            isInvalid={
+              validated &&
+              (!registrationNumber || !contactNumber || !engineSize)
+            }
             registrationNumber={registrationNumber}
             setRegistrationNumber={setRegistrationNumber}
             contactNumber={contactNumber}
@@ -332,6 +336,17 @@ const FormComponent: React.FC = () => {
           <hr className="my-4" />
 
           <footer>
+            {/* Alert */}
+            {!isFormValid && (
+              <Alert
+                variant="success"
+                className="d-flex align-items-center mb-4"
+              >
+                <i className="fas fa-exclamation-triangle me-2"></i>
+                <span>กรุณากรอกข้อมูลให้ครบถ้วน</span>
+              </Alert>
+            )}
+
             <Row className="mb-2 ">
               <Col className="mb-2 form-button-container">
                 <Button

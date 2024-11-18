@@ -1,23 +1,69 @@
+// calculatePrint.ts
 import * as pdfjsLib from "pdfjs-dist";
 import { GlobalWorkerOptions } from "pdfjs-dist";
-import mammoth from "mammoth";
+// import mammoth from "mammoth";
+import JSZip from "jszip";
+// import { Document, Packer, Paragraph } from "docx";
 
 GlobalWorkerOptions.workerSrc = `/pdf.js/build/pdf.worker.mjs`;
 
 // อ่านไฟล์ DOCX
-async function extractTextFromDocx(docxFile: File): Promise<string> {
-  console.log("เริ่มการดึงข้อความจากไฟล์ DOCX...");
-  const { value } = await mammoth.extractRawText({
-    arrayBuffer: await docxFile.arrayBuffer(),
-  });
-  console.log("ข้อความที่ดึงได้จาก DOCX:", value);
-  return value;
+// async function extractTextFromDocx(docxFile: File): Promise<string> {
+//   console.log("เริ่มการดึงข้อความจากไฟล์ DOCX...");
+//   const { value } = await mammoth.extractRawText({
+//     arrayBuffer: await docxFile.arrayBuffer(),
+//   });
+//   console.log("ข้อความที่ดึงได้จาก DOCX:", value);
+//   return value;
+// }
+
+// ดึงข้อมูลภาพจากไฟล์ DOCX
+async function extractImagesFromDocx(docxFile: File): Promise<Blob[]> {
+  console.log("เริ่มดึงภาพจากไฟล์ DOCX...");
+  const images: Blob[] = [];
+  const arrayBuffer = await docxFile.arrayBuffer();
+  const zip = await JSZip.loadAsync(arrayBuffer);
+
+  for (const fileName of Object.keys(zip.files)) {
+    if (
+      fileName.startsWith("word/media/") &&
+      /\.(jpg|jpeg|png|bmp|gif)$/.test(fileName)
+    ) {
+      const fileData = await zip.files[fileName].async("blob");
+      images.push(fileData);
+    }
+  }
+
+  console.log(`พบภาพจำนวน ${images.length} ใน DOCX`);
+  return images;
+}
+
+// คำนวณเปอร์เซ็นต์สีใน DOCX
+async function calculateDocxColorPercentage(docxFile: File): Promise<number> {
+  const images = await extractImagesFromDocx(docxFile);
+  console.log("ดึงภาพได้จำนวน:", images.length);
+
+  if (images.length === 0) {
+    console.log("ไม่พบภาพในไฟล์ DOCX");
+    return 0;
+  }
+
+  let totalColorPercentage = 0;
+
+  for (const image of images) {
+    totalColorPercentage += await calculateImageColorPercentage(
+      new File([image], "image")
+    );
+  }
+
+  const averageColorPercentage = totalColorPercentage / images.length;
+  console.log(`เปอร์เซ็นต์สีเฉลี่ยใน DOCX: ${averageColorPercentage}%`);
+  return averageColorPercentage;
 }
 
 // ฟังก์ชันตรวจสอบค่าสีขาวและดำ
 const isWhiteOrBlack = (r: number, g: number, b: number): boolean => {
-  // การคำนวณให้ยืดหยุ่นมากขึ้น เช่น สีที่มีค่าสีใกล้เคียงกับขาวและดำ
-  const threshold = 20; // ความต่างที่ยอมรับได้ระหว่างสีขาวและดำ
+  const threshold = 20;
   const isCloseToWhite =
     r >= 255 - threshold && g >= 255 - threshold && b >= 255 - threshold;
   const isCloseToBlack = r <= threshold && g <= threshold && b <= threshold;
@@ -25,40 +71,32 @@ const isWhiteOrBlack = (r: number, g: number, b: number): boolean => {
   return isCloseToWhite || isCloseToBlack;
 };
 
-// คำนวณเปอร์เซ็นต์สีในภาพที่ไม่ใช่ขาวดำ โดยใช้ Canvas
+// คำนวณเปอร์เซ็นต์สีในภาพ
 async function calculateImageColorPercentage(imageFile: File): Promise<number> {
-  console.log("เริ่มการคำนวณเปอร์เซ็นต์สีในภาพ...");
   const image = new Image();
   const imageUrl = URL.createObjectURL(imageFile);
   image.src = imageUrl;
 
   return new Promise<number>((resolve, reject) => {
     image.onload = () => {
-      console.log("โหลดภาพสำเร็จ");
       const canvas = document.createElement("canvas");
       const context = canvas.getContext("2d");
-      if (context) {
-        canvas.width = image.width;
-        canvas.height = image.height;
-        context.drawImage(image, 0, 0, image.width, image.height);
+      canvas.width = image.width;
+      canvas.height = image.height;
+      context?.drawImage(image, 0, 0, image.width, image.height);
 
-        const imageData = context.getImageData(0, 0, image.width, image.height);
-        const data = imageData.data;
-        let colorCount = 0;
+      const imageData = context!.getImageData(0, 0, image.width, image.height);
+      const data = imageData.data;
+      let colorCount = 0;
 
-        // คำนวณเปอร์เซ็นต์สีที่ไม่ใช่ขาวดำ
-        for (let i = 0; i < data.length; i += 4) {
-          const [r, g, b] = [data[i], data[i + 1], data[i + 2]];
-          if (!isWhiteOrBlack(r, g, b)) colorCount++;
-        }
-
-        const colorPercentage =
-          (colorCount / (image.width * image.height)) * 100;
-        console.log(`เปอร์เซ็นต์สีในภาพ: ${colorPercentage}%`);
-        resolve(colorPercentage);
-      } else {
-        reject(new Error("ไม่สามารถเข้าถึง context ของ canvas"));
+      // คำนวณเปอร์เซ็นต์สี
+      for (let i = 0; i < data.length; i += 4) {
+        const [r, g, b] = [data[i], data[i + 1], data[i + 2]];
+        if (!isWhiteOrBlack(r, g, b)) colorCount++;
       }
+
+      const colorPercentage = (colorCount / (image.width * image.height)) * 100;
+      resolve(colorPercentage);
     };
 
     image.onerror = () => {
@@ -145,11 +183,7 @@ export async function calculateFileColorPercentage(
   if (fileType === "pdf") {
     return calculateColorPercentage(file);
   } else if (fileType === "docx" || fileType === "doc") {
-    return extractTextFromDocx(file).then((text) => {
-      const result = text.length > 0 ? 0 : 0;
-      console.log(`ผลลัพธ์จากการดึงข้อความจาก DOCX: ${result}`);
-      return result;
-    });
+    return calculateDocxColorPercentage(file);
   } else if (fileType === "jpg" || fileType === "png") {
     return calculateImageColorPercentage(file);
   } else {
@@ -158,56 +192,85 @@ export async function calculateFileColorPercentage(
   }
 }
 
-// คำนวณราคาตามเปอร์เซ็นต์สี
+// คำนวณจำนวนหน้าจาก PDF
+async function getPageCountFromPDF(file: File): Promise<number> {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  return pdf.numPages;
+}
+
+// คำนวณจำนวนหน้าจาก DOCX
+async function calculatePageCountFromDocx(docxFile: File): Promise<number> {
+  const arrayBuffer = await docxFile.arrayBuffer();
+  const zip = await JSZip.loadAsync(arrayBuffer);
+  const docFile = zip.files["word/document.xml"];
+
+  if (!docFile) {
+    throw new Error("ไม่พบเอกสารหลักในไฟล์ DOCX");
+  }
+
+  const documentXML = await docFile.async("text");
+  const paragraphs = documentXML.match(/<w:p[^>]*>/g)?.length || 0;
+  const estimatedCharactersPerPage = 800; // สมมติว่าหน้าหนึ่งมี 800 ตัวอักษร
+  const estimatedPages = Math.ceil(
+    (paragraphs * 50) / estimatedCharactersPerPage
+  );
+
+  return estimatedPages;
+}
+
+// ตรวจสอบชนิดไฟล์และเรียกใช้ฟังก์ชันการนับจำนวนหน้า
+async function getPageCount(file: File): Promise<number> {
+  const fileType = file.type;
+
+  if (fileType === "application/pdf") {
+    return await getPageCountFromPDF(file);
+  } else if (
+    fileType ===
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  ) {
+    return await calculatePageCountFromDocx(file);
+  } else {
+    throw new Error("ชนิดไฟล์ไม่รองรับสำหรับการดึงจำนวนหน้า");
+  }
+}
+
+// คำนวณราคาและจำนวนหน้าจากไฟล์
 export async function calculatePrice(
   selectTypePrint: string,
-  pagePrint: string,
   copiesSetPrint: string,
   selectedFile: File | null
-): Promise<number> {
+): Promise<{ totalPrice: number; pageCount: number }> {
   if (!selectedFile) {
-    console.log("ไม่พบไฟล์ที่เลือก");
-    return 0;
+    return { totalPrice: 0, pageCount: 0 };
   }
-  const pageCount = parseInt(pagePrint) || 1;
+
+  let pageCount = 1;
+  try {
+    pageCount = await getPageCount(selectedFile);
+  } catch (error) {
+    console.error("เกิดข้อผิดพลาดในการนับจำนวนหน้า:", error);
+    return { totalPrice: 0, pageCount: 0 };
+  }
+
   const copiesCount = parseInt(copiesSetPrint) || 1;
   const totalPageCount = pageCount * copiesCount;
   let totalPrice = 0;
 
-  console.log(`คำนวณราคาตามประเภทการพิมพ์: ${selectTypePrint}`);
-  console.log(`จำนวหน้า: ${pagePrint}`);
-  console.log(`จำนวนชุด: ${copiesSetPrint}`);
-  console.log(`ชื่อไฟล์: ${selectedFile}`);
-
-  // คำนวณเปอร์เซ็นต์สีก่อน
   let colorPercentage = 0;
   if (selectTypePrint === "สี") {
     try {
       colorPercentage = await calculateFileColorPercentage(selectedFile);
-      console.log(`เปอร์เซ็นต์สีในไฟล์: ${colorPercentage}%`);
     } catch (error) {
       console.error("เกิดข้อผิดพลาดในการคำนวณเปอร์เซ็นต์สี:", error);
     }
   }
 
-  // คำนวณราคาตามประเภทการพิมพ์
-  if (selectTypePrint === "ขาวดำ") {
-    const pricePerPage = totalPageCount <= 4 ? 5 : 1; // 1-4 แผ่น = 5 บาท, 5 แผ่นขึ้นไป = 1 บาท
-    totalPrice = pricePerPage * totalPageCount;
-  } else if (selectTypePrint === "สี") {
-    // ปรับเงื่อนไขการคำนวณราคาให้เหมาะสม
-    let pricePerPage = 1; // กำหนดราคาต่ำสุดไว้ก่อน
-    if (colorPercentage >= 75) {
-      pricePerPage = 20; // สีมากกว่า 75% คิดราคาตามนี้
-    } else if (colorPercentage >= 50) {
-      pricePerPage = 15; // สี 50% ขึ้นไป
-    } else if (colorPercentage >= 25) {
-      pricePerPage = 10; // สี 25% ขึ้นไป
-    }
+  console.log(`จำนวนหน้าทั้งหมดของเอกสาร: ${totalPageCount}`);
+  console.log(`เปอร์เซ็นต์สีในเอกสาร: ${colorPercentage}%`);
 
-    totalPrice = pricePerPage * totalPageCount;
-  }
+  // คำนวณราคา (สมมติว่าใช้ราคาตามเปอร์เซ็นต์สี)
+  totalPrice = totalPageCount * colorPercentage * 0.1;
 
-  console.log(`ราคาที่คำนวณได้: ${totalPrice} บาท`);
-  return totalPrice;
+  return { totalPrice, pageCount: totalPageCount };
 }

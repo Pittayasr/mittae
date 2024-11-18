@@ -1,7 +1,7 @@
 // VehicleInfo.tsx
 import React, { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
-import TextInput from "../textInput";
+import TextInput from "../textFillComponent/textInput";
 
 interface VehicleInfoProps {
   isInvalid: boolean;
@@ -86,10 +86,11 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
         selectedCarType === "รถไฟฟ้า"
           ? "น้ำหนักรถ (กิโลกรัม)"
           : "ขนาดความจุ CC";
+      setEngineSize("");
 
       setCCorWeight(label);
     }
-  }, [selectedCarType, setCCorWeight]);
+  }, [selectedCarType, setCCorWeight, setEngineSize]);
 
   return (
     <Row>

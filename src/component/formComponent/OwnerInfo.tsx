@@ -1,9 +1,9 @@
 // OwnerInfo.tsx
 import React, { useEffect, useState } from "react"; // Importing React and useState
 import { Col, Row } from "react-bootstrap";
-import RadioButton from "../radioButton";
-import TextInput from "../textInput";
-import TextSelect from "../textSelect";
+import RadioButton from "../textFillComponent/radioButton";
+import TextInput from "../textFillComponent/textInput";
+import TextSelect from "../textFillComponent/textSelect";
 
 interface OwnerInfoProps {
   isInvalid: boolean;

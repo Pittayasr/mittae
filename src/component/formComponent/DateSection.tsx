@@ -1,8 +1,8 @@
 // DateSection.tsx
 import React from "react";
 import { Col, Row } from "react-bootstrap";
-import DateInput from "../dateInput";
-import ImageModal from "../Imagemodal";
+import DateInput from "../textFillComponent/dateInput";
+import ImageModal from "../textFillComponent/Imagemodal";
 import { Dayjs } from "dayjs";
 
 interface DateSectionProps {

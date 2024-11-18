@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/th";
 import { db } from "../../firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
-import AlertModal from "./alertModal";
+import AlertModal from "./textFillComponent/alertModal";
 
 // const formatDate = (date: Date | null) => {
 //   if (!date) return "-";

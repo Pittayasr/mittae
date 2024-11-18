@@ -1,19 +1,19 @@
 // UserInfo.tsx
 import React, { useState } from "react";
 import { Col, Row } from "react-bootstrap";
-import TextInput from "../textInput";
-import TextSelect from "../textSelect";
+import TextInput from "../textFillComponent/textInput";
+import TextSelect from "../textFillComponent/textSelect";
 import { provinces } from "../../data/provinces";
 
 interface UserInfoProps {
-  isInvalid: boolean;  
+  isInvalid: boolean;
   usernameData: string;
   setUsernameData: (value: string) => void;
   selectedProvince: string | null;
   setSelectedProvince: (value: string | null) => void;
   selectedCarType: string | null;
   setSelectedCarType: (value: string | null) => void;
-  setIsFormValid: (isValid: boolean) => void; 
+  setIsFormValid: (isValid: boolean) => void;
 }
 
 const UserInfo: React.FC<UserInfoProps> = ({
@@ -31,18 +31,15 @@ const UserInfo: React.FC<UserInfoProps> = ({
   const handleNameChange = (value: string) => {
     const namePattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z\s]*$/;
     const invalid = value.length > 0 && !namePattern.test(value);
-  
+
     setUsernameData(value);
     setInvalidName(invalid);
-    
+
     // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
     setIsFormValid(
-      !invalid &&
-      selectedProvince !== null &&
-      selectedCarType !== null
+      !invalid && selectedProvince !== null && selectedCarType !== null
     );
   };
-  
 
   return (
     <Row className="mt-3">
