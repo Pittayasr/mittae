@@ -6,6 +6,7 @@ import multer from "multer";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import fs from "fs";
 
 const app = express();
 const PORT = 3000; // กำหนดพอร์ตเป็น 3000
@@ -28,11 +29,14 @@ app.post("/convert", upload.single("file"), (req, res) => {
     return res.status(400).json({ error: "No file provided" });
   }
 
-  // ใช้ __dirname เพื่อสร้าง output path
-  const outputPath = path.join(__dirname, "output.pdf");
-  const command = `libreoffice --headless --convert-to pdf "${inputPath}" --outdir "${path.dirname(
-    outputPath
-  )}"`;
+  const outputDir = path.dirname(inputPath);
+  const outputFileName = `${path.basename(
+    inputPath,
+    path.extname(inputPath)
+  )}.pdf`;
+  const outputPath = path.join(outputDir, outputFileName);
+
+  const command = `soffice --headless --convert-to pdf "${inputPath}" --outdir "${outputDir}"`;
   console.log(`Running command: ${command}`);
 
   exec(command, (error, stdout, stderr) => {
@@ -46,9 +50,22 @@ app.post("/convert", upload.single("file"), (req, res) => {
       console.error(`stderr: ${stderr}`);
     }
     console.log(`stdout: ${stdout}`);
-    res.download(outputPath, "output.pdf", (err) => {
+
+    // ส่งไฟล์ PDF ให้ผู้ใช้
+    res.download(outputPath, "converted.pdf", (err) => {
+      // ลบไฟล์หลังการดาวน์โหลด
+      fs.unlink(inputPath, (unlinkErr) => {
+        if (unlinkErr)
+          console.error(`Failed to delete input file: ${unlinkErr}`);
+      });
+      fs.unlink(outputPath, (unlinkErr) => {
+        if (unlinkErr)
+          console.error(`Failed to delete output file: ${unlinkErr}`);
+      });
+
       if (err) {
         console.error(err);
+        res.status(500).json({ error: "Failed to download file" });
       }
     });
   });

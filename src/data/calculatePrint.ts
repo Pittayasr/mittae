@@ -139,7 +139,7 @@ async function calculateColorPercentage(pdfFile: File): Promise<number> {
   return averageColorPercentage;
 }
 
-// คำนวณเปอร์เซ็นต์สีตามประเภทไฟล์
+// ฟังก์ชันคำนวณเปอร์เซ็นต์สีในไฟล์ที่แปลงแล้ว
 export async function calculateFileColorPercentage(
   file: File
 ): Promise<number> {
@@ -158,9 +158,14 @@ export async function calculateFileColorPercentage(
     alert(
       "ไฟล์ได้แปลงเป็น PDF แล้ว คุณสามารถดาวน์โหลดไฟล์ PDF ที่นี่: " + pdfUrl
     );
-    throw new Error(
-      "File converted and downloaded. Manual process required for color calculation."
-    );
+
+    // แปลงจาก Blob เป็น File
+    const pdfBlob = await fetch(pdfUrl).then((res) => res.blob());
+    const pdfFile = new File([pdfBlob], "converted.pdf", {
+      type: pdfBlob.type,
+    });
+
+    return calculateColorPercentage(pdfFile); // เรียกฟังก์ชันนี้เพื่อคำนวณสีในไฟล์ PDF ที่แปลง
   } else if (fileType === "image/jpeg" || fileType === "image/png") {
     return calculateImageColorPercentage(file);
   } else {
