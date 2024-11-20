@@ -1,9 +1,6 @@
 // calculatePrint.ts
 import * as pdfjsLib from "pdfjs-dist";
 import { GlobalWorkerOptions } from "pdfjs-dist";
-// import mammoth from "mammoth";
-import JSZip from "jszip";
-// import { Document, Packer, Paragraph } from "docx";
 
 GlobalWorkerOptions.workerSrc = `/pdf.js/build/pdf.worker.mjs`;
 
@@ -143,7 +140,7 @@ async function calculateColorPercentage(pdfFile: File): Promise<number> {
 export async function calculateFileColorPercentage(
   file: File
 ): Promise<number> {
-  const fileType = file.type.toLowerCase(); // ใช้ MIME type แทนการตรวจสอบจากนามสกุล
+  const fileType = file.type.toLowerCase(); 
   console.log(`ประเภทไฟล์ที่ได้รับ: ${fileType}`);
 
   if (fileType === "application/pdf") {
@@ -181,26 +178,6 @@ async function getPageCountFromPDF(file: File): Promise<number> {
   return pdf.numPages;
 }
 
-// คำนวณจำนวนหน้าจาก DOCX
-async function calculatePageCountFromDocx(docxFile: File): Promise<number> {
-  const arrayBuffer = await docxFile.arrayBuffer();
-  const zip = await JSZip.loadAsync(arrayBuffer);
-  const docFile = zip.files["word/document.xml"];
-
-  if (!docFile) {
-    throw new Error("ไม่พบเอกสารหลักในไฟล์ DOCX");
-  }
-
-  const documentXML = await docFile.async("text");
-  const paragraphs = documentXML.match(/<w:p[^>]*>/g)?.length || 0;
-  const estimatedCharactersPerPage = 800; // สมมติว่าหน้าหนึ่งมี 800 ตัวอักษร
-  const estimatedPages = Math.ceil(
-    (paragraphs * 50) / estimatedCharactersPerPage
-  );
-
-  return estimatedPages;
-}
-
 // ตรวจสอบชนิดไฟล์และเรียกใช้ฟังก์ชันการนับจำนวนหน้า
 async function getPageCount(file: File): Promise<number> {
   const fileType = file.type;
@@ -211,7 +188,16 @@ async function getPageCount(file: File): Promise<number> {
     fileType ===
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
   ) {
-    return await calculatePageCountFromDocx(file);
+    const pdfUrl = await convertDocToPDF(file); // แปลง DOCX เป็น PDF
+    console.log("แปลงไฟล์สำเร็จ, ดาวน์โหลด URL:", pdfUrl);
+
+    const pdfBlob = await fetch(pdfUrl).then((res) => res.blob());
+    const pdfFile = new File([pdfBlob], "converted.pdf", {
+      type: "application/pdf",
+    });
+
+    console.log("เริ่มคำนวณเปอร์เซ็นต์สีใน PDF...");
+    return getPageCountFromPDF(pdfFile);
   } else if (fileType === "image/jpeg" || fileType === "image/png") {
     return 1;
   } else {
@@ -225,56 +211,33 @@ export async function calculatePrice(
   copiesSetPrint: string,
   selectedFile: File | null
 ): Promise<{ totalPrice: number; pageCount: number }> {
-  if (!selectedFile) {
-    return { totalPrice: 0, pageCount: 0 };
-  }
+  if (!selectedFile) throw new Error("ไม่พบไฟล์");
 
-  let pageCount = 1;
-  try {
-    pageCount = await getPageCount(selectedFile);
-  } catch (error) {
-    console.error("เกิดข้อผิดพลาดในการนับจำนวนหน้า:", error);
-    return { totalPrice: 0, pageCount: 0 };
-  }
-
+  // ดึงจำนวนหน้า
+  const pageCount = await getPageCount(selectedFile);
   const copiesCount = parseInt(copiesSetPrint) || 1;
   const totalPageCount = pageCount * copiesCount;
-  let totalPrice = 0;
 
   // คำนวณเปอร์เซ็นต์สี
-  let colorPercentage = 0;
-  if (selectedFile.type === "application/pdf") {
-    colorPercentage = await calculateColorPercentage(selectedFile); // สำหรับไฟล์ PDF
-  } else if (
-    selectedFile.type === "image/jpeg" ||
-    selectedFile.type === "image/png"
-  ) {
-    colorPercentage = await calculateImageColorPercentage(selectedFile); // สำหรับไฟล์รูปภาพ
+  const colorPercentage = await calculateFileColorPercentage(selectedFile);
+
+  // คำนวณราคา
+  let totalPrice = 0;
+  if (selectTypePrint === "สี") {
+    const pricePerPage =
+      colorPercentage >= 75
+        ? 20
+        : colorPercentage >= 50
+        ? 15
+        : colorPercentage >= 25
+        ? 10
+        : 5;
+    totalPrice = totalPageCount * pricePerPage;
+  } else {
+    totalPrice = totalPageCount <= 4 ? 5 * totalPageCount : totalPageCount; // ขาวดำ
   }
 
-  console.log(`ประเภทของการถ่ายเอกสาร: ${selectTypePrint}`);
-  console.log(`เปอร์เซ็นต์สีในเอกสาร: ${colorPercentage}%`);
-
-  // คำนวณราคาตามประเภทการพิมพ์
-  if (selectTypePrint === "ขาวดำ") {
-    const pricePerPage = totalPageCount <= 4 ? 5 : 1; // 1-4 แผ่น = 5 บาท, 5 แผ่นขึ้นไป = 1 บาท
-    totalPrice = pricePerPage * totalPageCount;
-  } else if (selectTypePrint === "สี") {
-    // ปรับเงื่อนไขการคำนวณราคาให้เหมาะสม
-    let pricePerPage = 1; // กำหนดราคาต่ำสุดไว้ก่อน
-    if (colorPercentage >= 75) {
-      pricePerPage = 20; // สีมากกว่า 75% คิดราคาตามนี้
-    } else if (colorPercentage >= 50) {
-      pricePerPage = 15; // สี 50% ขึ้นไป
-    } else if (colorPercentage >= 25) {
-      pricePerPage = 10; // สี 25% ขึ้นไป
-    }
-
-    totalPrice = pricePerPage * totalPageCount;
-  }
-
-  console.log(`จำนวนหน้าทั้งหมดของเอกสาร: ${totalPageCount}`);
-  console.log(`ราคาที่คำนวณได้: ${totalPrice} บาท`);
-
-  return { totalPrice, pageCount };
+  console.log(`จำนวนหน้าทั้งหมด: ${totalPageCount}`);
+  console.log(`ราคาทั้งหมด: ${totalPrice}`);
+  return { totalPrice, pageCount: totalPageCount };
 }

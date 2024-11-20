@@ -4,19 +4,18 @@ import { exec } from "child_process";
 import path from "path";
 import multer from "multer";
 import cors from "cors";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 import fs from "fs";
 
 const app = express();
 const PORT = 3000; // กำหนดพอร์ตเป็น 3000
 
-// หา __dirname ในโมดูล ESM โดยใช้ import.meta.url
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 // Setup CORS middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173"], // ระบุ URL ของ frontend
+    methods: ["POST"],
+  })
+);
 
 // Setup multer for file uploads
 const upload = multer({ dest: "uploads/" });
