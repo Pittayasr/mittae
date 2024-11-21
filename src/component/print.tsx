@@ -1,9 +1,6 @@
 // print.tsx
 import React, { useState, useEffect } from "react";
-import {
-  calculatePrice,
-  calculateFileColorPercentage,
-} from "../data/calculatePrint";
+import { calculatePrice } from "../data/calculatePrint";
 import { Col, Row, Form, Button, Alert, Modal, Spinner } from "react-bootstrap";
 import TextInput from "./textFillComponent/textInput";
 import TextSelect from "./textFillComponent/textSelect";
@@ -31,9 +28,9 @@ const Print: React.FC = () => {
 
   useEffect(() => {
     // เมื่อ `showModal` เป็น false เราจะปิด Modal จริงๆ
-    if (totalPrice > 0 && textColorPercentage !== null && !showModal) {
+    if (totalPrice > 0 && !showModal) {
       setModalMessage(
-        `รวมค่าใช้จ่าย: ${totalPrice} บาท \nเปอร์เซ็นต์ของสีในเอกสาร: ${textColorPercentage} %\nคุณต้องการยืนยันว่า\nข้อมูลทั้งหมดถูกต้องใช่ไหม?`
+        `รวมค่าใช้จ่าย: ${totalPrice} บาท \n\nคุณต้องการยืนยันว่าข้อมูลทั้งหมดถูกต้องใช่ไหม?`
       );
 
       setShowModal(true);
@@ -60,9 +57,6 @@ const Print: React.FC = () => {
       );
       setTotalPrice(price.totalPrice);
       setPagePrint(price.pageCount);
-
-      const colorPercentage = await calculateFileColorPercentage(selectedFile);
-      setTextColorPercentage(colorPercentage);
     } catch (error) {
       console.error("Error during submission: ", error);
       setModalMessage("การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง");
@@ -78,7 +72,7 @@ const Print: React.FC = () => {
     try {
       const data = {
         typePrint: selectTypePrint,
-        numPages: pagePrint,
+        numAllPages: pagePrint,
         numSetPrint: copiesSetPrint,
         fileName: selectedFile?.name ?? "ยังไม่ได้เลือกไฟล์",
         price: totalPrice,
@@ -214,7 +208,7 @@ const Print: React.FC = () => {
         <Modal show={isCalculating} centered>
           <Modal.Body className="text-center">
             <Spinner animation="border" role="status" className="my-3" />
-            <p >กำลังประมวลผล...</p>
+            <p>กำลังประมวลผล...</p>
           </Modal.Body>
         </Modal>
 
