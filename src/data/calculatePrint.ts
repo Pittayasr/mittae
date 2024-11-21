@@ -153,49 +153,49 @@ async function calculatePageColorPercentage(
 }
 
 // ดึงเปอร์เซ็นต์สีของแต่ละหน้า
-async function calculatePageColorPercentages(pdfFile: File): Promise<number[]> {
-  const typedArray = new Uint8Array(await pdfFile.arrayBuffer());
-  const pdfDocument = await pdfjsLib.getDocument(typedArray).promise;
+// async function calculatePageColorPercentages(pdfFile: File): Promise<number[]> {
+//   const typedArray = new Uint8Array(await pdfFile.arrayBuffer());
+//   const pdfDocument = await pdfjsLib.getDocument(typedArray).promise;
 
-  const totalPages = pdfDocument.numPages;
-  console.log(`จำนวนหน้าทั้งหมด: ${totalPages}`);
+//   const totalPages = pdfDocument.numPages;
+//   console.log(`จำนวนหน้าทั้งหมด: ${totalPages}`);
 
-  // ใช้ Promise.all เพื่อคำนวณเปอร์เซ็นต์สีของทุกหน้า
-  const pagePercentages = await Promise.all(
-    Array.from({ length: totalPages }, (_, index) =>
-      calculatePageColorPercentage(pdfFile, index + 1)
-    )
-  );
+//   // ใช้ Promise.all เพื่อคำนวณเปอร์เซ็นต์สีของทุกหน้า
+//   const pagePercentages = await Promise.all(
+//     Array.from({ length: totalPages }, (_, index) =>
+//       calculatePageColorPercentage(pdfFile, index + 1)
+//     )
+//   );
 
-  console.log(`เปอร์เซ็นต์สีของแต่ละหน้า: ${pagePercentages}`);
-  return pagePercentages;
-}
+//   console.log(`เปอร์เซ็นต์สีของแต่ละหน้า: ${pagePercentages}`);
+//   return pagePercentages;
+// }
 
 // คำนวณราคาจากเปอร์เซ็นต์สีของแต่ละหน้า
-function calculateTotalPriceByPages(
-  pagePercentages: number[],
-  copiesCount: number,
-  isColor: boolean
-): number {
-  let totalPrice = 0;
+// function calculateTotalPriceByPages(
+//   pagePercentages: number[],
+//   copiesCount: number,
+//   isColor: boolean
+// ): number {
+//   let totalPrice = 0;
 
-  for (const percentage of pagePercentages) {
-    const pricePerPage = isColor
-      ? percentage >= 75
-        ? 20
-        : percentage >= 50
-        ? 15
-        : percentage >= 25
-        ? 10
-        : 5
-      : 1; // ราคาแบบขาวดำต่อหน้า
+//   for (const percentage of pagePercentages) {
+//     const pricePerPage = isColor
+//       ? percentage >= 75
+//         ? 20
+//         : percentage >= 50
+//         ? 15
+//         : percentage >= 25
+//         ? 10
+//         : 5
+//       : 1; // ราคาแบบขาวดำต่อหน้า
 
-    totalPrice += pricePerPage * copiesCount;
-  }
+//     totalPrice += pricePerPage * copiesCount;
+//   }
 
-  console.log(`ราคาค่าปริ้นแต่ละหน้ารวม: ${totalPrice}`);
-  return totalPrice;
-}
+//   console.log(`ราคาค่าปริ้นแต่ละหน้ารวม: ${totalPrice}`);
+//   return totalPrice;
+// }
 
 // คำนวณเปอร์เซ็นต์สีทั้งหมดใน PDF
 async function calculateColorPercentage(pdfFile: File): Promise<number> {
@@ -238,9 +238,9 @@ export async function calculateFileColorPercentage(
     fileType ===
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
   ) {
-    return cachedColorPercentage;
+    return cachedColorPercentage; // ใช้ค่าที่แคชไว้
   } else if (fileType === "image/jpeg" || fileType === "image/png") {
-    return calculateImageColorPercentage(file);
+    return calculateImageColorPercentage(file); // คำนวณสีโดยตรงสำหรับรูปภาพ
   } else {
     console.log("ประเภทไฟล์ไม่รองรับ");
     throw new Error("ประเภทไฟล์ไม่รองรับ");
@@ -264,6 +264,8 @@ async function getPageCount(file: File): Promise<number> {
   ) {
     const pdfFile = await convertOnce(file);
     cachedPageCount = await getPageCount(pdfFile);
+  } else if (file.type === "image/jpeg" || file.type === "image/png") {
+    return 1; // ไฟล์รูปภาพถือว่าเป็น 1 หน้า
   } else {
     throw new Error("ชนิดไฟล์ไม่รองรับสำหรับการดึงจำนวนหน้า");
   }
@@ -291,19 +293,28 @@ export async function calculatePrice(
   // ดึงจำนวนหน้า
   const pageCount = await getPageCount(uploadedFile);
 
-  // ดึงเปอร์เซ็นต์สีของแต่ละหน้า
-  const pageColorPercentages = await calculatePageColorPercentages(
-    uploadedFile
-  );
+  // คำนวณเปอร์เซ็นต์สี
+  let colorPercentage = 0;
+  if (selectedFile.type === "image/jpeg" || selectedFile.type === "image/png") {
+    colorPercentage = await calculateImageColorPercentage(uploadedFile);
+  } else {
+    colorPercentage = await calculateFileColorPercentage(uploadedFile);
+  }
 
   const copiesCount = parseInt(copiesSetPrint, 10) || 1;
 
   // คำนวณราคาทั้งหมด
-  const totalPrice = calculateTotalPriceByPages(
-    pageColorPercentages,
-    copiesCount,
+  const pricePerPage =
     selectTypePrint === "สี"
-  );
+      ? colorPercentage >= 75
+        ? 20
+        : colorPercentage >= 50
+        ? 15
+        : colorPercentage >= 25
+        ? 10
+        : 5
+      : 1; // ขาวดำ
+  const totalPrice = pageCount * pricePerPage * copiesCount;
 
   console.log(`ราคาทั้งหมด: ${totalPrice}`);
   return { totalPrice, pageCount: pageCount * copiesCount };

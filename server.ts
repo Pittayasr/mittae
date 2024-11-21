@@ -23,7 +23,7 @@ const upload = multer({ dest: "uploads/" });
 app.use(express.json());
 
 app.post("/convert", upload.single("file"), (req, res) => {
-  const inputPath = req.file?.path; // Path to uploaded file
+  const inputPath = req.file?.path;
   if (!inputPath) {
     return res.status(400).json({ error: "No file provided" });
   }
@@ -50,9 +50,7 @@ app.post("/convert", upload.single("file"), (req, res) => {
     }
     console.log(`stdout: ${stdout}`);
 
-    // ส่งไฟล์ PDF ให้ผู้ใช้
     res.download(outputPath, "converted.pdf", (err) => {
-      // ลบไฟล์หลังการดาวน์โหลด
       fs.unlink(inputPath, (unlinkErr) => {
         if (unlinkErr)
           console.error(`Failed to delete input file: ${unlinkErr}`);
