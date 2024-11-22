@@ -10,6 +10,7 @@ import {
 import PDPA_modal from "./component/PDPAmodal";
 import FormComponent from "./component/form";
 import Print from "./component/print";
+import Delivery from "./component/delivery";
 import "./App.css";
 import SelectFormModal from "./component/selectFromModal";
 
@@ -33,9 +34,16 @@ function App() {
     navigate("/print");
   };
 
+  const handleNavigateToDelivery = () => {
+    // setShowSelectFormModal(false);
+    navigate("/delivery");
+  };
+
   if (
     !isPDPAAgreed &&
-    (location.pathname === "/form" || location.pathname === "/print")
+    (location.pathname === "/form" ||
+      location.pathname === "/print" ||
+      location.pathname === "/delivery")
   ) {
     return <PDPA_modal isVisible={!isPDPAAgreed} onAgree={handlePDPAAgree} />;
   }
@@ -55,6 +63,10 @@ function App() {
           path="/print"
           element={isPDPAAgreed ? <Print /> : <Navigate to="/" />}
         />
+        <Route
+          path="/delivery"
+          element={isPDPAAgreed ? <Delivery /> : <Navigate to="/" />}
+        />
         {/* Default route */}
         <Route
           path="/"
@@ -64,6 +76,7 @@ function App() {
               onClose={() => setShowSelectFormModal(false)}
               onNavigateToReadMe={handleNavigateToForm}
               onNavigateToPrint={handleNavigateToPrint}
+              onNavigateToDelivery={handleNavigateToDelivery}
             />
           }
         />

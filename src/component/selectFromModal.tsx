@@ -8,6 +8,7 @@ interface SelectFormModalProps {
   onClose: () => void;
   onNavigateToReadMe: () => void;
   onNavigateToPrint: () => void;
+  onNavigateToDelivery: () => void;
 }
 
 const SelectFormModal: React.FC<SelectFormModalProps> = ({
@@ -23,6 +24,11 @@ const SelectFormModal: React.FC<SelectFormModalProps> = ({
 
   const handleNavigateToPrint = () => {
     navigate("/print");
+    onClose();
+  };
+
+  const handleNavigateToDelivery = () => {
+    navigate("/delivery");
     onClose();
   };
 
@@ -54,12 +60,23 @@ const SelectFormModal: React.FC<SelectFormModalProps> = ({
           <Col className="mb-2" xs={12}>
             <Button
               variant="success"
-              className="w-75"
+              className="mb-3 w-75"
               onClick={handleNavigateToPrint}
             >
               ไปยังหน้าระบบปริ้นเอกสาร
             </Button>
           </Col>
+
+          <Col className="mb-2" xs={12}>
+            <Button
+              variant="success"
+              className="w-75"
+              onClick={handleNavigateToDelivery}
+            >
+              ไปยังหน้าส่งรถส่งของกลับบ้าน แฟลชและไปรษณีย์
+            </Button>
+          </Col>
+
         </Row>
       </Modal.Body>
     </Modal>
