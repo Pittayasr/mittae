@@ -128,7 +128,7 @@ const Print: React.FC = () => {
             <strong>4. หลังจากชำระเงินแล้ว ให้ลูกค้าส่งไฟล์มาได้เลย</strong>
           </li>
           <li>
-            <strong>5. ส่งไฟล์: PDF WORD JPG หรือ PNG เท่านั้น</strong>
+            <strong>5. ส่งไฟล์: PDF JPG หรือ PNG เท่านั้น</strong>
           </li>
           <li>
             <strong>6. รับที่ร้านเท่านั้น</strong>

@@ -102,10 +102,6 @@
   }
 }
 
-@media (max-width: 1024px) {
-  
-}
-
 @media (max-width: 553px) {
   .register-and-contract-number {
     display: flex;
@@ -128,7 +124,6 @@
     margin-bottom: 20px;
   }
 }
-
 
 .custom-checkbox input[type="checkbox"]:checked {
   background-color: green;

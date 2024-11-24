@@ -21,8 +21,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/**/*","d:/project/mittare/firebaseConfig.ts" ],
-  "references": [
-    { "path": "./tsconfig.node.json" }
-  ]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "firebaseConfig.ts"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

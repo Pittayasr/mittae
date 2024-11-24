@@ -34,9 +34,6 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
 }) => {
   const [isInvalidOwnerInfo, setInvalidOwnerInfo] = useState(false);
 
-  {
-    /* เก็บค่า lebel เพื่อให้เปลี่ยนตามที่เลือก */
-  }
   useEffect(() => {
     // setBikeTypeOrDoorCount(null);
 
@@ -60,9 +57,6 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
     const value = e.target.value;
     let invalid = false;
 
-    {
-      /* เงื่อนไขการกรอกข้อมูล */
-    }
     if (selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด") {
       const idCardPattern = /^\d{13}$/; // ID card pattern
       invalid = value.length > 0 && !idCardPattern.test(value);

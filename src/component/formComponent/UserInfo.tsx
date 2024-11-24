@@ -3,16 +3,16 @@ import React, { useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import TextInput from "../textFillComponent/textInput";
 import TextSelect from "../textFillComponent/textSelect";
-import { provinces } from "../../data/provinces";
+import provinces from "../../data/provinces.json";
 
 interface UserInfoProps {
-  isInvalid: boolean;
   usernameData: string;
   setUsernameData: (value: string) => void;
   selectedProvince: string | null;
   setSelectedProvince: (value: string | null) => void;
   selectedCarType: string | null;
   setSelectedCarType: (value: string | null) => void;
+  isInvalid: boolean;
   setIsFormValid: (isValid: boolean) => void;
 }
 
@@ -27,6 +27,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
   setIsFormValid,
 }) => {
   const [isInvalidName, setInvalidName] = useState(false);
+  const [provinceList] = useState(provinces);
 
   const handleNameChange = (value: string) => {
     const namePattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z\s]*$/;
@@ -36,9 +37,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
     setInvalidName(invalid);
 
     // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
-    setIsFormValid(
-      !invalid && selectedProvince !== null && selectedCarType !== null
-    );
+    setIsFormValid(!invalid && !selectedProvince && !selectedCarType);
   };
 
   return (
@@ -63,7 +62,10 @@ const UserInfo: React.FC<UserInfoProps> = ({
           value={selectedProvince || ""}
           label="จังหวัด"
           id="province"
-          options={provinces}
+          options={provinceList.map((p) => ({
+            value: p.provinceCode.toString(),
+            label: p.provinceNameTh,
+          }))}
           placeholder="ค้นหา..."
           onChange={(value) => setSelectedProvince(value)}
           required
@@ -79,15 +81,18 @@ const UserInfo: React.FC<UserInfoProps> = ({
           label="ประเภทรถ"
           id="carType"
           options={[
-            "รถยนต์",
-            "รถจักรยานยนต์",
-            "รถบรรทุก",
-            "รถบรรทุก(เกิน7ที่นั่ง)",
-            "รถไฮบริด",
-            "รถไฟฟ้า",
-            "รถบดถนน",
-            "รถพ่วง",
-            "รถแทรกเตอร์",
+            { label: "รถยนต์", value: "รถยนต์" },
+            { label: "รถจักรยานยนต์", value: "รถจักรยานยนต์" },
+            { label: "รถบรรทุก", value: "รถบรรทุก" },
+            {
+              label: "รถบรรทุก(เกิน7ที่นั่ง)",
+              value: "รถบรรทุก(เกิน7ที่นั่ง)",
+            },
+            { label: "รถไฮบริด", value: "รถไฮบริด" },
+            { label: "รถไฟฟ้า", value: "รถไฟฟ้า" },
+            { label: "รถบดถนน", value: "รถบดถนน" },
+            { label: "รถพ่วง", value: "รถพ่วง" },
+            { label: "รถแทรกเตอร์", value: "รถแทรกเตอร์" },
           ]}
           placeholder="ค้นหา..."
           onChange={(value) => setSelectedCarType(value)}

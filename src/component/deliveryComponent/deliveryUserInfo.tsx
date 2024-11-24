@@ -3,166 +3,143 @@ import React, { useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import TextInput from "../textFillComponent/textInput";
 
-interface UserInfo {
-  username: string;
-  idCard: string;
-  contact: string;
-}
-
 interface DeliveryUserInfoProps {
-  sender: UserInfo;
-  receiver: UserInfo;
-  setSender: (data: UserInfo) => void;
-  setReceiver: (data: UserInfo) => void;
+  isInvalid: boolean;
+  username: string;
+  setUsername: (value: string) => void;
+  contactNum: string;
+  setContactNum: (value: string) => void;
+  NoIDcard: string;
+  setNoIDcard: (value: string) => void;
   setIsFormValid: (isValid: boolean) => void;
 }
 
 const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
-  sender,
-  receiver,
-  setSender,
-  setReceiver,
+  isInvalid,
+  username,
+  setUsername,
+  contactNum,
+  setContactNum,
+  NoIDcard,
+  setNoIDcard,
   setIsFormValid,
 }) => {
-  const [isInvalidSender, setIsInvalidSender] = useState({
-    username: false,
-    idCard: false,
-    contact: false,
-  });
-  const [isInvalidReceiver, setIsInvalidReceiver] = useState({
-    username: false,
-    idCard: false,
-    contact: false,
-  });
+  const [isInvalidUsername, setInvalidName] = useState(false);
+  const [isInvalidContactNum, setIsInvalidContactNum] = useState(false);
+  const [isInvalidNoIDcard, setIsInvalidNoIDcard] = useState(false);
 
-  const validateUserInfo = (
-    user: UserInfo,
-    invalid: typeof isInvalidSender
-  ) => {
-    const isFormValid =
-      !invalid.username &&
-      !invalid.idCard &&
-      !invalid.contact &&
-      !!user.username &&
-      !!user.idCard &&
-      !!user.contact;
-    setIsFormValid(isFormValid);
+  const handleUsernameChange = (value: string) => {
+    const namePattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z\s]*$/;
+    const invalid = value.length > 0 && !namePattern.test(value);
+
+    setUsername(value);
+    setInvalidName(invalid);
+
+    // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
+    setIsFormValid(!invalid && !isInvalidNoIDcard && !isInvalidContactNum);
   };
 
-  const handleChange = (
-    type: "sender" | "receiver",
-    field: keyof UserInfo,
-    value: string
-  ) => {
-    const setUser = type === "sender" ? setSender : setReceiver;
-    const invalidState =
-      type === "sender" ? isInvalidSender : isInvalidReceiver;
-    const setInvalidState =
-      type === "sender" ? setIsInvalidSender : setIsInvalidReceiver;
-
-    const userInfo = type === "sender" ? sender : receiver;
-
-    const updatedUser = { ...userInfo, [field]: value };
-    setUser(updatedUser);
-
-    // Validation logic
-    let isInvalid = false;
-    if (field === "username") {
-      isInvalid = value.length > 0 && !/^[เ-ไก-ฮA-Za-z\s]+$/.test(value);
-    } else if (field === "idCard") {
-      const idPattern = /^\d{13}$/;
-      isInvalid =
-        value.length > 0 &&
-        (!idPattern.test(value) ||
-          (value.length === 13 && !isValidIdCard(value)));
-    } else if (field === "contact") {
-      const phonePattern = /^(06|08|09)\d{8}$/;
-      isInvalid = value.length >= 10 && !phonePattern.test(value);
+  const handleContactNumChange = (value: string) => {
+    if (/^\d*$/.test(value)) {
+      setContactNum(value);
     }
 
-    const updatedInvalid = { ...invalidState, [field]: isInvalid };
-    setInvalidState(updatedInvalid);
-    validateUserInfo(updatedUser, updatedInvalid);
+    // เพิ่มการตรวจสอบความยาวของหมายเลขโทรศัพท์
+    const phonePattern = /^(06|08|09)\d{8}$/;
+    const isFormatInvalid = value.length >= 10 && !phonePattern.test(value);
+    const isLengthInvalid = value.length > 0 && value.length < 10;
+
+    const invalid = isLengthInvalid || isFormatInvalid;
+    setIsInvalidContactNum(invalid);
+
+    // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
+    setIsFormValid(!invalid && !isInvalidUsername && !isInvalidNoIDcard);
   };
 
-  const isValidIdCard = (id: string) => {
-    const digits = id.split("").map(Number);
-    const sum = digits
-      .slice(0, 12)
-      .reduce((acc, digit, idx) => acc + digit * (13 - idx), 0);
-    const checkDigit = (11 - (sum % 11)) % 10;
-    return checkDigit === digits[12];
+  const handleNoIDcardChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    let invalid = false;
+
+    const idCardPattern = /^\d{13}$/; // ID card pattern
+    invalid = value.length > 0 && !idCardPattern.test(value);
+
+    if (!invalid) {
+      // ตรวจสอบการคำนวณเลขหลักที่ 13
+      const idArray = value.split("").map(Number); // แยกตัวเลขแต่ละหลัก
+      let sum = 0;
+
+      for (let i = 0; i < 12; i++) {
+        sum += idArray[i] * (13 - i); // คูณเลขแต่ละหลักด้วยตำแหน่งที่สอดคล้อง
+      }
+
+      const checkDigit = (11 - (sum % 11)) % 10; // คำนวณเลขตรวจสอบ (หลักที่ 13)
+
+      // ตรวจสอบว่าเลขหลักที่ 13 ตรงกับเลขตรวจสอบหรือไม่
+      invalid = idArray[12] !== checkDigit;
+    }
+
+    setNoIDcard(value);
+    setIsInvalidNoIDcard(invalid);
+
+    // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
+    setIsFormValid(!invalid && !isInvalidUsername && !isInvalidContactNum);
   };
 
   return (
     <Row>
-      {["sender", "receiver"].map((type) => (
-        <React.Fragment key={type}>
-          <Col md={6} xs={12}>
-            <h5>{type === "sender" ? "ข้อมูลผู้ส่ง" : "ข้อมูลผู้รับ"}</h5>
-            <TextInput
-              id="userName"
-              label="ชื่อ"
-              value={type === "sender" ? sender.username : receiver.username}
-              placeholder="กรอกชื่อ"
-              onChange={(e) =>
-                handleChange(
-                  type as "sender" | "receiver",
-                  "username",
-                  e.target.value
-                )
-              }
-              isInvalid={
-                type === "sender"
-                  ? isInvalidSender.username
-                  : isInvalidReceiver.username
-              }
-              alertText="กรุณากรอกชื่อให้ถูกต้อง"
-              required
-            />
-            <TextInput
-              id="IDcard"
-              label="หมายเลขบัตรประชาชน"
-              value={type === "sender" ? sender.idCard : receiver.idCard}
-              placeholder="กรอกเลขบัตรประชาชน"
-              onChange={(e) =>
-                handleChange(
-                  type as "sender" | "receiver",
-                  "idCard",
-                  e.target.value
-                )
-              }
-              isInvalid={
-                type === "sender"
-                  ? isInvalidSender.idCard
-                  : isInvalidReceiver.idCard
-              }
-              alertText="หมายเลขบัตรประชาชนไม่ถูกต้อง"
-              required
-            />
-            <TextInput
-              id="contactNum"
-              label="หมายเลขโทรศัพท์"
-              value={type === "sender" ? sender.contact : receiver.contact}
-              placeholder="กรอกหมายเลขโทรศัพท์"
-              onChange={(e) =>
-                handleChange(
-                  type as "sender" | "receiver",
-                  "contact",
-                  e.target.value
-                )
-              }
-              isInvalid={
-                type === "sender"
-                  ? isInvalidSender.contact
-                  : isInvalidReceiver.contact
-              }
-              alertText="กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง"
-              required
-            />
-          </Col>
-        </React.Fragment>
-      ))}
+      {/* ชื่อ-นามสกุล */}
+      <Col className="mb-4" md={4} xs={12}>
+        <TextInput
+          id="username"
+          label="ชื่อ-นามสกุล"
+          value={username}
+          placeholder="ชื่อ นามสกุล"
+          onChange={(e) => handleUsernameChange(e.target.value)}
+          isInvalid={isInvalidUsername || isInvalid}
+          alertText="กรุณากรอกชื่อให้ถูกต้อง"
+          required
+        />
+      </Col>
+      {/* เบอร์โทรศัพท์ */}
+      <Col className="mb-4" md={4} xs={12}>
+        <TextInput
+          id="contactNum"
+          label="เบอร์โทรศัพท์"
+          value={contactNum}
+          placeholder="หมายเลขโทรศัพท์10หลัก"
+          onChange={(e) => handleContactNumChange(e.target.value)}
+          isInvalid={isInvalidContactNum || isInvalid}
+          alertText={
+            isInvalidContactNum
+              ? contactNum.length > 10
+                ? "กรุณากรอกหมายเลขโทรศัพท์ 10 หลักและเริ่มด้วย 06, 08 หรือ 09"
+                : "กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก"
+              : ""
+          }
+          required
+          type="tel"
+        />
+      </Col>
+      {/* หมายเลขบัตรประชาชน */}
+      <Col className="mb-4" md={4} xs={12}>
+        <TextInput
+          id="userName"
+          label="กรอกหมายเลขบัตรประชาชน"
+          value={NoIDcard}
+          placeholder="กรอกหมายเลขบัตรประชาชน"
+          onChange={handleNoIDcardChange}
+          isInvalid={isInvalidNoIDcard || isInvalid}
+          alertText={
+            isInvalidNoIDcard
+              ? NoIDcard.length < 13
+                ? "กรอกหมายเลขบัตรประชาชนให้ครบถ้วน"
+                : "หมายเลขบัตรประชาชนไม่ถูกต้อง"
+              : ""
+          }
+          required
+          type="numeric"
+        />
+      </Col>
     </Row>
   );
 };
