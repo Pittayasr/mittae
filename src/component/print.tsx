@@ -141,7 +141,10 @@ const Print: React.FC = () => {
             <TextSelect
               label="ประเภทการปริ้น"
               id="selectTypePrint"
-              options={["ขาวดำ", "สี"]}
+              options={[
+                { label: "สี", value: "สี" },
+                { label: "ขาวดำ", value: "ขาวดำ" },
+              ]}
               placeholder="สี/ขาวดำ"
               value={selectTypePrint || ""}
               onChange={(value) => {

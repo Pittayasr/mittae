@@ -30,19 +30,19 @@ interface DeliveryAddressProps {
   soi: string;
   villageNo: string;
   dormitory: string;
-  subDistrict: string | null;
-  district: string | null;
-  postalCode: string;
   selectedProvince: string | null;
+  selectedDistrict: string | null;
+  selectedSubDistrict: string | null;
+  postalCode: string;
   isInvalid: boolean;
   setHouseNo: (value: string) => void;
   setSoi: (value: string) => void;
   setVillageNo: (value: string) => void;
   setDormitory: (value: string) => void;
-  setSubDistrict: (value: string) => void;
-  setDistrict: (value: string) => void;
-  setPostalCode: (value: string) => void;
+  setPostalCode: (value: string ) => void;
   setSelectedProvince: (value: string | null) => void;
+  setSelectedSubDistrict: (value: string | null) => void;
+  setSelectedDistrict: (value: string | null) => void;
   setIsFormValid: (isValid: boolean) => void;
 }
 
@@ -52,11 +52,17 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
   soi,
   villageNo,
   dormitory,
+  selectedProvince,
+  selectedSubDistrict,
+  selectedDistrict,
   postalCode,
   setHouseNo,
   setSoi,
   setVillageNo,
   setDormitory,
+  setSelectedProvince,
+  setSelectedSubDistrict,
+  setSelectedDistrict,
   setPostalCode,
   setIsFormValid,
 }) => {
@@ -66,11 +72,11 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
   const [districtList, setDistrictList] = useState<District[]>([]);
 
   // ค่า Province, Amphure, District ที่เลือก
-  const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
-  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
-  const [selectedSubDistrict, setSelectedSubDistrict] = useState<string | null>(
-    null
-  );
+  // const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
+  // const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  // const [selectedSubDistrict, setSelectedSubDistrict] = useState<string | null>(
+  //   null
+  // );
 
   const [isInvalidHouseNo, setInvalidHouseNo] = useState(false);
   const [isInvalidSoi, setInvalidSoi] = useState(false);
@@ -104,7 +110,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
     setPostalCode("");
   };
 
-  const handleDistrictChange = (value: string) => {
+  const handleDistrictChange = (value: string | null) => {
     setSelectedDistrict(value);
     setSelectedSubDistrict(null);
     setPostalCode("");
@@ -134,28 +140,28 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
 
   // ฟังก์ชั่นสำหรับ handle การกรอกข้อมูลและการ validation
   const handleTextInputChange = (value: string, field: string) => {
-    const invalid = value.length > 0 && !namePattern.test(value);
-
+    const invalidText = value.length > 0 && !namePattern.test(value);
+    const invalidNum = value.length > 0 && isNaN(Number(value));
     switch (field) {
       case "houseNo":
         setHouseNo(value);
-        setInvalidHouseNo(invalid);
+        setInvalidHouseNo(invalidNum);
         break;
       case "soi":
         setSoi(value);
-        setInvalidSoi(invalid);
+        setInvalidSoi(invalidText);
         break;
       case "villageNo":
         setVillageNo(value);
-        setInvalidVillageNo(invalid);
+        setInvalidVillageNo(invalidNum);
         break;
       case "dormitory":
         setDormitory(value);
-        setInvalidDormitory(invalid);
+        setInvalidDormitory(invalidText);
         break;
       case "postalCode":
         setPostalCode(value);
-        setInvalidPostalCode(invalid);
+        setInvalidPostalCode(invalidNum);
         break;
       default:
         break;
@@ -237,6 +243,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
           placeholder="ค้นหา..."
           onChange={(value) => {
             if (value !== null) handleProvinceChange(value);
+            console.log("Selected:", value);
           }}
           required
           isInvalid={isInvalid}
@@ -255,6 +262,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
           placeholder="เลือกอำเภอ"
           onChange={(value) => {
             if (value !== null) handleDistrictChange(value);
+            console.log("Selected:", value);
           }}
           required
           isInvalid={isInvalid}
@@ -273,6 +281,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
           placeholder="เลือกตำบล"
           onChange={(value) => {
             if (value !== null) handleSubDistrictChange(value);
+            console.log("Selected:", value);
           }}
           required
           isInvalid={isInvalid}

@@ -161,8 +161,15 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
               id="bikeTypeAdditional"
               options={
                 selectedCarType === "รถจักรยานยนต์"
-                  ? ["รถส่วนบุคคล", "สาธารณะ", "รถพ่วง"]
-                  : ["2 ประตู", "4 ประตู"]
+                  ? [
+                      { label: "รถส่วนบุคคล", value: "รถส่วนบุคคล" },
+                      { label: "รถสาธารณะ", value: "รถสาธารณะ" },
+                      { label: "รถพ่วง", value: "รถพ่วง" },
+                    ]
+                  : [
+                      { label: "2 ประตู", value: "2 ประตู" },
+                      { label: "4 ประตู", value: "4 ประตู" },
+                    ]
               }
               placeholder={
                 !selectedCarType

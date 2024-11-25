@@ -9,8 +9,6 @@ interface DeliveryUserInfoProps {
   setUsername: (value: string) => void;
   contactNum: string;
   setContactNum: (value: string) => void;
-  NoIDcard: string;
-  setNoIDcard: (value: string) => void;
   setIsFormValid: (isValid: boolean) => void;
 }
 
@@ -20,13 +18,11 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
   setUsername,
   contactNum,
   setContactNum,
-  NoIDcard,
-  setNoIDcard,
   setIsFormValid,
 }) => {
   const [isInvalidUsername, setInvalidName] = useState(false);
   const [isInvalidContactNum, setIsInvalidContactNum] = useState(false);
-  const [isInvalidNoIDcard, setIsInvalidNoIDcard] = useState(false);
+ 
 
   const handleUsernameChange = (value: string) => {
     const namePattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z\s]*$/;
@@ -36,7 +32,7 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
     setInvalidName(invalid);
 
     // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
-    setIsFormValid(!invalid && !isInvalidNoIDcard && !isInvalidContactNum);
+    setIsFormValid(!invalid && !isInvalidContactNum);
   };
 
   const handleContactNumChange = (value: string) => {
@@ -53,42 +49,13 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
     setIsInvalidContactNum(invalid);
 
     // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
-    setIsFormValid(!invalid && !isInvalidUsername && !isInvalidNoIDcard);
-  };
-
-  const handleNoIDcardChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    let invalid = false;
-
-    const idCardPattern = /^\d{13}$/; // ID card pattern
-    invalid = value.length > 0 && !idCardPattern.test(value);
-
-    if (!invalid) {
-      // ตรวจสอบการคำนวณเลขหลักที่ 13
-      const idArray = value.split("").map(Number); // แยกตัวเลขแต่ละหลัก
-      let sum = 0;
-
-      for (let i = 0; i < 12; i++) {
-        sum += idArray[i] * (13 - i); // คูณเลขแต่ละหลักด้วยตำแหน่งที่สอดคล้อง
-      }
-
-      const checkDigit = (11 - (sum % 11)) % 10; // คำนวณเลขตรวจสอบ (หลักที่ 13)
-
-      // ตรวจสอบว่าเลขหลักที่ 13 ตรงกับเลขตรวจสอบหรือไม่
-      invalid = idArray[12] !== checkDigit;
-    }
-
-    setNoIDcard(value);
-    setIsInvalidNoIDcard(invalid);
-
-    // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
-    setIsFormValid(!invalid && !isInvalidUsername && !isInvalidContactNum);
+    setIsFormValid(!invalid && !isInvalidUsername );
   };
 
   return (
     <Row>
       {/* ชื่อ-นามสกุล */}
-      <Col className="mb-4" md={4} xs={12}>
+      <Col className="mb-4" md={6} xs={12}>
         <TextInput
           id="username"
           label="ชื่อ-นามสกุล"
@@ -101,7 +68,7 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
         />
       </Col>
       {/* เบอร์โทรศัพท์ */}
-      <Col className="mb-4" md={4} xs={12}>
+      <Col className="mb-4" md={6} xs={12}>
         <TextInput
           id="contactNum"
           label="เบอร์โทรศัพท์"
@@ -118,26 +85,6 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
           }
           required
           type="tel"
-        />
-      </Col>
-      {/* หมายเลขบัตรประชาชน */}
-      <Col className="mb-4" md={4} xs={12}>
-        <TextInput
-          id="userName"
-          label="กรอกหมายเลขบัตรประชาชน"
-          value={NoIDcard}
-          placeholder="กรอกหมายเลขบัตรประชาชน"
-          onChange={handleNoIDcardChange}
-          isInvalid={isInvalidNoIDcard || isInvalid}
-          alertText={
-            isInvalidNoIDcard
-              ? NoIDcard.length < 13
-                ? "กรอกหมายเลขบัตรประชาชนให้ครบถ้วน"
-                : "หมายเลขบัตรประชาชนไม่ถูกต้อง"
-              : ""
-          }
-          required
-          type="numeric"
         />
       </Col>
     </Row>
