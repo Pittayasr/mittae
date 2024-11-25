@@ -46,7 +46,7 @@ const Delivery: React.FC = () => {
   const [validated, setValidated] = useState(false);
   const [isFormSenderValid, setIsFormSenderValid] = useState(false);
   const [isFormReceiverValid, setIsFormReceiverValid] = useState(false);
-  const [showSender, setshowSender] = useState(true);
+  const [showSender, setShowSender] = useState(true);
 
   const [isInvalidNoIDcard, setIsInvalidNoIDcard] = useState(false);
 
@@ -56,6 +56,7 @@ const Delivery: React.FC = () => {
       contactNumSender &&
       NoIDcardSender &&
       soiSender &&
+      houseNoSender &&
       villageNoSender &&
       dormitorySender &&
       subDistrictSender &&
@@ -69,6 +70,7 @@ const Delivery: React.FC = () => {
       contactNumReceiver &&
       houseNoReceiver &&
       soiReceiver &&
+      houseNoReceiver &&
       villageNoReceiver &&
       dormitoryReceiver &&
       subDistrictReceiver &&
@@ -88,6 +90,7 @@ const Delivery: React.FC = () => {
       contactNumSender,
       NoIDcardSender,
       soiSender,
+      houseNoSender,
       villageNoSender,
       dormitorySender,
       subDistrictSender,
@@ -126,12 +129,13 @@ const Delivery: React.FC = () => {
     setValidated(true);
 
     if (isFormSenderValid) {
-      setshowSender(false);
+      setShowSender(false);
+      setValidated(false);
     }
   };
 
   const handleBackToSender = () => {
-    setshowSender(true);
+    setShowSender(true);
     setValidated(false);
   };
 
@@ -263,80 +267,89 @@ const Delivery: React.FC = () => {
               contactNum={contactNumReceiver}
               setContactNum={setContactNumReceiver}
               setIsFormValid={setIsFormReceiverValid}
+              
             />
-            <DeliveryAddress
-              isInvalid={validated}
-              houseNo={houseNoReceiver}
-              setHouseNo={setHouseNoReceiver}
-              soi={soiReceiver}
-              setSoi={setSoiReceiver}
-              villageNo={villageNoReceiver}
-              setVillageNo={setVillageNoReceiver}
-              dormitory={dormitoryReceiver}
-              setDormitory={setDormitoryReceiver}
-              selectedSubDistrict={subDistrictReceiver}
-              setSelectedSubDistrict={setSubDistrictReceiver}
-              selectedDistrict={districtReceiver}
-              setSelectedDistrict={setDistrictReceiver}
-              postalCode={postalCodeReceiver}
-              setPostalCode={setPostalCodeReceiver}
-              selectedProvince={selectedProvinceReceiver}
-              setSelectedProvince={setSelectedProvinceReceiver}
-              setIsFormValid={setIsFormReceiverValid}
-            />
+            
+            <Row>
+              <Col>
+                <DeliveryAddress
+                  isInvalid={validated}
+                  houseNo={houseNoReceiver}
+                  setHouseNo={setHouseNoReceiver}
+                  soi={soiReceiver}
+                  setSoi={setSoiReceiver}
+                  villageNo={villageNoReceiver}
+                  setVillageNo={setVillageNoReceiver}
+                  dormitory={dormitoryReceiver}
+                  setDormitory={setDormitoryReceiver}
+                  selectedSubDistrict={subDistrictReceiver}
+                  setSelectedSubDistrict={setSubDistrictReceiver}
+                  selectedDistrict={districtReceiver}
+                  setSelectedDistrict={setDistrictReceiver}
+                  postalCode={postalCodeReceiver}
+                  setPostalCode={setPostalCodeReceiver}
+                  selectedProvince={selectedProvinceReceiver}
+                  setSelectedProvince={setSelectedProvinceReceiver}
+                  setIsFormValid={setIsFormReceiverValid}
+                />
+              </Col>
+              
+            </Row>
+            <Row>
+              <Col className="register-and-contract-number mb-4" md={4} xs={6}>
+                <TextSelect
+                  value={selectDeliveryType || ""}
+                  label="ประเภทของที่ส่ง"
+                  id="DeliveryType"
+                  options={[
+                    { label: "ส่งของปกติ", value: "ส่งของปกติ" },
+                    { label: "ส่งรถกลับบ้าน", value: "ส่งรถกลับบ้าน" },
+                  ]}
+                  placeholder="เลือกอำเภอ"
+                  onChange={(value) => {
+                    if (value !== null) setSelectedDeliveryType(value);
+                  }}
+                  required
+                  isInvalid={isFormReceiverValid}
+                  alertText="กรุณาเลือกอำเภอ"
+                />
+              </Col>
+              <Col className="register-and-contract-number mb-4" md={4} xs={6}>
+                <TextSelect
+                  value={selectCarType || ""}
+                  label="ประเภทรถจักรยานยนตร์"
+                  id="CarType"
+                  options={[
+                    {
+                      label: "รถจักรยานยนต์ทั่วไป",
+                      value: "รถจักรยานยนต์ทั่วไป",
+                    },
+                    { label: "บิ๊กไบค์", value: "บิ๊กไบค์" },
+                    { label: "ชอปเปอร์", value: "ชอปเปอร์" },
+                  ]}
+                  placeholder="เลือกอำเภอ"
+                  onChange={(value) => {
+                    if (value !== null) setSelectedCarType(value);
+                  }}
+                  required
+                  isInvalid={isFormReceiverValid}
+                  alertText="กรุณาเลือกอำเภอ"
+                />
+              </Col>
+              <Col className="mb-4" md={4} xs={12}>
+                <TextInput
+                  id="CCsizeCar"
+                  label="ขนาดความจุ CC"
+                  value={CCsizeCar}
+                  placeholder="กรอกขนาดความจุ(CC)"
+                  onChange={(e) => setCCsizeCar(e.target.value)}
+                  isInvalid={isFormReceiverValid}
+                  alertText="กรุณากรอกชื่อให้ถูกต้อง"
+                  required
+                />
+              </Col>
+            </Row>
 
-            <Col className="register-and-contract-number mb-4" md={4} xs={6}>
-              <TextSelect
-                value={selectDeliveryType || ""}
-                label="ประเภทของที่ส่ง"
-                id="DeliveryType"
-                options={[
-                  { label: "ส่งของปกติ", value: "ส่งของปกติ" },
-                  { label: "ส่งรถกลับบ้าน", value: "ส่งรถกลับบ้าน" },
-                ]}
-                placeholder="เลือกอำเภอ"
-                onChange={(value) => {
-                  if (value !== null) setSelectedDeliveryType(value);
-                }}
-                required
-                isInvalid={isFormReceiverValid}
-                alertText="กรุณาเลือกอำเภอ"
-              />
-            </Col>
-            <Col className="register-and-contract-number mb-4" md={4} xs={6}>
-              <TextSelect
-                value={selectCarType || ""}
-                label="ประเภทรถจักรยานยนตร์"
-                id="CarType"
-                options={[
-                  {
-                    label: "รถจักรยานยนต์ทั่วไป",
-                    value: "รถจักรยานยนต์ทั่วไป",
-                  },
-                  { label: "BigBike", value: "BigBike" },
-                  { label: "Chopper", value: "Chopper" },
-                ]}
-                placeholder="เลือกอำเภอ"
-                onChange={(value) => {
-                  if (value !== null) setSelectedCarType(value);
-                }}
-                required
-                isInvalid={isFormReceiverValid}
-                alertText="กรุณาเลือกอำเภอ"
-              />
-            </Col>
-            <Col className="mb-4" md={4} xs={12}>
-              <TextInput
-                id="CCsizeCar"
-                label="ขนาดความจุ CC"
-                value={CCsizeCar}
-                placeholder="กรอกขนาดความจุ(CC)"
-                onChange={(e) => setCCsizeCar(e.target.value)}
-                isInvalid={isFormReceiverValid}
-                alertText="กรุณากรอกชื่อให้ถูกต้อง"
-                required
-              />
-            </Col>
             <hr className="my-4" />
             <footer>
               {!isFormReceiverValid && (

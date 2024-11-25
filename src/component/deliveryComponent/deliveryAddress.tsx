@@ -39,7 +39,7 @@ interface DeliveryAddressProps {
   setSoi: (value: string) => void;
   setVillageNo: (value: string) => void;
   setDormitory: (value: string) => void;
-  setPostalCode: (value: string ) => void;
+  setPostalCode: (value: string) => void;
   setSelectedProvince: (value: string | null) => void;
   setSelectedSubDistrict: (value: string | null) => void;
   setSelectedDistrict: (value: string | null) => void;
