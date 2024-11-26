@@ -1,5 +1,5 @@
 //deliveryUserInfo.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Col, Row } from "react-bootstrap";
 import TextInput from "../textFillComponent/textInput";
 
@@ -23,9 +23,24 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
   contactNum,
   setContactNum,
   setIsFormValid,
+  onValidateUserInfo,
 }) => {
   const [isInvalidUsername, setInvalidName] = useState(false);
   const [isInvalidContactNum, setIsInvalidContactNum] = useState(false);
+
+  useEffect(() => {
+    const validations = {
+      isInvalidUsername,
+      isInvalidContactNum,
+    };
+
+    const isValid = !Object.values(validations).includes(true);
+
+    onValidateUserInfo(validations);
+
+    setIsFormValid(isValid);
+    console.log(isInvalidContactNum);
+  }, [isInvalidUsername, isInvalidContactNum]);
 
   const handleUsernameChange = (value: string) => {
     const namePattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z\s]*$/;
@@ -39,21 +54,24 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
   };
 
   const handleContactNumChange = (value: string) => {
+    // อนุญาตให้ใส่เฉพาะตัวเลข
     if (/^\d*$/.test(value)) {
       setContactNum(value);
     }
-
-    // เพิ่มการตรวจสอบความยาวของหมายเลขโทรศัพท์
+  
+    // ตรวจสอบความยาว
+    const isTooShort = value.length > 0 && value.length < 10;
+    const isTooLong = value.length > 10;
+  
+    // ตรวจสอบรูปแบบเฉพาะกรณีที่ความยาวเท่ากับ 10
     const phonePattern = /^(06|08|09)\d{8}$/;
-    const isFormatInvalid = value.length >= 10 && !phonePattern.test(value);
-    const isLengthInvalid = value.length > 0 && value.length < 10;
-
-    const invalid = isLengthInvalid || isFormatInvalid;
+    const isFormatInvalid = value.length === 10 && !phonePattern.test(value);
+  
+    // กำหนดสถานะ invalid
+    const invalid = isTooShort || isTooLong || isFormatInvalid;
     setIsInvalidContactNum(invalid);
-
-    // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
-    setIsFormValid(!invalid && !isInvalidUsername);
   };
+  
 
   return (
     <Row>

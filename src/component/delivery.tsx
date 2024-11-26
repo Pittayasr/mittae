@@ -51,6 +51,7 @@ const Delivery: React.FC = () => {
 
   const [isInvalidNoIDcard, setIsInvalidNoIDcard] = useState(false);
   const [isInvalidAddress, setIsInvalidAddress] = useState(false);
+  const [isInvalidUserInfo, setIsInvalidUserInfo] = useState(false);
 
   useEffect(() => {
     const formSenderIsValid =
@@ -66,7 +67,10 @@ const Delivery: React.FC = () => {
         districtSender &&
         postalCodeSender &&
         selectedProvinceSender
-      ) && isInvalidAddress;
+      ) &&
+      isInvalidAddress &&
+      isInvalidUserInfo &&
+      !isInvalidNoIDcard;
 
     const formReceiverIsValid =
       !!(
@@ -84,7 +88,9 @@ const Delivery: React.FC = () => {
         selectDeliveryType &&
         selectCarType &&
         CCsizeCar
-      ) && isInvalidAddress;
+      ) &&
+      isInvalidUserInfo &&
+      isInvalidAddress;
 
     setIsFormSenderValid(formSenderIsValid);
     setIsFormReceiverValid(formReceiverIsValid);
@@ -103,6 +109,8 @@ const Delivery: React.FC = () => {
       selectedProvinceSender,
       isFormSenderValid,
       isFormReceiverValid,
+      isInvalidNoIDcard,
+      isInvalidUserInfo,
     });
   }, [
     usernameSender,
@@ -143,6 +151,14 @@ const Delivery: React.FC = () => {
   }) => {
     const isValid = !Object.values(validations).includes(true); // ถ้ามี false หมายถึงฟอร์ม valid
     setIsInvalidAddress(isValid);
+  };
+
+  const handleUserValidation = (validations: {
+    isInvalidUsername: boolean;
+    isInvalidContactNum: boolean;
+  }) => {
+    const isValid = !Object.values(validations).includes(true); // ถ้ามี false หมายถึงฟอร์ม valid
+    setIsInvalidUserInfo(isValid);
   };
 
   // const handleReceiverValidation = (isValid: boolean) => {
@@ -213,6 +229,7 @@ const Delivery: React.FC = () => {
                   contactNum={contactNumSender}
                   setContactNum={setContactNumSender}
                   setIsFormValid={setIsFormSenderValid}
+                  onValidateUserInfo={handleUserValidation}
                 />
               </Col>
               <Col className="mb-4" md={4} xs={12}>
@@ -296,6 +313,7 @@ const Delivery: React.FC = () => {
               contactNum={contactNumReceiver}
               setContactNum={setContactNumReceiver}
               setIsFormValid={setIsFormReceiverValid}
+              onValidateUserInfo={handleUserValidation}
             />
 
             <Row>
