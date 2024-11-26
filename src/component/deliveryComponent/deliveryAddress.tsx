@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Col, Row } from "react-bootstrap";
 import TextInput from "../textFillComponent/textInput";
 import TextSelect from "../textFillComponent/textSelect";
@@ -6,6 +6,7 @@ import provinces from "../../data/provinces.json";
 import subdistricts from "../../data/subdistricts.json";
 import districts from "../../data/districts.json";
 
+//deliveryAddress.tsx
 type District = {
   id: number;
   provinceCode: number;
@@ -34,6 +35,7 @@ interface DeliveryAddressProps {
   selectedDistrict: string | null;
   selectedSubDistrict: string | null;
   postalCode: string;
+  selectDeliveryType: string | null;
   isInvalid: boolean;
   setHouseNo: (value: string) => void;
   setSoi: (value: string) => void;
@@ -43,7 +45,16 @@ interface DeliveryAddressProps {
   setSelectedProvince: (value: string | null) => void;
   setSelectedSubDistrict: (value: string | null) => void;
   setSelectedDistrict: (value: string | null) => void;
+  setSelectedDeliveryType: (value: string | null) => void;
+  showSender: boolean;
   setIsFormValid: (isValid: boolean) => void;
+  onValidateAddress: (validations: {
+    isInvalidHouseNo: boolean;
+    isInvalidSoi: boolean;
+    isInvalidVillageNo: boolean;
+    isInvalidDormitory: boolean;
+    isInvalidPostalCode: boolean;
+  }) => void; 
 }
 
 const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
@@ -55,6 +66,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
   selectedProvince,
   selectedSubDistrict,
   selectedDistrict,
+  selectDeliveryType,
   postalCode,
   setHouseNo,
   setSoi,
@@ -64,19 +76,15 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
   setSelectedSubDistrict,
   setSelectedDistrict,
   setPostalCode,
+  setSelectedDeliveryType,
+  showSender,
   setIsFormValid,
+  onValidateAddress,
 }) => {
   // State สำหรับตัวเลือก Address
   const [provinceList] = useState(provinces);
   const [subDistrictList, setSubDistrictList] = useState<SubDistrict[]>([]);
   const [districtList, setDistrictList] = useState<District[]>([]);
-
-  // ค่า Province, Amphure, District ที่เลือก
-  // const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
-  // const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
-  // const [selectedSubDistrict, setSelectedSubDistrict] = useState<string | null>(
-  //   null
-  // );
 
   const [isInvalidHouseNo, setInvalidHouseNo] = useState(false);
   const [isInvalidSoi, setInvalidSoi] = useState(false);
@@ -84,38 +92,92 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
   const [isInvalidDormitory, setInvalidDormitory] = useState(false);
   const [isInvalidPostalCode, setInvalidPostalCode] = useState(false);
 
-  const handleProvinceChange = (value: string) => {
-    setSelectedProvince(value);
+  useEffect(() => {
+    if (!selectedProvince) {
+      setDistrictList(districts); // แสดงอำเภอทั้งหมด
+      setSubDistrictList(subdistricts); // แสดงตำบลทั้งหมด
+    }
 
-    // ถ้าเลือกจังหวัดแล้ว จะกรองอำเภอตาม provinceCode
+    if (selectedProvince) {
+      const filteredDistricts = districts.filter(
+        (district) => district.provinceCode.toString() === selectedProvince
+      );
+      setDistrictList(filteredDistricts);
+
+      if (selectedDistrict) {
+        const filteredSubDistricts = subdistricts.filter(
+          (subdistrict) =>
+            subdistrict.districtCode.toString() === selectedDistrict
+        );
+        setSubDistrictList(filteredSubDistricts);
+      } else {
+        setSubDistrictList([]);
+      }
+    }
+
+    // ตรวจสอบเงื่อนไขการกรอกข้อมูล
+    const validations = {
+      isInvalidHouseNo,
+      isInvalidSoi,
+      isInvalidVillageNo,
+      isInvalidDormitory,
+      isInvalidPostalCode,
+    };
+  
+    const isValid = !Object.values(validations).includes(true);
+  
+    // ส่งค่ากลับไปยัง Delivery.tsx
+    onValidateAddress(validations);
+
+    // ส่งสถานะความถูกต้องกลับไปยัง Delivery.tsx
+    setIsFormValid(isValid);
+  }, [
+    selectedProvince,
+    selectedDistrict,
+    isInvalidHouseNo,
+    isInvalidSoi,
+    isInvalidVillageNo,
+    isInvalidDormitory,
+    isInvalidPostalCode,
+    setIsFormValid,
+    onValidateAddress,
+  ]);
+
+  const handleProvinceChange = (value: string) => {
+    const selectedProvinceObj = provinces.find(
+      (province) => province.provinceCode.toString() === value
+    );
+
+    if (selectedProvinceObj) {
+      setSelectedProvince(value); // เก็บ provinceCode เป็น value
+    } else {
+      setSelectedProvince(null);
+    }
+
     const filteredDistricts = districts.filter(
       (district) => district.provinceCode.toString() === value
     );
     setDistrictList(filteredDistricts);
 
-    // ถ้ายังไม่ได้เลือกอำเภอ ให้แสดงตำบลทั้งหมด
-    if (selectedDistrict) {
-      const filteredSubDistricts = subdistricts.filter(
-        (subdistrict) =>
-          subdistrict.districtCode.toString() === selectedDistrict
-      );
-      setSubDistrictList(filteredSubDistricts);
-    } else {
-      setSubDistrictList(subdistricts); // แสดงทั้งหมดหากยังไม่เลือกอำเภอ
-    }
-
-    // ถ้าไม่เลือกจังหวัด ค่าต่าง ๆ จะยังคงเดิม
     setSelectedDistrict(null);
     setSelectedSubDistrict(null);
     setPostalCode("");
   };
 
   const handleDistrictChange = (value: string | null) => {
-    setSelectedDistrict(value);
+    const selectedDistrictObj = districts.find(
+      (district) => district.districtCode.toString() === value
+    );
+
+    if (selectedDistrictObj) {
+      setSelectedDistrict(value); // เก็บ districtCode เป็น value
+    } else {
+      setSelectedDistrict(null);
+    }
+
     setSelectedSubDistrict(null);
     setPostalCode("");
 
-    // กรองตำบลตาม districtCode
     const filteredSubDistricts = subdistricts.filter(
       (subdistrict) => subdistrict.districtCode.toString() === value
     );
@@ -123,41 +185,51 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
   };
 
   const handleSubDistrictChange = (value: string) => {
-    setSelectedSubDistrict(value);
-
-    // หาและตั้งค่ารหัสไปรษณีย์
-    const selectedSub = subdistricts.find(
+    const selectedSubDistrictObj = subdistricts.find(
       (subdistrict) => subdistrict.subdistrictCode.toString() === value
     );
-    if (selectedSub) {
-      setPostalCode(selectedSub.postalCode.toString());
+
+    if (selectedSubDistrictObj) {
+      setSelectedSubDistrict(value); // เก็บ subdistrictCode เป็น value
+      setPostalCode(selectedSubDistrictObj.postalCode.toString());
     } else {
+      setSelectedSubDistrict(null);
       setPostalCode("");
     }
   };
 
-  const namePattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z\s]*$/;
+  const dormitoryPattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z0-9\s\-/]*$/;
+  const soiPattern = /^[เ-ไก-ฮa-zA-Z0-9\s\-/]+$/; // สามารถใช้แบบนี้ได้
+  const houseNoPattern = /^[เ-ไก-ฮa-zA-Z0-9\-/]+$/; // สามารถใช้แบบนี้ได้เช่นกัน
+  const villageNoPattern = /^\d{1,2}$/;
+  // const namePattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z\s]*$/;
 
   // ฟังก์ชั่นสำหรับ handle การกรอกข้อมูลและการ validation
   const handleTextInputChange = (value: string, field: string) => {
-    const invalidText = value.length > 0 && !namePattern.test(value);
+    // const invalidText = value.length > 0 && !namePattern.test(value);
+    const invalidDormitory = value.length > 0 && !dormitoryPattern.test(value);
+    const invalidSoi = value.length > 0 && !soiPattern.test(value);
+    const invalidHouseNo = value.length > 0 && !houseNoPattern.test(value);
+    const isInvalidVillageNo =
+      value.length > 0 && !villageNoPattern.test(value);
     const invalidNum = value.length > 0 && isNaN(Number(value));
+
     switch (field) {
       case "houseNo":
         setHouseNo(value);
-        setInvalidHouseNo(invalidNum);
+        setInvalidHouseNo(invalidHouseNo);
         break;
       case "soi":
         setSoi(value);
-        setInvalidSoi(invalidText);
+        setInvalidSoi(invalidSoi);
         break;
       case "villageNo":
         setVillageNo(value);
-        setInvalidVillageNo(invalidNum);
+        setInvalidVillageNo(isInvalidVillageNo);
         break;
       case "dormitory":
         setDormitory(value);
-        setInvalidDormitory(invalidText);
+        setInvalidDormitory(invalidDormitory);
         break;
       case "postalCode":
         setPostalCode(value);
@@ -301,6 +373,27 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
           alertText="กรุณากรอกรหัสไปรษณีย์"
         />
       </Col>
+
+      {!showSender && (
+        <Col className="register-and-contract-number mb-4" md={4} xs={6}>
+          <TextSelect
+            value={selectDeliveryType || ""}
+            label="ประเภทของที่ส่ง"
+            id="DeliveryType"
+            options={[
+              { label: "ส่งของปกติ", value: "ส่งของปกติ" },
+              { label: "ส่งรถกลับบ้าน", value: "ส่งรถกลับบ้าน" },
+            ]}
+            placeholder="เลือกอำเภอ"
+            onChange={(value) => {
+              if (value !== null) setSelectedDeliveryType(value);
+            }}
+            required
+            isInvalid={isInvalid}
+            alertText="กรุณาเลือกอำเภอ"
+          />
+        </Col>
+      )}
     </Row>
   );
 };

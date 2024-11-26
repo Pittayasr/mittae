@@ -6,6 +6,7 @@ import TextSelect from "./textFillComponent/textSelect";
 import { Form, Row, Col, Button, Alert } from "react-bootstrap";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
+//delivery.tsx
 const Delivery: React.FC = () => {
   const [usernameSender, setUsernameSender] = useState<string>("");
   const [contactNumSender, setContactNumSender] = useState<string>("");
@@ -49,38 +50,41 @@ const Delivery: React.FC = () => {
   const [showSender, setShowSender] = useState(true);
 
   const [isInvalidNoIDcard, setIsInvalidNoIDcard] = useState(false);
+  const [isInvalidAddress, setIsInvalidAddress] = useState(false);
 
   useEffect(() => {
-    const formSenderIsValid = !!(
-      usernameSender &&
-      contactNumSender &&
-      NoIDcardSender &&
-      soiSender &&
-      houseNoSender &&
-      villageNoSender &&
-      dormitorySender &&
-      subDistrictSender &&
-      districtSender &&
-      postalCodeSender &&
-      selectedProvinceSender
-    );
+    const formSenderIsValid =
+      !!(
+        usernameSender &&
+        contactNumSender &&
+        NoIDcardSender &&
+        soiSender &&
+        houseNoSender &&
+        villageNoSender &&
+        dormitorySender &&
+        subDistrictSender &&
+        districtSender &&
+        postalCodeSender &&
+        selectedProvinceSender
+      ) && isInvalidAddress;
 
-    const formReceiverIsValid = !!(
-      usernameReceiver &&
-      contactNumReceiver &&
-      houseNoReceiver &&
-      soiReceiver &&
-      houseNoReceiver &&
-      villageNoReceiver &&
-      dormitoryReceiver &&
-      subDistrictReceiver &&
-      districtReceiver &&
-      postalCodeReceiver &&
-      selectedProvinceReceiver &&
-      selectDeliveryType &&
-      selectCarType &&
-      CCsizeCar
-    );
+    const formReceiverIsValid =
+      !!(
+        usernameReceiver &&
+        contactNumReceiver &&
+        houseNoReceiver &&
+        soiReceiver &&
+        houseNoReceiver &&
+        villageNoReceiver &&
+        dormitoryReceiver &&
+        subDistrictReceiver &&
+        districtReceiver &&
+        postalCodeReceiver &&
+        selectedProvinceReceiver &&
+        selectDeliveryType &&
+        selectCarType &&
+        CCsizeCar
+      ) && isInvalidAddress;
 
     setIsFormSenderValid(formSenderIsValid);
     setIsFormReceiverValid(formReceiverIsValid);
@@ -97,6 +101,8 @@ const Delivery: React.FC = () => {
       districtSender,
       postalCodeSender,
       selectedProvinceSender,
+      isFormSenderValid,
+      isFormReceiverValid,
     });
   }, [
     usernameSender,
@@ -104,6 +110,7 @@ const Delivery: React.FC = () => {
     NoIDcardSender,
     soiSender,
     villageNoSender,
+    houseNoSender,
     dormitorySender,
     subDistrictSender,
     districtSender,
@@ -122,7 +129,25 @@ const Delivery: React.FC = () => {
     selectDeliveryType,
     selectCarType,
     CCsizeCar,
+    isFormSenderValid,
+    isFormReceiverValid,
+    isInvalidAddress,
   ]);
+
+  const handleAddressValidation = (validations: {
+    isInvalidHouseNo: boolean;
+    isInvalidSoi: boolean;
+    isInvalidVillageNo: boolean;
+    isInvalidDormitory: boolean;
+    isInvalidPostalCode: boolean;
+  }) => {
+    const isValid = !Object.values(validations).includes(true); // ถ้ามี false หมายถึงฟอร์ม valid
+    setIsInvalidAddress(isValid);
+  };
+
+  // const handleReceiverValidation = (isValid: boolean) => {
+  //   setIsFormReceiverValid(isValid);
+  // };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -229,20 +254,15 @@ const Delivery: React.FC = () => {
               setPostalCode={setPostalCodeSender}
               selectedProvince={selectedProvinceSender}
               setSelectedProvince={setSelectedProvinceSender}
-              setIsFormValid={setIsFormReceiverValid}
+              selectDeliveryType={selectDeliveryType}
+              setSelectedDeliveryType={setSelectedDeliveryType}
+              showSender={showSender}
+              setIsFormValid={setIsFormSenderValid}
+              onValidateAddress={handleAddressValidation}
             />
 
             <hr className="my-4" />
             <footer>
-              {!isFormSenderValid && (
-                <Alert
-                  variant="success"
-                  className="d-flex align-items-center mb-4"
-                >
-                  <i className="fas fa-exclamation-triangle me-2"></i>
-                  <span>กรุณากรอกข้อมูลให้ครบถ้วน</span>
-                </Alert>
-              )}
               <Row className="mb-2 ">
                 <Col className="mb-2 form-button-container">
                   <Button
@@ -256,6 +276,15 @@ const Delivery: React.FC = () => {
                 </Col>
               </Row>
             </footer>
+            {!isFormSenderValid && (
+              <Alert
+                variant="success"
+                className="d-flex align-items-center mb-4 mt-3"
+              >
+                <i className="fas fa-exclamation-triangle me-2"></i>
+                <span>กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง</span>
+              </Alert>
+            )}
           </>
         ) : (
           <>
@@ -267,9 +296,8 @@ const Delivery: React.FC = () => {
               contactNum={contactNumReceiver}
               setContactNum={setContactNumReceiver}
               setIsFormValid={setIsFormReceiverValid}
-              
             />
-            
+
             <Row>
               <Col>
                 <DeliveryAddress
@@ -290,30 +318,15 @@ const Delivery: React.FC = () => {
                   setPostalCode={setPostalCodeReceiver}
                   selectedProvince={selectedProvinceReceiver}
                   setSelectedProvince={setSelectedProvinceReceiver}
+                  selectDeliveryType={selectDeliveryType}
+                  setSelectedDeliveryType={setSelectedDeliveryType}
+                  showSender={showSender}
                   setIsFormValid={setIsFormReceiverValid}
+                  onValidateAddress={handleAddressValidation}
                 />
               </Col>
-              
             </Row>
             <Row>
-              <Col className="register-and-contract-number mb-4" md={4} xs={6}>
-                <TextSelect
-                  value={selectDeliveryType || ""}
-                  label="ประเภทของที่ส่ง"
-                  id="DeliveryType"
-                  options={[
-                    { label: "ส่งของปกติ", value: "ส่งของปกติ" },
-                    { label: "ส่งรถกลับบ้าน", value: "ส่งรถกลับบ้าน" },
-                  ]}
-                  placeholder="เลือกอำเภอ"
-                  onChange={(value) => {
-                    if (value !== null) setSelectedDeliveryType(value);
-                  }}
-                  required
-                  isInvalid={isFormReceiverValid}
-                  alertText="กรุณาเลือกอำเภอ"
-                />
-              </Col>
               <Col className="register-and-contract-number mb-4" md={4} xs={6}>
                 <TextSelect
                   value={selectCarType || ""}

@@ -10,6 +10,10 @@ interface DeliveryUserInfoProps {
   contactNum: string;
   setContactNum: (value: string) => void;
   setIsFormValid: (isValid: boolean) => void;
+  onValidateUserInfo: (validations: {
+    isInvalidUsername: boolean;
+    isInvalidContactNum: boolean;
+  }) => void;
 }
 
 const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
@@ -22,7 +26,6 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
 }) => {
   const [isInvalidUsername, setInvalidName] = useState(false);
   const [isInvalidContactNum, setIsInvalidContactNum] = useState(false);
- 
 
   const handleUsernameChange = (value: string) => {
     const namePattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z\s]*$/;
@@ -49,7 +52,7 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
     setIsInvalidContactNum(invalid);
 
     // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
-    setIsFormValid(!invalid && !isInvalidUsername );
+    setIsFormValid(!invalid && !isInvalidUsername);
   };
 
   return (
