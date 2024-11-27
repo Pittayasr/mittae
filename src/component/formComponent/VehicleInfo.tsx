@@ -73,7 +73,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
     setEngineSize(value);
     const invalid = value.length > 0 && isNaN(Number(value));
     setIsInvalidEngineSize(invalid);
-    setIsFormValid(!isInvalidLicense && !isInvalidContact && !invalid); // เช็คความถูกต้อง
+    // setIsFormValid(!isInvalidLicense && !isInvalidContact && !invalid); // เช็คความถูกต้อง
   };
 
   // Update label when selectedCarType changes

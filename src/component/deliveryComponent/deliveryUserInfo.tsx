@@ -40,7 +40,12 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
 
     setIsFormValid(isValid);
     console.log(isInvalidContactNum);
-  }, [isInvalidUsername, isInvalidContactNum]);
+  }, [
+    isInvalidUsername,
+    isInvalidContactNum,
+    onValidateUserInfo,
+    setIsFormValid,
+  ]);
 
   const handleUsernameChange = (value: string) => {
     const namePattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z\s]*$/;
@@ -48,9 +53,6 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
 
     setUsername(value);
     setInvalidName(invalid);
-
-    // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
-    setIsFormValid(!invalid && !isInvalidContactNum);
   };
 
   const handleContactNumChange = (value: string) => {
@@ -58,20 +60,19 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
     if (/^\d*$/.test(value)) {
       setContactNum(value);
     }
-  
+
     // ตรวจสอบความยาว
     const isTooShort = value.length > 0 && value.length < 10;
     const isTooLong = value.length > 10;
-  
+
     // ตรวจสอบรูปแบบเฉพาะกรณีที่ความยาวเท่ากับ 10
     const phonePattern = /^(06|08|09)\d{8}$/;
     const isFormatInvalid = value.length === 10 && !phonePattern.test(value);
-  
+
     // กำหนดสถานะ invalid
     const invalid = isTooShort || isTooLong || isFormatInvalid;
     setIsInvalidContactNum(invalid);
   };
-  
 
   return (
     <Row>

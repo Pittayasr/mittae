@@ -3,6 +3,9 @@ import DeliveryUserInfo from "./deliveryComponent/deliveryUserInfo";
 import DeliveryAddress from "./deliveryComponent/deliveryAddress";
 import TextInput from "./textFillComponent/textInput";
 import TextSelect from "./textFillComponent/textSelect";
+
+import calculateDelivery from "../data/calculateDelivery";
+
 import { Form, Row, Col, Button, Alert } from "react-bootstrap";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
@@ -23,6 +26,14 @@ const Delivery: React.FC = () => {
   const [selectedProvinceSender, setSelectedProvinceSender] = useState<
     string | null
   >(null);
+
+  const [selectedProvinceNameSender] = useState<string | null>(null);
+  const [selectedDistrictNameSender] = useState<string | null>(null);
+  const [selectedSubDistrictNameSender] = useState<string | null>(null);
+
+  const [selectedProvinceNameReceiver] = useState<string | null>(null);
+  const [selectedDistrictNameReceiver] = useState<string | null>(null);
+  const [selectedSubDistrictNameReceiver] = useState<string | null>(null);
 
   const [usernameReceiver, setUsernameReceiver] = useState<string>("");
   const [contactNumReceiver, setContactNumReceiver] = useState<string>("");
@@ -52,8 +63,17 @@ const Delivery: React.FC = () => {
   const [isInvalidNoIDcard, setIsInvalidNoIDcard] = useState(false);
   const [isInvalidAddress, setIsInvalidAddress] = useState(false);
   const [isInvalidUserInfo, setIsInvalidUserInfo] = useState(false);
+  const [isInvalidCCsizeCar, setIsInvalidCCsizeCar] = useState(false);
 
   useEffect(() => {
+    if (selectDeliveryType === "ส่งของปกติ") {
+      setSelectedCarType("-");
+      setCCsizeCar("-");
+    } else if (CCsizeCar === "-") {
+      setSelectedCarType("");
+      setCCsizeCar("");
+    }
+
     const formSenderIsValid =
       !!(
         usernameSender &&
@@ -140,6 +160,8 @@ const Delivery: React.FC = () => {
     isFormSenderValid,
     isFormReceiverValid,
     isInvalidAddress,
+    isInvalidNoIDcard,
+    isInvalidUserInfo,
   ]);
 
   const handleAddressValidation = (validations: {
@@ -173,6 +195,15 @@ const Delivery: React.FC = () => {
       setShowSender(false);
       setValidated(false);
     }
+
+    const deliveryCost = calculateDelivery({
+      province: selectedProvinceName,
+      district: selectedDistrictName,
+      subDistrict: selectedSubDistrictName,
+      
+    });
+  
+    console.log("ค่าจัดส่ง:", deliveryCost);
   };
 
   const handleBackToSender = () => {
@@ -207,6 +238,12 @@ const Delivery: React.FC = () => {
 
     // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
     setIsFormSenderValid(!invalid);
+  };
+
+  const handleCCsizeInputChange = (value: string) => {
+    setCCsizeCar(value);
+    const invalidNum = value.length > 0 && isNaN(Number(value));
+    setIsInvalidCCsizeCar(invalidNum);
   };
 
   return (
@@ -267,6 +304,9 @@ const Delivery: React.FC = () => {
               setSelectedSubDistrict={setSubDistrictSender}
               selectedDistrict={districtSender}
               setSelectedDistrict={setDistrictSender}
+              selectedProvinceName={selectedProvinceNameSender}
+              selectedDistrictName={selectedDistrictNameSender}
+              selectedSubDistrictName={selectedSubDistrictNameSender}
               postalCode={postalCodeSender}
               setPostalCode={setPostalCodeSender}
               selectedProvince={selectedProvinceSender}
@@ -332,6 +372,9 @@ const Delivery: React.FC = () => {
                   setSelectedSubDistrict={setSubDistrictReceiver}
                   selectedDistrict={districtReceiver}
                   setSelectedDistrict={setDistrictReceiver}
+                  selectedProvinceName={selectedProvinceNameReceiver}
+                  selectedDistrictName={selectedDistrictNameReceiver}
+                  selectedSubDistrictName={selectedSubDistrictNameReceiver}
                   postalCode={postalCodeReceiver}
                   setPostalCode={setPostalCodeReceiver}
                   selectedProvince={selectedProvinceReceiver}
@@ -344,54 +387,53 @@ const Delivery: React.FC = () => {
                 />
               </Col>
             </Row>
-            <Row>
-              <Col className="register-and-contract-number mb-4" md={4} xs={6}>
-                <TextSelect
-                  value={selectCarType || ""}
-                  label="ประเภทรถจักรยานยนตร์"
-                  id="CarType"
-                  options={[
-                    {
-                      label: "รถจักรยานยนต์ทั่วไป",
-                      value: "รถจักรยานยนต์ทั่วไป",
-                    },
-                    { label: "บิ๊กไบค์", value: "บิ๊กไบค์" },
-                    { label: "ชอปเปอร์", value: "ชอปเปอร์" },
-                  ]}
-                  placeholder="เลือกอำเภอ"
-                  onChange={(value) => {
-                    if (value !== null) setSelectedCarType(value);
-                  }}
-                  required
-                  isInvalid={isFormReceiverValid}
-                  alertText="กรุณาเลือกอำเภอ"
-                />
-              </Col>
-              <Col className="mb-4" md={4} xs={12}>
-                <TextInput
-                  id="CCsizeCar"
-                  label="ขนาดความจุ CC"
-                  value={CCsizeCar}
-                  placeholder="กรอกขนาดความจุ(CC)"
-                  onChange={(e) => setCCsizeCar(e.target.value)}
-                  isInvalid={isFormReceiverValid}
-                  alertText="กรุณากรอกชื่อให้ถูกต้อง"
-                  required
-                />
-              </Col>
-            </Row>
+            {selectDeliveryType == "ส่งรถกลับบ้าน" ? (
+              <Row>
+                <Col
+                  className="register-and-contract-number mb-4"
+                  md={6}
+                  xs={6}
+                >
+                  <TextSelect
+                    value={selectCarType || ""}
+                    label="ประเภทรถจักรยานยนตร์"
+                    id="CarType"
+                    options={[
+                      {
+                        label: "รถจักรยานยนต์ทั่วไป",
+                        value: "รถจักรยานยนต์ทั่วไป",
+                      },
+                      { label: "บิ๊กไบค์", value: "บิ๊กไบค์" },
+                      { label: "ชอปเปอร์", value: "ชอปเปอร์" },
+                    ]}
+                    placeholder="เลือกประเภทรถ"
+                    onChange={(value) => {
+                      if (value !== null) setSelectedCarType(value);
+                    }}
+                    required
+                    isInvalid={validated}
+                    alertText="กรุณาเลือกประเภทรถ"
+                  />
+                </Col>
+                <Col className="mb-4" md={6} xs={6}>
+                  <TextInput
+                    id="CCsizeCar"
+                    label="ขนาดความจุ CC"
+                    value={CCsizeCar}
+                    placeholder="กรอกขนาดความจุ(CC)"
+                    onChange={(e) => handleCCsizeInputChange(e.target.value)}
+                    isInvalid={isInvalidCCsizeCar}
+                    alertText="กรุณากรอกขนาดความจุ CC ให้ถูกต้อง"
+                    required
+                  />
+                </Col>
+              </Row>
+            ) : (
+              <></>
+            )}
 
             <hr className="my-4" />
             <footer>
-              {!isFormReceiverValid && (
-                <Alert
-                  variant="success"
-                  className="d-flex align-items-center mb-4"
-                >
-                  <i className="fas fa-exclamation-triangle me-2"></i>
-                  <span>กรุณากรอกข้อมูลให้ครบถ้วน</span>
-                </Alert>
-              )}
               <Row className="mb-2 ">
                 <Col className="mb-2 form-button-container">
                   <Button
@@ -413,6 +455,15 @@ const Delivery: React.FC = () => {
                 </Col>
               </Row>
             </footer>
+            {!isFormReceiverValid && (
+              <Alert
+                variant="success"
+                className="d-flex align-items-center mb-4"
+              >
+                <i className="fas fa-exclamation-triangle me-2"></i>
+                <span>กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง</span>
+              </Alert>
+            )}
           </>
         )}
       </Form>

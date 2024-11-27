@@ -125,6 +125,14 @@
   }
 }
 
+@media (max-width: 400px) {
+  .address-Input {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+}
+
 .custom-checkbox input[type="checkbox"]:checked {
   background-color: green;
   border-color: green;

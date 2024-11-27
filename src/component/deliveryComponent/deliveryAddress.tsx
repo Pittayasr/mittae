@@ -34,6 +34,9 @@ interface DeliveryAddressProps {
   selectedProvince: string | null;
   selectedDistrict: string | null;
   selectedSubDistrict: string | null;
+  selectedProvinceName: string | null;
+  selectedDistrictName: string | null;
+  selectedSubDistrictName: string | null;
   postalCode: string;
   selectDeliveryType: string | null;
   isInvalid: boolean;
@@ -54,7 +57,7 @@ interface DeliveryAddressProps {
     isInvalidVillageNo: boolean;
     isInvalidDormitory: boolean;
     isInvalidPostalCode: boolean;
-  }) => void; 
+  }) => void;
 }
 
 const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
@@ -92,11 +95,19 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
   const [isInvalidDormitory, setInvalidDormitory] = useState(false);
   const [isInvalidPostalCode, setInvalidPostalCode] = useState(false);
 
+  const [selectedProvinceName, setSelectedProvinceName] = useState<
+    string | null
+  >(null);
+  const [selectedDistrictName, setSelectedDistrictName] = useState<
+    string | null
+  >(null);
+  const [selectedSubDistrictName, setSelectedSubDistrictName] = useState<
+    string | null
+  >(null);
+
   useEffect(() => {
-    if (!selectedProvince) {
-      setDistrictList(districts); // แสดงอำเภอทั้งหมด
-      setSubDistrictList(subdistricts); // แสดงตำบลทั้งหมด
-    }
+    setDistrictList(districts); // แสดงอำเภอทั้งหมด
+    setSubDistrictList(subdistricts); // แสดงตำบลทั้งหมด
 
     if (selectedProvince) {
       const filteredDistricts = districts.filter(
@@ -123,9 +134,9 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
       isInvalidDormitory,
       isInvalidPostalCode,
     };
-  
+
     const isValid = !Object.values(validations).includes(true);
-  
+
     // ส่งค่ากลับไปยัง Delivery.tsx
     onValidateAddress(validations);
 
@@ -133,7 +144,11 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
     setIsFormValid(isValid);
   }, [
     selectedProvince,
+    selectedProvinceName,
     selectedDistrict,
+    selectedDistrictName,
+    selectedSubDistrict,
+    selectedSubDistrictName,
     isInvalidHouseNo,
     isInvalidSoi,
     isInvalidVillageNo,
@@ -149,9 +164,11 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
     );
 
     if (selectedProvinceObj) {
-      setSelectedProvince(value); // เก็บ provinceCode เป็น value
+      setSelectedProvince(value); // เก็บ provinceCode
+      setSelectedProvinceName(selectedProvinceObj.provinceNameTh); // เก็บชื่อจังหวัด
     } else {
       setSelectedProvince(null);
+      setSelectedProvinceName(null);
     }
 
     const filteredDistricts = districts.filter(
@@ -160,7 +177,9 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
     setDistrictList(filteredDistricts);
 
     setSelectedDistrict(null);
+    setSelectedDistrictName(null);
     setSelectedSubDistrict(null);
+    setSelectedSubDistrictName(null);
     setPostalCode("");
   };
 
@@ -170,12 +189,15 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
     );
 
     if (selectedDistrictObj) {
-      setSelectedDistrict(value); // เก็บ districtCode เป็น value
+      setSelectedDistrict(value); // เก็บ districtCode
+      setSelectedDistrictName(selectedDistrictObj.districtNameTh); // เก็บชื่ออำเภอ
     } else {
       setSelectedDistrict(null);
+      setSelectedDistrictName(null);
     }
 
     setSelectedSubDistrict(null);
+    setSelectedSubDistrictName(null);
     setPostalCode("");
 
     const filteredSubDistricts = subdistricts.filter(
@@ -190,10 +212,12 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
     );
 
     if (selectedSubDistrictObj) {
-      setSelectedSubDistrict(value); // เก็บ subdistrictCode เป็น value
+      setSelectedSubDistrict(value); // เก็บ subdistrictCode
+      setSelectedSubDistrictName(selectedSubDistrictObj.subdistrictNameTh); // เก็บชื่อตำบล
       setPostalCode(selectedSubDistrictObj.postalCode.toString());
     } else {
       setSelectedSubDistrict(null);
+      setSelectedSubDistrictName(null);
       setPostalCode("");
     }
   };
@@ -201,7 +225,8 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
   const dormitoryPattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z0-9\s\-/]*$/;
   const soiPattern = /^[เ-ไก-ฮa-zA-Z0-9\s\-/]+$/; // สามารถใช้แบบนี้ได้
   const houseNoPattern = /^[เ-ไก-ฮa-zA-Z0-9\-/]+$/; // สามารถใช้แบบนี้ได้เช่นกัน
-  const villageNoPattern = /^\d{1,2}$/;
+  const villageNoPattern = /^\d{1,3}$/;
+  const PostalCode = /^\d{5,5}$/;
   // const namePattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z\s]*$/;
 
   // ฟังก์ชั่นสำหรับ handle การกรอกข้อมูลและการ validation
@@ -212,7 +237,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
     const invalidHouseNo = value.length > 0 && !houseNoPattern.test(value);
     const isInvalidVillageNo =
       value.length > 0 && !villageNoPattern.test(value);
-    const invalidNum = value.length > 0 && isNaN(Number(value));
+    const invalidPostalCode = value.length > 0 && !PostalCode.test(value);
 
     switch (field) {
       case "houseNo":
@@ -233,7 +258,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
         break;
       case "postalCode":
         setPostalCode(value);
-        setInvalidPostalCode(invalidNum);
+        setInvalidPostalCode(invalidPostalCode);
         break;
       default:
         break;
@@ -262,7 +287,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
           onChange={(e) => handleTextInputChange(e.target.value, "dormitory")}
           required
           isInvalid={isInvalid || isInvalidDormitory}
-          alertText="กรุณากรอกชื่อหอพัก"
+          alertText="กรุณากรอกชื่อหอพักให้ถูกต้อง"
         />
       </Col>
       <Col className="mb-4" md={4} xs={12}>
@@ -274,7 +299,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
           onChange={(e) => handleTextInputChange(e.target.value, "soi")}
           required
           isInvalid={isInvalid || isInvalidSoi}
-          alertText="กรุณากรอกซอย"
+          alertText="กรุณากรอกซอยให้ถูกต้อง"
         />
       </Col>
       <Col className="mb-4" md={4} xs={6}>
@@ -286,7 +311,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
           onChange={(e) => handleTextInputChange(e.target.value, "houseNo")}
           required
           isInvalid={isInvalid || isInvalidHouseNo}
-          alertText="กรุณากรอกบ้านเลขที่"
+          alertText="กรุณากรอกบ้านเลขที่ให้ถูกต้อง"
         />
       </Col>
 
@@ -299,11 +324,11 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
           onChange={(e) => handleTextInputChange(e.target.value, "villageNo")}
           required
           isInvalid={isInvalid || isInvalidVillageNo}
-          alertText="กรุณากรอกหมู่ที่"
+          alertText="กรุณากรอกหมู่ที่ให้ถูกต้อง"
         />
       </Col>
 
-      <Col className="register-and-contract-number mb-4" md={4} xs={6}>
+      <Col className="address-Input mb-4" md={4} xs={6}>
         <TextSelect
           value={selectedProvince || ""}
           label="จังหวัด"
@@ -322,10 +347,10 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
           alertText="กรุณาเลือกจังหวัด"
         />
       </Col>
-      <Col className="register-and-contract-number mb-4" md={4} xs={6}>
+      <Col className="address-Input mb-4" md={4} xs={6}>
         <TextSelect
           value={selectedDistrict || ""}
-          label="อำเภอ(เขต)"
+          label="อำเภอ (เขต)"
           id="District"
           options={districtList.map((d) => ({
             value: d.districtCode.toString(),
@@ -344,7 +369,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
       <Col className="register-and-contract-number mb-4" md={4} xs={6}>
         <TextSelect
           value={selectedSubDistrict || ""}
-          label="ตำบล(แขวง)"
+          label="ตำบล (แขวง)"
           id="SubDistrict"
           options={subDistrictList.map((s) => ({
             value: s.subdistrictCode.toString(),
@@ -370,12 +395,12 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
           onChange={(e) => handleTextInputChange(e.target.value, "postalCode")}
           required
           isInvalid={isInvalid || isInvalidPostalCode}
-          alertText="กรุณากรอกรหัสไปรษณีย์"
+          alertText="กรุณากรอกรหัสไปรษณีย์ให้ถูกต้อง"
         />
       </Col>
 
       {!showSender && (
-        <Col className="register-and-contract-number mb-4" md={4} xs={6}>
+        <Col className="register-and-contract-number mb-4" md={4} xs={12}>
           <TextSelect
             value={selectDeliveryType || ""}
             label="ประเภทของที่ส่ง"
@@ -384,7 +409,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
               { label: "ส่งของปกติ", value: "ส่งของปกติ" },
               { label: "ส่งรถกลับบ้าน", value: "ส่งรถกลับบ้าน" },
             ]}
-            placeholder="เลือกอำเภอ"
+            placeholder="เลือกประเภทของที่ส่ง"
             onChange={(value) => {
               if (value !== null) setSelectedDeliveryType(value);
             }}
