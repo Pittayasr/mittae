@@ -4,7 +4,7 @@ import DeliveryAddress from "./deliveryComponent/deliveryAddress";
 import TextInput from "./textFillComponent/textInput";
 import TextSelect from "./textFillComponent/textSelect";
 
-import calculateDelivery from "../data/calculateDelivery";
+import { calculateDelivery } from "../data/calculateDelivery";
 
 import { Form, Row, Col, Button, Alert } from "react-bootstrap";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -26,14 +26,6 @@ const Delivery: React.FC = () => {
   const [selectedProvinceSender, setSelectedProvinceSender] = useState<
     string | null
   >(null);
-
-  const [selectedProvinceNameSender] = useState<string | null>(null);
-  const [selectedDistrictNameSender] = useState<string | null>(null);
-  const [selectedSubDistrictNameSender] = useState<string | null>(null);
-
-  const [selectedProvinceNameReceiver] = useState<string | null>(null);
-  const [selectedDistrictNameReceiver] = useState<string | null>(null);
-  const [selectedSubDistrictNameReceiver] = useState<string | null>(null);
 
   const [usernameReceiver, setUsernameReceiver] = useState<string>("");
   const [contactNumReceiver, setContactNumReceiver] = useState<string>("");
@@ -64,6 +56,16 @@ const Delivery: React.FC = () => {
   const [isInvalidAddress, setIsInvalidAddress] = useState(false);
   const [isInvalidUserInfo, setIsInvalidUserInfo] = useState(false);
   const [isInvalidCCsizeCar, setIsInvalidCCsizeCar] = useState(false);
+
+  const [selectedProvinceName, setSelectedProvinceName] = useState<
+    string | null
+  >(null);
+  const [selectedDistrictName, setSelectedDistrictName] = useState<
+    string | null
+  >(null);
+  const [selectedSubDistrictName, setSelectedSubDistrictName] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     if (selectDeliveryType === "ส่งของปกติ") {
@@ -131,6 +133,9 @@ const Delivery: React.FC = () => {
       isFormReceiverValid,
       isInvalidNoIDcard,
       isInvalidUserInfo,
+      selectedProvinceName,
+      selectedDistrictName,
+      selectedSubDistrictName, 
     });
   }, [
     usernameSender,
@@ -195,15 +200,6 @@ const Delivery: React.FC = () => {
       setShowSender(false);
       setValidated(false);
     }
-
-    const deliveryCost = calculateDelivery({
-      province: selectedProvinceName,
-      district: selectedDistrictName,
-      subDistrict: selectedSubDistrictName,
-      
-    });
-  
-    console.log("ค่าจัดส่ง:", deliveryCost);
   };
 
   const handleBackToSender = () => {
@@ -304,9 +300,12 @@ const Delivery: React.FC = () => {
               setSelectedSubDistrict={setSubDistrictSender}
               selectedDistrict={districtSender}
               setSelectedDistrict={setDistrictSender}
-              selectedProvinceName={selectedProvinceNameSender}
-              selectedDistrictName={selectedDistrictNameSender}
-              selectedSubDistrictName={selectedSubDistrictNameSender}
+              selectedProvinceName={selectedProvinceName}
+              setSelectedProvinceName={setSelectedProvinceName}
+              selectedDistrictName={selectedDistrictName}
+              setSelectedDistrictName={setSelectedDistrictName}
+              selectedSubDistrictName={selectedSubDistrictName}
+              setSelectedSubDistrictName={setSelectedSubDistrictName}
               postalCode={postalCodeSender}
               setPostalCode={setPostalCodeSender}
               selectedProvince={selectedProvinceSender}
@@ -372,9 +371,12 @@ const Delivery: React.FC = () => {
                   setSelectedSubDistrict={setSubDistrictReceiver}
                   selectedDistrict={districtReceiver}
                   setSelectedDistrict={setDistrictReceiver}
-                  selectedProvinceName={selectedProvinceNameReceiver}
-                  selectedDistrictName={selectedDistrictNameReceiver}
-                  selectedSubDistrictName={selectedSubDistrictNameReceiver}
+                  selectedProvinceName={selectedProvinceName}
+                  setSelectedProvinceName={setSelectedProvinceName}
+                  selectedDistrictName={selectedDistrictName}
+                  setSelectedDistrictName={setSelectedDistrictName}
+                  selectedSubDistrictName={selectedSubDistrictName}
+                  setSelectedSubDistrictName={setSelectedSubDistrictName}
                   postalCode={postalCodeReceiver}
                   setPostalCode={setPostalCodeReceiver}
                   selectedProvince={selectedProvinceReceiver}

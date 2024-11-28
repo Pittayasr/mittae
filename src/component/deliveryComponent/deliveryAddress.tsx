@@ -49,6 +49,9 @@ interface DeliveryAddressProps {
   setSelectedSubDistrict: (value: string | null) => void;
   setSelectedDistrict: (value: string | null) => void;
   setSelectedDeliveryType: (value: string | null) => void;
+  setSelectedProvinceName: (value: string | null) => void;
+  setSelectedDistrictName: (value: string | null) => void;
+  setSelectedSubDistrictName: (value: string | null) => void;
   showSender: boolean;
   setIsFormValid: (isValid: boolean) => void;
   onValidateAddress: (validations: {
@@ -80,6 +83,12 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
   setSelectedDistrict,
   setPostalCode,
   setSelectedDeliveryType,
+  selectedProvinceName,
+  selectedDistrictName,
+  selectedSubDistrictName,
+  setSelectedProvinceName,
+  setSelectedDistrictName,
+  setSelectedSubDistrictName,
   showSender,
   setIsFormValid,
   onValidateAddress,
@@ -95,15 +104,15 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
   const [isInvalidDormitory, setInvalidDormitory] = useState(false);
   const [isInvalidPostalCode, setInvalidPostalCode] = useState(false);
 
-  const [selectedProvinceName, setSelectedProvinceName] = useState<
-    string | null
-  >(null);
-  const [selectedDistrictName, setSelectedDistrictName] = useState<
-    string | null
-  >(null);
-  const [selectedSubDistrictName, setSelectedSubDistrictName] = useState<
-    string | null
-  >(null);
+  // const [selectedProvinceName, setSelectedProvinceName] = useState<
+  //   string | null
+  // >(null);
+  // const [selectedDistrictName, setSelectedDistrictName] = useState<
+  //   string | null
+  // >(null);
+  // const [selectedSubDistrictName, setSelectedSubDistrictName] = useState<
+  //   string | null
+  // >(null);
 
   useEffect(() => {
     setDistrictList(districts); // แสดงอำเภอทั้งหมด

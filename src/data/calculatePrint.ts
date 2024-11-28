@@ -4,54 +4,13 @@ import { GlobalWorkerOptions } from "pdfjs-dist";
 
 GlobalWorkerOptions.workerSrc = `/pdf.js/build/pdf.worker.mjs`;
 
-let cachedPdfFile: File;
+// let cachedPdfFile: File;
 let cachedColorPercentage: number;
 let cachedFileHash: string;
 let cachedPageCount: number;
 
 function getFileHash(file: File): string {
   return `${file.name}_${file.lastModified}`;
-}
-
-// ฟังก์ชันแปลงไฟล์ Word เป็น PDF
-async function convertDocToPDF(inputFile: File): Promise<string> {
-  const formData = new FormData();
-  formData.append("file", inputFile);
-
-  const response = await fetch("http://localhost:3000/convert", {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to convert file");
-  }
-
-  const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
-
-  return url; // ส่งคืน URL สำหรับดาวน์โหลดไฟล์ PDF
-}
-
-async function convertOnce(file: File): Promise<File> {
-  const fileHash = getFileHash(file);
-
-  if (cachedFileHash === fileHash && cachedPdfFile) {
-    console.log("ใช้ไฟล์ PDF ที่แปลงแล้วจาก Cache");
-    return cachedPdfFile;
-  }
-
-  const pdfUrl = await convertDocToPDF(file); // แปลงไฟล์
-  console.log("File converted to PDF successfully. Download URL:", pdfUrl);
-  alert(
-    "ไฟล์ได้แปลงเป็น PDF แล้ว คุณสามารถดาวน์โหลดไฟล์ PDF ที่นี่: " + pdfUrl
-  );
-  const pdfBlob = await fetch(pdfUrl).then((res) => res.blob());
-  cachedPdfFile = new File([pdfBlob], "converted.pdf", {
-    type: pdfBlob.type,
-  });
-  console.log("แปลงไฟล์ PDF เสร็จสิ้น");
-  return cachedPdfFile;
 }
 
 // ฟังก์ชันตรวจสอบค่าสีขาวและดำ
@@ -152,51 +111,6 @@ async function calculatePageColorPercentage(
   return colorPercentage;
 }
 
-// ดึงเปอร์เซ็นต์สีของแต่ละหน้า
-// async function calculatePageColorPercentages(pdfFile: File): Promise<number[]> {
-//   const typedArray = new Uint8Array(await pdfFile.arrayBuffer());
-//   const pdfDocument = await pdfjsLib.getDocument(typedArray).promise;
-
-//   const totalPages = pdfDocument.numPages;
-//   console.log(`จำนวนหน้าทั้งหมด: ${totalPages}`);
-
-//   // ใช้ Promise.all เพื่อคำนวณเปอร์เซ็นต์สีของทุกหน้า
-//   const pagePercentages = await Promise.all(
-//     Array.from({ length: totalPages }, (_, index) =>
-//       calculatePageColorPercentage(pdfFile, index + 1)
-//     )
-//   );
-
-//   console.log(`เปอร์เซ็นต์สีของแต่ละหน้า: ${pagePercentages}`);
-//   return pagePercentages;
-// }
-
-// คำนวณราคาจากเปอร์เซ็นต์สีของแต่ละหน้า
-// function calculateTotalPriceByPages(
-//   pagePercentages: number[],
-//   copiesCount: number,
-//   isColor: boolean
-// ): number {
-//   let totalPrice = 0;
-
-//   for (const percentage of pagePercentages) {
-//     const pricePerPage = isColor
-//       ? percentage >= 75
-//         ? 20
-//         : percentage >= 50
-//         ? 15
-//         : percentage >= 25
-//         ? 10
-//         : 5
-//       : 1; // ราคาแบบขาวดำต่อหน้า
-
-//     totalPrice += pricePerPage * copiesCount;
-//   }
-
-//   console.log(`ราคาค่าปริ้นแต่ละหน้ารวม: ${totalPrice}`);
-//   return totalPrice;
-// }
-
 // คำนวณเปอร์เซ็นต์สีทั้งหมดใน PDF
 async function calculateColorPercentage(pdfFile: File): Promise<number> {
   console.log("เริ่มคำนวณเปอร์เซ็นต์สีทั้งหมดใน PDF...");
@@ -258,12 +172,6 @@ async function getPageCount(file: File): Promise<number> {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
     cachedPageCount = pdf.numPages;
-  } else if (
-    file.type ===
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-  ) {
-    const pdfFile = await convertOnce(file);
-    cachedPageCount = await getPageCount(pdfFile);
   } else if (file.type === "image/jpeg" || file.type === "image/png") {
     return 1; // ไฟล์รูปภาพถือว่าเป็น 1 หน้า
   } else {
@@ -281,14 +189,6 @@ export async function calculatePrice(
   selectedFile: File
 ): Promise<{ totalPrice: number; pageCount: number }> {
   let uploadedFile: File = selectedFile;
-
-  // แปลงไฟล์ .docx เป็น .pdf หากจำเป็น
-  if (
-    selectedFile.type ===
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-  ) {
-    uploadedFile = await convertOnce(selectedFile);
-  }
 
   // ดึงจำนวนหน้า
   const pageCount = await getPageCount(uploadedFile);

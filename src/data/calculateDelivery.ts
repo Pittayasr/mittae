@@ -117,7 +117,7 @@ function getZoneByProvince(province: string): number | null {
   return null; // ไม่พบโซน
 }
 
-export const calculateDelivery(province: string, engineCC: number): number | null {
+function calculateDelivery(province: string, engineCC: number): number | null {
   const zone = getZoneByProvince(province);
 
   if (!zone) {
@@ -138,19 +138,6 @@ export const calculateDelivery(province: string, engineCC: number): number | nul
   } else {
     return prices.over400;
   }
-}
-
-// ตัวอย่างการใช้งาน
-const province = "เชียงใหม่";
-const engineCC = 250;
-
-const deliveryCost = calculateDelivery(province, engineCC);
-if (deliveryCost !== null) {
-  console.log(
-    `ค่าจัดส่งไปยังจังหวัด ${province} สำหรับรถ ${engineCC} ซีซี คือ ${deliveryCost} บาท`
-  );
-} else {
-  console.log("ไม่สามารถคำนวณค่าจัดส่งได้");
 }
 
 export { calculateDelivery, getZoneByProvince };
