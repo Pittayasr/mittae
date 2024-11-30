@@ -50,20 +50,20 @@ const Print: React.FC = () => {
     setIsCalculating(true);
 
     try {
-      const price = await calculatePrice(
+      const { totalPrice, pageCount } = await calculatePrice(
         selectTypePrint,
         copiesSetPrint,
         selectedFile
       );
-      setTotalPrice(price.totalPrice);
-      setPagePrint(price.pageCount);
+      setTotalPrice(totalPrice);
+      setPagePrint(pageCount);
     } catch (error) {
       console.error("Error during submission: ", error);
       setModalMessage("การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง");
       setSuccess(false);
       setShowModal(true);
     } finally {
-      setIsCalculating(false); // Hide loader
+      setIsCalculating(false);
     }
   };
 

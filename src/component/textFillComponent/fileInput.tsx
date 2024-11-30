@@ -34,15 +34,13 @@ const FileInput: React.FC<FileInputProps> = ({ onFileSelect }) => {
 
   return (
     <Form.Group>
-      <Form.Label>
-        อัปโหลดไฟล์ (รองรับ .pdf, .doc, .docx, .png, .jpg)
-      </Form.Label>
+      <Form.Label>อัปโหลดไฟล์ (รองรับ .pdf, .png, .jpg)</Form.Label>
 
       {/* ปุ่มและข้อความแสดงชื่อไฟล์ */}
       <div className="d-flex align-items-center">
         <Form.Control
           type="file"
-          accept=".pdf, .doc, .docx, .png, .jpg"
+          accept=".pdf, .png, .jpg"
           onChange={handleFileChange}
           style={{ display: "none" }} // ซ่อน input file
           id="hiddenFileInput"

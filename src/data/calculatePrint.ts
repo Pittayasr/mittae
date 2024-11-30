@@ -2,7 +2,8 @@
 import * as pdfjsLib from "pdfjs-dist";
 import { GlobalWorkerOptions } from "pdfjs-dist";
 
-GlobalWorkerOptions.workerSrc = `/pdf.js/build/pdf.worker.mjs`;
+GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.worker.min.js";
 
 // let cachedPdfFile: File;
 let cachedColorPercentage: number;
@@ -188,7 +189,7 @@ export async function calculatePrice(
   copiesSetPrint: string,
   selectedFile: File
 ): Promise<{ totalPrice: number; pageCount: number }> {
-  let uploadedFile: File = selectedFile;
+  const uploadedFile: File = selectedFile;
 
   // ดึงจำนวนหน้า
   const pageCount = await getPageCount(uploadedFile);

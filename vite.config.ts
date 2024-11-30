@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
+  base: "/", // กำหนด base path สำหรับการใช้งานในโปรเจกต์
   plugins: [
     react(),
     {
@@ -17,13 +18,14 @@ export default defineConfig({
     },
   ],
   server: {
+    open: true,
     proxy: {
-      "/upload-image": "http://localhost:3001", // ตั้งค่าให้การเรียก API ไปที่เซิร์ฟเวอร์
+      "/upload-image": "http://localhost:4229", // ตั้งค่าให้การเรียก API ไปที่เซิร์ฟเวอร์
     },
   },
   build: {
     rollupOptions: {
-      external: ['sharp', 'node:crypto', 'node:child_process'],
+      external: ["sharp", "node:crypto", "node:child_process"],
     },
   },
 });

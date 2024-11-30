@@ -4,7 +4,7 @@ import DeliveryAddress from "./deliveryComponent/deliveryAddress";
 import TextInput from "./textFillComponent/textInput";
 import TextSelect from "./textFillComponent/textSelect";
 
-import { calculateDelivery } from "../data/calculateDelivery";
+// import { calculateDelivery } from "../data/calculateDelivery";
 
 import { Form, Row, Col, Button, Alert } from "react-bootstrap";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -57,15 +57,21 @@ const Delivery: React.FC = () => {
   const [isInvalidUserInfo, setIsInvalidUserInfo] = useState(false);
   const [isInvalidCCsizeCar, setIsInvalidCCsizeCar] = useState(false);
 
-  const [selectedProvinceName, setSelectedProvinceName] = useState<
+  const [selectedProvinceNameSender, setSelectedProvinceNameSender] = useState<
     string | null
   >(null);
-  const [selectedDistrictName, setSelectedDistrictName] = useState<
+  const [selectedDistrictNameSender, setSelectedDistrictNameSender] = useState<
     string | null
   >(null);
-  const [selectedSubDistrictName, setSelectedSubDistrictName] = useState<
-    string | null
-  >(null);
+  const [selectedSubDistrictNameSender, setSelectedSubDistrictNameSender] =
+    useState<string | null>(null);
+
+  const [selectedProvinceNameReceiver, setSelectedProvinceNameReceiver] =
+    useState<string | null>(null);
+  const [selectedDistrictNameReceiver, setSelectedDistrictNameReceiver] =
+    useState<string | null>(null);
+  const [selectedSubDistrictNameReceiver, setSelectedSubDistrictNameReceiver] =
+    useState<string | null>(null);
 
   useEffect(() => {
     if (selectDeliveryType === "ส่งของปกติ") {
@@ -81,10 +87,10 @@ const Delivery: React.FC = () => {
         usernameSender &&
         contactNumSender &&
         NoIDcardSender &&
-        soiSender &&
+        // soiSender &&
         houseNoSender &&
         villageNoSender &&
-        dormitorySender &&
+        // dormitorySender &&
         subDistrictSender &&
         districtSender &&
         postalCodeSender &&
@@ -99,10 +105,10 @@ const Delivery: React.FC = () => {
         usernameReceiver &&
         contactNumReceiver &&
         houseNoReceiver &&
-        soiReceiver &&
+        // soiReceiver &&
         houseNoReceiver &&
         villageNoReceiver &&
-        dormitoryReceiver &&
+        // dormitoryReceiver &&
         subDistrictReceiver &&
         districtReceiver &&
         postalCodeReceiver &&
@@ -133,9 +139,9 @@ const Delivery: React.FC = () => {
       isFormReceiverValid,
       isInvalidNoIDcard,
       isInvalidUserInfo,
-      selectedProvinceName,
-      selectedDistrictName,
-      selectedSubDistrictName, 
+      selectedProvinceNameSender,
+      selectedDistrictNameSender,
+      selectedSubDistrictNameSender,
     });
   }, [
     usernameSender,
@@ -167,6 +173,12 @@ const Delivery: React.FC = () => {
     isInvalidAddress,
     isInvalidNoIDcard,
     isInvalidUserInfo,
+    selectedProvinceNameSender,
+    selectedDistrictNameSender,
+    selectedSubDistrictNameSender,
+    selectedProvinceNameReceiver,
+    selectedDistrictNameReceiver,
+    selectedSubDistrictNameReceiver,
   ]);
 
   const handleAddressValidation = (validations: {
@@ -300,12 +312,12 @@ const Delivery: React.FC = () => {
               setSelectedSubDistrict={setSubDistrictSender}
               selectedDistrict={districtSender}
               setSelectedDistrict={setDistrictSender}
-              selectedProvinceName={selectedProvinceName}
-              setSelectedProvinceName={setSelectedProvinceName}
-              selectedDistrictName={selectedDistrictName}
-              setSelectedDistrictName={setSelectedDistrictName}
-              selectedSubDistrictName={selectedSubDistrictName}
-              setSelectedSubDistrictName={setSelectedSubDistrictName}
+              selectedProvinceName={selectedProvinceNameSender}
+              setSelectedProvinceName={setSelectedProvinceNameSender}
+              selectedDistrictName={selectedDistrictNameSender}
+              setSelectedDistrictName={setSelectedDistrictNameSender}
+              selectedSubDistrictName={selectedSubDistrictNameSender}
+              setSelectedSubDistrictName={setSelectedSubDistrictNameSender}
               postalCode={postalCodeSender}
               setPostalCode={setPostalCodeSender}
               selectedProvince={selectedProvinceSender}
@@ -371,12 +383,14 @@ const Delivery: React.FC = () => {
                   setSelectedSubDistrict={setSubDistrictReceiver}
                   selectedDistrict={districtReceiver}
                   setSelectedDistrict={setDistrictReceiver}
-                  selectedProvinceName={selectedProvinceName}
-                  setSelectedProvinceName={setSelectedProvinceName}
-                  selectedDistrictName={selectedDistrictName}
-                  setSelectedDistrictName={setSelectedDistrictName}
-                  selectedSubDistrictName={selectedSubDistrictName}
-                  setSelectedSubDistrictName={setSelectedSubDistrictName}
+                  selectedProvinceName={selectedProvinceNameReceiver}
+                  setSelectedProvinceName={setSelectedProvinceNameReceiver}
+                  selectedDistrictName={selectedDistrictNameReceiver}
+                  setSelectedDistrictName={setSelectedDistrictNameReceiver}
+                  selectedSubDistrictName={selectedSubDistrictNameReceiver}
+                  setSelectedSubDistrictName={
+                    setSelectedSubDistrictNameReceiver
+                  }
                   postalCode={postalCodeReceiver}
                   setPostalCode={setPostalCodeReceiver}
                   selectedProvince={selectedProvinceReceiver}
