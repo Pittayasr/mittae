@@ -20,7 +20,7 @@ export default defineConfig({
   server: {
     open: true,
     proxy: {
-      "/upload-image": "http://localhost:4229", // ตั้งค่าให้การเรียก API ไปที่เซิร์ฟเวอร์
+      "/convert": "http://localhost:3000", // ให้ Proxy ไปยังเซิร์ฟเวอร์ที่ใช้ API
     },
   },
   build: {

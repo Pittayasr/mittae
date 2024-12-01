@@ -148,12 +148,6 @@ export async function calculateFileColorPercentage(
 
   if (fileType === "application/pdf") {
     return calculateColorPercentage(file);
-  } else if (
-    fileType === "application/msword" ||
-    fileType ===
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-  ) {
-    return cachedColorPercentage; // ใช้ค่าที่แคชไว้
   } else if (fileType === "image/jpeg" || fileType === "image/png") {
     return calculateImageColorPercentage(file); // คำนวณสีโดยตรงสำหรับรูปภาพ
   } else {
@@ -183,12 +177,40 @@ async function getPageCount(file: File): Promise<number> {
   return cachedPageCount;
 }
 
+// อัปโหลดไฟล์ไปยังเซิร์ฟเวอร์
+async function uploadFileToServer(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch("http://localhost:3000/upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to upload file to server");
+  }
+
+  const result = await response.json();
+  console.log("File uploaded successfully:", result);
+  console.log(result.filePath);
+
+  // คืน URL ของไฟล์ที่อัปโหลด
+  return result.filePath; // URL รูปแบบ http://localhost:3000/uploads/<ชื่อไฟล์>
+}
+
+export const handleViewFile = (filePath: string) => {
+  console.log("Opening file at:", filePath);
+  window.open(filePath, "_blank");
+};
+
 // ปรับปรุงฟังก์ชัน calculatePrice
 export async function calculatePrice(
   selectTypePrint: string,
   copiesSetPrint: string,
   selectedFile: File
 ): Promise<{ totalPrice: number; pageCount: number }> {
+  await uploadFileToServer(selectedFile);
   const uploadedFile: File = selectedFile;
 
   // ดึงจำนวนหน้า

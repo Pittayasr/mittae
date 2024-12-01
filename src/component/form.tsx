@@ -4,12 +4,12 @@ import UserInfo from "./formComponent/UserInfo";
 import DateSection from "./formComponent/DateSection";
 import VehicleInfo from "./formComponent/VehicleInfo";
 import OwnerInfo from "./formComponent/OwnerInfo";
-import ReadMe from "./readME";
+import ReadMe from "./formComponent/readME";
 import { Form, Row, Col, Button, Alert } from "react-bootstrap";
 import { Dayjs } from "dayjs";
 import { calculateTax } from "../data/calculateTax";
 import dayjs from "dayjs";
-import Summary from "./summary";
+import Summary from "./formComponent/summary";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const FormComponent: React.FC = () => {

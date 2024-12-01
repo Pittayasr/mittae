@@ -9,16 +9,22 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "node",
-    "rootDir": "./",
+    "rootDir": ".",
     "outDir": "./dist",
     "allowJs": true,
     "skipLibCheck": true,
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "strict": true,
+    "baseUrl": "./",
+    "paths": {
+      "@utils/*": ["src/data/*"]
+    }
   },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
   ],
-  "include": ["server.ts", "../server.ts"]
+  "include": ["server.ts", "../server.ts"],
+  "exclude": ["node_modules"]
 }

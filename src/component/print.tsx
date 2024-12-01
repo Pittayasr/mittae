@@ -1,4 +1,3 @@
-// print.tsx
 import React, { useState, useEffect } from "react";
 import { calculatePrice } from "../data/calculatePrint";
 import { Col, Row, Form, Button, Alert, Modal, Spinner } from "react-bootstrap";
@@ -10,6 +9,7 @@ import { db } from "../../firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
+// print.tsx
 const Print: React.FC = () => {
   const [selectTypePrint, setSelectTypePrint] = useState<string | null>(null);
   const [pagePrint, setPagePrint] = useState<number>(0); // Page count as string
@@ -71,15 +71,19 @@ const Print: React.FC = () => {
   const handleSubmitData = async () => {
     try {
       const data = {
-        typePrint: selectTypePrint,
-        numAllPages: pagePrint,
-        numSetPrint: copiesSetPrint,
-        fileName: selectedFile?.name ?? "ยังไม่ได้เลือกไฟล์",
-        price: totalPrice,
+        fileName: selectedFile?.name ?? "ยังไม่ได้เลือกไฟล์", // ชื่อไฟล์
+        fileType: selectedFile?.type ?? "ไม่ทราบประเภทไฟล์", // ประเภทไฟล์
+        numPages: pagePrint, // จำนวนหน้า
+        numCopies: parseInt(copiesSetPrint, 10), // จำนวนชุดที่ปริ้น
+        colorType: selectTypePrint ?? "ไม่ระบุ", // ประเภทการปริ้น (สี/ขาวดำ)
+        totalPrice, // ราคาทั้งหมด
+        uploadTime: new Date().toISOString(), // เวลาที่อัปโหลด
+        filePath: `/uploads/${selectedFile?.name}`, // ใช้ path ของไฟล์
       };
 
-      const docRef = await addDoc(collection(db, "print"), data);
-      console.log("Document written with ID: ", docRef.id);
+      // ส่งข้อมูลไปที่ Firebase
+      const docRef = await addDoc(collection(db, "uploads"), data);
+      console.log("Document written with ID: ", docRef.id); // docRef.id คือ id ของเอกสาร
 
       setModalMessage(
         `ข้อมูลถูกส่งสำเร็จแล้ว! ✅\nขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป 🙏❤️`
@@ -186,8 +190,12 @@ const Print: React.FC = () => {
               alertText="กรุณากรอกจำนวนชุดให้ถูกต้อง"
             />
           </Col>
-          <Col xl={6} lg={12} className="mb-3">
-            <FileInput onFileSelect={(file) => setSelectedFile(file)} />
+          <Col xl={12} lg={12} className="mb-3">
+            <FileInput
+              onFileSelect={(file) => setSelectedFile(file)}
+              isInvalid={isSubmitted && !selectedFile}
+              alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้น"
+            />
           </Col>
         </Row>
 
