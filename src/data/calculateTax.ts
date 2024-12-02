@@ -1,5 +1,6 @@
 // calculateTax.ts
 import dayjs, { Dayjs } from "dayjs";
+
 // ประกาศ interface สำหรับ CarDetails
 interface CarDetails {
   isCar: boolean; //ถ้าเป็นรถยนต์
@@ -19,6 +20,7 @@ interface CarDetails {
   isRoadroller: boolean; // เพิ่มเพื่อระบุว่ารถเป็นรถบรรทุกเกิน7ที่นั่งหรือไม่
   isTractor: boolean; // เพิ่มเพื่อระบุว่ารถเป็นรถบรรทุกเกิน7ที่นั่งหรือไม่
   isCarTrailer: boolean; // ถ้าเป็นจักรยานยนต์พ่วง
+  isGasCar: boolean;
 
   finalTotal: number;
   finalPrb: number;
@@ -153,7 +155,11 @@ export const calculateTax = (
 
   console.log("ค่าภาษีสุทธิ =", finalTax);
 
-  const inspectionFee = car.isMotorcycle ? 100 : 400; // ค่าตรวจสภาพ
+  const inspectionFee = car.isMotorcycle
+    ? 100
+    : car.isGasCar
+    ? 900 // 400 (ตรวจสภาพ) + 500 (ค่าตรวจแก๊ส)
+    : 400; // ค่าตรวจสภาพ
   const processingFee = car.isMotorcycle ? 300 : 400; // ค่าบริการ
   console.log("ค่าตรวจสภาพ =", inspectionFee);
   console.log("ค่าดำเนินการ =", processingFee);

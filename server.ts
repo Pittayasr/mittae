@@ -39,12 +39,21 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // ลบไฟล์จาก server
 app.delete("/delete-file", (req, res) => {
   const { fileName } = req.body; // รับชื่อไฟล์จาก client
-  const filePath = path.resolve(__dirname, "uploads", fileName); // หา path ของไฟล์
+  if (!fileName) {
+    return res.status(400).json({ error: "No file name provided" });
+  }
+
+  const filePath = path.resolve(__dirname, "uploads", fileName);
 
   try {
-    fs.unlinkSync(filePath); // ลบไฟล์
-    console.log(`File deleted: ${fileName}`);
-    res.status(200).json({ message: "File deleted successfully" });
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath); // ลบไฟล์
+      console.log(`File deleted: ${fileName}`);
+      res.status(200).json({ message: "File deleted successfully" });
+    } else {
+      console.error("File not found:", filePath);
+      res.status(404).json({ error: "File not found" });
+    }
   } catch (error) {
     console.error("Error deleting file:", error);
     res.status(500).json({ error: "Failed to delete file" });

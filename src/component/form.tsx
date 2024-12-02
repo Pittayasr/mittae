@@ -193,6 +193,7 @@ const FormComponent: React.FC = () => {
         isRoadroller: selectedCarType == "รถบดถนน",
         isTractor: selectedCarType == "รถแทรกเตอร์",
         isCarTrailer: selectedCarType == "รถพ่วง",
+        isGasCar: selectedCarType == "รถแก๊ส",
         isMoreThanThreeYears: isMoreThanThreeYears(
           latestTaxPaymentDate,
           expirationDate

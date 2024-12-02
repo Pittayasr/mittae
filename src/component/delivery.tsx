@@ -3,6 +3,7 @@ import DeliveryUserInfo from "./deliveryComponent/deliveryUserInfo";
 import DeliveryAddress from "./deliveryComponent/deliveryAddress";
 import TextInput from "./textFillComponent/textInput";
 import TextSelect from "./textFillComponent/textSelect";
+import RadioButton from "./textFillComponent/radioButton";
 
 // import { calculateDelivery } from "../data/calculateDelivery";
 
@@ -13,7 +14,8 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 const Delivery: React.FC = () => {
   const [usernameSender, setUsernameSender] = useState<string>("");
   const [contactNumSender, setContactNumSender] = useState<string>("");
-  const [NoIDcardSender, setNoIDcardSender] = useState<string>("");
+  const [selectedRadio, setSelectedRadio] = useState<string | null>(null);
+  const [ownerData, setOwnerData] = useState<string>("");
   const [houseNoSender, setHouseNoSender] = useState<string>("");
   const [soiSender, setSoiSender] = useState<string>("");
   const [villageNoSender, setVillageNoSender] = useState<string>("");
@@ -52,7 +54,7 @@ const Delivery: React.FC = () => {
   const [isFormReceiverValid, setIsFormReceiverValid] = useState(false);
   const [showSender, setShowSender] = useState(true);
 
-  const [isInvalidNoIDcard, setIsInvalidNoIDcard] = useState(false);
+  const [isInvalidOwnerInfo, setInvalidOwnerInfo] = useState(false);
   const [isInvalidAddress, setIsInvalidAddress] = useState(false);
   const [isInvalidUserInfo, setIsInvalidUserInfo] = useState(false);
   const [isInvalidCCsizeCar, setIsInvalidCCsizeCar] = useState(false);
@@ -86,7 +88,7 @@ const Delivery: React.FC = () => {
       !!(
         usernameSender &&
         contactNumSender &&
-        NoIDcardSender &&
+        ownerData &&
         // soiSender &&
         houseNoSender &&
         villageNoSender &&
@@ -98,7 +100,7 @@ const Delivery: React.FC = () => {
       ) &&
       isInvalidAddress &&
       isInvalidUserInfo &&
-      !isInvalidNoIDcard;
+      !isInvalidOwnerInfo;
 
     const formReceiverIsValid =
       !!(
@@ -126,7 +128,7 @@ const Delivery: React.FC = () => {
     console.log({
       usernameSender,
       contactNumSender,
-      NoIDcardSender,
+      ownerData,
       soiSender,
       houseNoSender,
       villageNoSender,
@@ -137,7 +139,7 @@ const Delivery: React.FC = () => {
       selectedProvinceSender,
       isFormSenderValid,
       isFormReceiverValid,
-      isInvalidNoIDcard,
+      isInvalidOwnerInfo,
       isInvalidUserInfo,
       selectedProvinceNameSender,
       selectedDistrictNameSender,
@@ -146,7 +148,7 @@ const Delivery: React.FC = () => {
   }, [
     usernameSender,
     contactNumSender,
-    NoIDcardSender,
+    ownerData,
     soiSender,
     villageNoSender,
     houseNoSender,
@@ -171,7 +173,7 @@ const Delivery: React.FC = () => {
     isFormSenderValid,
     isFormReceiverValid,
     isInvalidAddress,
-    isInvalidNoIDcard,
+    isInvalidOwnerInfo,
     isInvalidUserInfo,
     selectedProvinceNameSender,
     selectedDistrictNameSender,
@@ -200,6 +202,12 @@ const Delivery: React.FC = () => {
     setIsInvalidUserInfo(isValid);
   };
 
+  const handleRadioChange = (value: string) => {
+    setSelectedRadio(value);
+    setOwnerData("");
+    setValidated(false);
+  };
+
   // const handleReceiverValidation = (isValid: boolean) => {
   //   setIsFormReceiverValid(isValid);
   // };
@@ -219,33 +227,35 @@ const Delivery: React.FC = () => {
     setValidated(false);
   };
 
-  const handleNoIDcardChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOwnerInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     let invalid = false;
 
-    const idCardPattern = /^\d{13}$/; // ID card pattern
-    invalid = value.length > 0 && !idCardPattern.test(value);
+    if (selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด") {
+      const idCardPattern = /^\d{13}$/; // ID card pattern
+      invalid = value.length > 0 && !idCardPattern.test(value);
 
-    if (!invalid) {
-      // ตรวจสอบการคำนวณเลขหลักที่ 13
-      const idArray = value.split("").map(Number); // แยกตัวเลขแต่ละหลัก
-      let sum = 0;
+      if (!invalid) {
+        // ตรวจสอบการคำนวณเลขหลักที่ 13
+        const idArray = value.split("").map(Number); // แยกตัวเลขแต่ละหลัก
+        let sum = 0;
 
-      for (let i = 0; i < 12; i++) {
-        sum += idArray[i] * (13 - i); // คูณเลขแต่ละหลักด้วยตำแหน่งที่สอดคล้อง
+        for (let i = 0; i < 12; i++) {
+          sum += idArray[i] * (13 - i); // คูณเลขแต่ละหลักด้วยตำแหน่งที่สอดคล้อง
+        }
+
+        const checkDigit = (11 - (sum % 11)) % 10; // คำนวณเลขตรวจสอบ (หลักที่ 13)
+
+        // ตรวจสอบว่าเลขหลักที่ 13 ตรงกับเลขตรวจสอบหรือไม่
+        invalid = idArray[12] !== checkDigit;
       }
-
-      const checkDigit = (11 - (sum % 11)) % 10; // คำนวณเลขตรวจสอบ (หลักที่ 13)
-
-      // ตรวจสอบว่าเลขหลักที่ 13 ตรงกับเลขตรวจสอบหรือไม่
-      invalid = idArray[12] !== checkDigit;
+    } else if (selectedRadio === "หมายเลขพาสปอร์ตเจ้าของรถล่าสุด") {
+      const passportPattern = /^[A-Za-z0-9]{8,9}$/; // Passport pattern
+      invalid = value.length > 0 && !passportPattern.test(value);
     }
 
-    setNoIDcardSender(value);
-    setIsInvalidNoIDcard(invalid);
-
-    // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
-    setIsFormSenderValid(!invalid);
+    setOwnerData(value);
+    setInvalidOwnerInfo(invalid);
   };
 
   const handleCCsizeInputChange = (value: string) => {
@@ -277,7 +287,7 @@ const Delivery: React.FC = () => {
                   onValidateUserInfo={handleUserValidation}
                 />
               </Col>
-              <Col className="mb-4" md={4} xs={12}>
+              {/* <Col className="mb-4" md={4} xs={12}>
                 <TextInput
                   id="userName"
                   label="กรอกหมายเลขบัตรประชาชน"
@@ -295,7 +305,71 @@ const Delivery: React.FC = () => {
                   required
                   type="numeric"
                 />
+              </Col> */}
+            </Row>
+
+            <Row>
+              {/* เลือดประเภทข้อมูลของเจ้าของรถล่าสุด */}
+              <Col className="mb-4" md={12} xs={12}>
+                <RadioButton
+                  options={[
+                    "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด",
+                    "หมายเลขพาสปอร์ตเจ้าของรถล่าสุด",
+                  ]}
+                  name="radioOptions"
+                  label="ประเภทข้อมูลเจ้าของรถ"
+                  selectedValue={selectedRadio}
+                  onChange={handleRadioChange}
+                  isInvalid={validated} // จะเป็น true เมื่อไม่มีการเลือกค่า
+                  alertText="กรุณาเลือกประเภทข้อมูลเจ้าของรถ" // ข้อความแจ้งเตือน
+                />
               </Col>
+            </Row>
+            <Row>
+              {/* ช่องกรอกตามประเภทข้อมูลของเจ้าของรถล่าสุด */}
+              {selectedRadio && (
+                <>
+                  <Col className="date-idNo-carType-Input mb-4" md={6} xs={6}>
+                    <TextInput
+                      label={
+                        selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
+                          ? "กรอกหมายเลขบัตรประชาชน"
+                          : selectedRadio === "หมายเลขพาสปอร์ตเจ้าของรถล่าสุด"
+                          ? "กรอกหมายเลขบัตรประชาชน"
+                          : "โปรดเลือกประเภทข้อมูลเจ้าของรถ"
+                      }
+                      placeholder={
+                        selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
+                          ? "กรอกหมายเลขบัตรประชาชน"
+                          : selectedRadio === "หมายเลขพาสปอร์ตเจ้าของรถล่าสุด"
+                          ? "กรอกหมายเลขพาสปอร์ต"
+                          : ""
+                      }
+                      id="ownerData"
+                      value={ownerData}
+                      type="numeric"
+                      onChange={handleOwnerInfoChange}
+                      isInvalid={isInvalidOwnerInfo}
+                      alertText={
+                        isInvalidOwnerInfo
+                          ? selectedRadio ===
+                            "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
+                            ? ownerData.length < 13
+                              ? "กรอกหมายเลขบัตรประชาชนให้ครบถ้วน"
+                              : "หมายเลขบัตรประชาชนไม่ถูกต้อง"
+                            : ownerData.length < 8
+                            ? "กรอกหมายเลขพาสปอร์ตให้ครบถ้วน"
+                            : "กรอกหมายเลขพาสปอร์ตให้ถูกต้อง"
+                          : ""
+                      }
+                      // disabled={!selectedRadio}
+                      required
+                    />
+                  </Col>
+
+                  <Col></Col>
+                </>
+              )}
             </Row>
 
             <DeliveryAddress

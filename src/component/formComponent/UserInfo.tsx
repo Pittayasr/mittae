@@ -93,6 +93,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
             { label: "รถบดถนน", value: "รถบดถนน" },
             { label: "รถพ่วง", value: "รถพ่วง" },
             { label: "รถแทรกเตอร์", value: "รถแทรกเตอร์" },
+            { label: "รถแก๊ส", value: "รถแก๊ส" },
           ]}
           placeholder="ค้นหา..."
           onChange={(value) => setSelectedCarType(value)}

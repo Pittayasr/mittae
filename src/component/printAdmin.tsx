@@ -54,34 +54,35 @@ const PrintAdmin: React.FC = () => {
     window.open(fileUrl, "_blank");
   };
 
-  const handleDownload = (storedFileName: string) => {
-    if (!storedFileName) {
-      alert("ไม่พบไฟล์ที่ต้องการดาวน์โหลด");
-      return;
-    }
-
-    const fileUrl = `http://localhost:3000/uploads/${storedFileName}`;
-    const link = document.createElement("a");
-    link.href = fileUrl;
-    link.download = decodeURIComponent(storedFileName);
-    link.click();
-  };
+  // const handleDownload = (filePath: string) => {
+  //   if (!filePath) {
+  //     alert("ไม่พบไฟล์ที่ต้องการดาวน์โหลด");
+  //     return;
+  //   }
+  //   const fileName = decodeURIComponent(
+  //     filePath.split("/").pop() || "download"
+  //   );
+  //   const link = document.createElement("a");
+  //   link.href = filePath;
+  //   link.download = fileName; // ตั้งชื่อไฟล์ตรงกับชื่อภาษาไทย
+  //   link.click();
+  // };
 
   // ฟังก์ชันลบข้อมูล
   const handleDelete = async (storedFileName: string, docId: string) => {
     try {
       if (window.confirm(`คุณต้องการลบไฟล์: ${storedFileName}?`)) {
-        // ลบข้อมูลจาก Firestore
+        // ลบเอกสารจาก Firestore
         const docRef = doc(db, "uploads", docId);
         await deleteDoc(docRef);
 
-        // ลบไฟล์จาก Server
+        // ส่งคำขอลบไฟล์ไปที่เซิร์ฟเวอร์
         const response = await fetch("http://localhost:3000/delete-file", {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ fileName: storedFileName }), // ใช้ storedFileName ที่เซิร์ฟเวอร์เก็บ
+          body: JSON.stringify({ fileName: storedFileName }), // ใช้ storedFileName
         });
 
         if (response.ok) {
@@ -89,14 +90,14 @@ const PrintAdmin: React.FC = () => {
             uploads.filter((upload) => upload.storedFileName !== storedFileName)
           );
           alert("ลบไฟล์สำเร็จ");
-          console.log("File deleted successfully.");
+          console.log(`File deleted successfully: ${storedFileName}`);
         } else {
           throw new Error("Failed to delete file on server");
         }
       }
     } catch (error) {
       console.error("Error deleting file:", error);
-      alert("ไม่สามารถลบไฟล์ได้ โปรดลองอีกครั้ง");
+      alert("ไม่สามารถลบไฟล์ได้ กรุณาลองอีกครั้ง");
     }
   };
 
@@ -153,31 +154,30 @@ const PrintAdmin: React.FC = () => {
                     เวลาที่อัปโหลด:{" "}
                     {new Date(upload.uploadTime).toLocaleString()}
                   </p>
-                  <div className="d-flex justify-content-between">
+                  <div className="d-flex justify-content-end">
                     <div>
-                      <Button
-                        variant="secondary"
-                        onClick={() => handleViewFile(upload.storedFileName)}
-                      >
-                        ดูไฟล์
-                      </Button>
-
-                      <Button
+                      {/* <Button
                         className="ms-2"
                         variant="success"
                         onClick={() => handleDownload(upload.storedFileName)} // ใช้ storedFileName
                       >
                         ดาวน์โหลด
-                      </Button>
+                      </Button> */}
                     </div>
                     <Button
-                      className="ms-2"
+                      className="mx-2"
                       variant="outline-danger"
                       onClick={() =>
-                        handleDelete(upload.fileName, upload.docId)
+                        handleDelete(upload.storedFileName, upload.docId)
                       }
                     >
                       ลบ
+                    </Button>
+                    <Button
+                      variant="success"
+                      onClick={() => handleViewFile(upload.storedFileName)}
+                    >
+                      ดูไฟล์
                     </Button>
                   </div>
                 </div>

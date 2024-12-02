@@ -177,33 +177,6 @@ async function getPageCount(file: File): Promise<number> {
   return cachedPageCount;
 }
 
-// async function uploadFileToServer(
-//   file: File
-// ): Promise<{ filePath: string; storedFileName: string }> {
-//   const formData = new FormData();
-//   formData.append("file", file);
-
-//   const response = await fetch("http://localhost:3000/upload", {
-//     method: "POST",
-//     body: formData,
-//   });
-
-//   if (!response.ok) {
-//     const errorData = await response.json();
-//     console.error("Upload error details:", errorData);
-//     throw new Error("Failed to upload file to server");
-//   }
-
-//   const { filePath, storedFileName } = await response.json();
-//   console.log("File uploaded successfully:", { filePath, storedFileName });
-
-//   if (!storedFileName) {
-//     throw new Error("storedFileName is undefined");
-//   }
-
-//   return { filePath, storedFileName }; // Return correct value
-// }
-
 // ปรับปรุงฟังก์ชัน calculatePrice
 export async function calculatePrice(
   selectTypePrint: string,
