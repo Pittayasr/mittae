@@ -177,32 +177,32 @@ async function getPageCount(file: File): Promise<number> {
   return cachedPageCount;
 }
 
-// อัปโหลดไฟล์ไปยังเซิร์ฟเวอร์
-async function uploadFileToServer(file: File): Promise<string> {
-  const formData = new FormData();
-  formData.append("file", file);
+// async function uploadFileToServer(
+//   file: File
+// ): Promise<{ filePath: string; storedFileName: string }> {
+//   const formData = new FormData();
+//   formData.append("file", file);
 
-  const response = await fetch("http://localhost:3000/upload", {
-    method: "POST",
-    body: formData,
-  });
+//   const response = await fetch("http://localhost:3000/upload", {
+//     method: "POST",
+//     body: formData,
+//   });
 
-  if (!response.ok) {
-    throw new Error("Failed to upload file to server");
-  }
+//   if (!response.ok) {
+//     const errorData = await response.json();
+//     console.error("Upload error details:", errorData);
+//     throw new Error("Failed to upload file to server");
+//   }
 
-  const result = await response.json();
-  console.log("File uploaded successfully:", result);
-  console.log(result.filePath);
+//   const { filePath, storedFileName } = await response.json();
+//   console.log("File uploaded successfully:", { filePath, storedFileName });
 
-  // คืน URL ของไฟล์ที่อัปโหลด
-  return result.filePath; // URL รูปแบบ http://localhost:3000/uploads/<ชื่อไฟล์>
-}
+//   if (!storedFileName) {
+//     throw new Error("storedFileName is undefined");
+//   }
 
-export const handleViewFile = (filePath: string) => {
-  console.log("Opening file at:", filePath);
-  window.open(filePath, "_blank");
-};
+//   return { filePath, storedFileName }; // Return correct value
+// }
 
 // ปรับปรุงฟังก์ชัน calculatePrice
 export async function calculatePrice(
@@ -210,7 +210,7 @@ export async function calculatePrice(
   copiesSetPrint: string,
   selectedFile: File
 ): Promise<{ totalPrice: number; pageCount: number }> {
-  await uploadFileToServer(selectedFile);
+  // await uploadFileToServer(selectedFile);
   const uploadedFile: File = selectedFile;
 
   // ดึงจำนวนหน้า

@@ -70,15 +70,36 @@ const Print: React.FC = () => {
   // ฟังก์ชันสำหรับยืนยันการส่งข้อมูล
   const handleSubmitData = async () => {
     try {
+      // อัปโหลดไฟล์ไปที่เซิร์ฟเวอร์ก่อน
+      const formData = new FormData();
+      if (selectedFile) {
+        formData.append("file", selectedFile);
+      }
+
+      const response = await fetch("http://localhost:3000/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Upload error details:", errorData);
+        throw new Error("Failed to upload file to server");
+      }
+
+      const { filePath, storedFileName } = await response.json();
+      console.log("File uploaded successfully:", { filePath, storedFileName });
+
       const data = {
-        fileName: selectedFile?.name ?? "ยังไม่ได้เลือกไฟล์", // ชื่อไฟล์
+        fileName: selectedFile?.name ?? "ยังไม่ได้เลือกไฟล์", // ชื่อไฟล์ต้นฉบับ
         fileType: selectedFile?.type ?? "ไม่ทราบประเภทไฟล์", // ประเภทไฟล์
         numPages: pagePrint, // จำนวนหน้า
         numCopies: parseInt(copiesSetPrint, 10), // จำนวนชุดที่ปริ้น
         colorType: selectTypePrint ?? "ไม่ระบุ", // ประเภทการปริ้น (สี/ขาวดำ)
         totalPrice, // ราคาทั้งหมด
         uploadTime: new Date().toISOString(), // เวลาที่อัปโหลด
-        filePath: `/uploads/${selectedFile?.name}`, // ใช้ path ของไฟล์
+        filePath: filePath, // URL สำหรับไฟล์ที่เซิร์ฟเวอร์
+        storedFileName: storedFileName, // ชื่อไฟล์ที่เซิร์ฟเวอร์จัดเก็บ
       };
 
       // ส่งข้อมูลไปที่ Firebase
@@ -232,7 +253,7 @@ const Print: React.FC = () => {
           }}
           onSuccess={() => {
             console.log("Cancel clicked, closing modal...");
-            window.location.reload();
+            // window.location.reload();
             onBack();
             setShowModal(false);
           }}

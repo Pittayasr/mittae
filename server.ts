@@ -16,21 +16,25 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// กำหนดตำแหน่งเก็บไฟล์ที่อัปโหลด และกำหนดชื่อไฟล์
+// ตั้งค่า storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // กำหนดโฟลเดอร์เก็บไฟล์
+    cb(null, "uploads/"); // โฟลเดอร์ที่เก็บไฟล์
   },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname); // เอานามสกุลไฟล์เดิม
-    const baseName = path.basename(file.originalname, ext); // เอาชื่อไฟล์โดยไม่มีนามสกุล
-    const safeBaseName = Buffer.from(baseName, "utf-8").toString("utf-8"); // จัดการชื่อภาษาไทย
-    cb(null, `${safeBaseName}${ext}`); // ใช้ชื่อไฟล์เดิมพร้อมนามสกุล
+    const randomFileName = `${Date.now()}_${Math.floor(
+      1000000000 + Math.random() * 9000000000
+    )}`; // วันที่ปัจจุบัน + เลขสุ่ม 10 หลัก
+    const ext = path.extname(file.originalname); // ดึงนามสกุลไฟล์
+    cb(null, `${randomFileName}${ext}`); // ใช้เลขสุ่ม + นามสกุล
   },
 });
 
-// ตั้งค่า multer ใช้ storage ที่กำหนด
+// ตั้งค่า multer
 const upload = multer({ storage });
+
+// ให้บริการไฟล์ที่อัปโหลด
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ลบไฟล์จาก server
 app.delete("/delete-file", (req, res) => {
@@ -46,9 +50,6 @@ app.delete("/delete-file", (req, res) => {
     res.status(500).json({ error: "Failed to delete file" });
   }
 });
-
-// ให้บริการไฟล์ที่อัปโหลด
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Endpoint สำหรับอัปโหลดไฟล์
 app.post("/upload", upload.single("file"), (req, res) => {

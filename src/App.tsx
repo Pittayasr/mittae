@@ -12,7 +12,7 @@ import PDPA_modal from "./component/PDPAmodal";
 import FormComponent from "./component/form";
 import Print from "./component/print";
 import Delivery from "./component/delivery";
-import DeliveryAdmin from "./component/deliveryAdmin";
+import PrintAdmin from "./component/printAdmin";
 import "./App.css";
 import SelectFormModal from "./component/selectFromModal";
 
@@ -142,10 +142,7 @@ function App() {
           path="/delivery"
           element={isPDPAAgreed ? <Delivery /> : <Navigate to="/" />}
         />
-        <Route
-          path="/delivery_admin_XTc}KPf]=Z@J"
-          element={<DeliveryAdmin />}
-        />
+        <Route path="/print_admin_XTc}KPf]=Z@J" element={<PrintAdmin />} />
         {/* Default route */}
         <Route
           path="/"
