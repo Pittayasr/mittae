@@ -108,7 +108,7 @@ const PrintAdmin: React.FC = () => {
 
   return (
     <div className="form-container mx-auto mt-1">
-      <h1>แดชบอร์ดแอดมินสำหรับปริ้นเอกสาร</h1>
+      <h1 className="text-success">แดชบอร์ดแอดมินสำหรับปริ้นเอกสาร</h1>
       <Form>
         <Row className="my-3">
           <Col xs={12} md={12} xl={12} className="mb-3">
@@ -133,8 +133,8 @@ const PrintAdmin: React.FC = () => {
             >
               <div className="card">
                 <div className="card-body">
-                  <h5 className="card-title">{upload.fileName}</h5>
-                  <p className="card-text">ประเภทไฟล์: {upload.fileType}</p>
+                  <h5 className="card-title text-success">{upload.fileName}</h5>
+                  <p className="card-text mt-4">ประเภทไฟล์: {upload.fileType}</p>
                   <p className="card-text">
                     จำนวนหน้าเอกสาร: {upload.numPages}
                   </p>

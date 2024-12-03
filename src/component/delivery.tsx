@@ -310,65 +310,64 @@ const Delivery: React.FC = () => {
 
             <Row>
               {/* เลือดประเภทข้อมูลของเจ้าของรถล่าสุด */}
-              <Col className="mb-4" md={12} xs={12}>
+              <Col className="mb-4" xs={12} sm={12} md={12} lg={8} xl={6}>
                 <RadioButton
                   options={[
-                    "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด",
-                    "หมายเลขพาสปอร์ตเจ้าของรถล่าสุด",
+                    "หมายเลขบัตรประชาชนของผู้ส่ง",
+                    "หมายเลขพาสปอร์ตของผู้ส่ง",
                   ]}
                   name="radioOptions"
-                  label="ประเภทข้อมูลเจ้าของรถ"
+                  label="ประเภทข้อมูลของผู้ส่ง"
                   selectedValue={selectedRadio}
                   onChange={handleRadioChange}
                   isInvalid={validated} // จะเป็น true เมื่อไม่มีการเลือกค่า
                   alertText="กรุณาเลือกประเภทข้อมูลเจ้าของรถ" // ข้อความแจ้งเตือน
                 />
               </Col>
-            </Row>
-            <Row>
               {/* ช่องกรอกตามประเภทข้อมูลของเจ้าของรถล่าสุด */}
               {selectedRadio && (
-                <>
-                  <Col className="date-idNo-carType-Input mb-4" md={6} xs={6}>
-                    <TextInput
-                      label={
-                        selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
-                          ? "กรอกหมายเลขบัตรประชาชน"
-                          : selectedRadio === "หมายเลขพาสปอร์ตเจ้าของรถล่าสุด"
-                          ? "กรอกหมายเลขบัตรประชาชน"
-                          : "โปรดเลือกประเภทข้อมูลเจ้าของรถ"
-                      }
-                      placeholder={
-                        selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
-                          ? "กรอกหมายเลขบัตรประชาชน"
-                          : selectedRadio === "หมายเลขพาสปอร์ตเจ้าของรถล่าสุด"
-                          ? "กรอกหมายเลขพาสปอร์ต"
-                          : ""
-                      }
-                      id="ownerData"
-                      value={ownerData}
-                      type="numeric"
-                      onChange={handleOwnerInfoChange}
-                      isInvalid={isInvalidOwnerInfo}
-                      alertText={
-                        isInvalidOwnerInfo
-                          ? selectedRadio ===
-                            "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
-                            ? ownerData.length < 13
-                              ? "กรอกหมายเลขบัตรประชาชนให้ครบถ้วน"
-                              : "หมายเลขบัตรประชาชนไม่ถูกต้อง"
-                            : ownerData.length < 8
-                            ? "กรอกหมายเลขพาสปอร์ตให้ครบถ้วน"
-                            : "กรอกหมายเลขพาสปอร์ตให้ถูกต้อง"
-                          : ""
-                      }
-                      // disabled={!selectedRadio}
-                      required
-                    />
-                  </Col>
-
-                  <Col></Col>
-                </>
+                <Col
+                  className="date-idNo-carType-Input mb-4"
+                  md={6}
+                  xs={6}
+                  lg={4}
+                  xl={6}
+                >
+                  <TextInput
+                    label={
+                      selectedRadio === "หมายเลขบัตรประชาชนของผู้ส่ง"
+                        ? "กรอกหมายเลขบัตรประชาชน"
+                        : selectedRadio === "หมายเลขพาสปอร์ตของผู้ส่ง"
+                        ? "กรอกหมายเลขพาสปอร์ต"
+                        : "โปรดเลือกประเภทข้อมูลเจ้าของรถ"
+                    }
+                    placeholder={
+                      selectedRadio === "หมายเลขบัตรประชาชนของผู้ส่ง"
+                        ? "กรอกหมายเลขบัตรประชาชน"
+                        : selectedRadio === "หมายเลขพาสปอร์ตของผู้ส่ง"
+                        ? "กรอกหมายเลขพาสปอร์ต"
+                        : ""
+                    }
+                    id="ownerData"
+                    value={ownerData}
+                    type="numeric"
+                    onChange={handleOwnerInfoChange}
+                    isInvalid={isInvalidOwnerInfo}
+                    alertText={
+                      isInvalidOwnerInfo
+                        ? selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
+                          ? ownerData.length < 13
+                            ? "กรอกหมายเลขบัตรประชาชนให้ครบถ้วน"
+                            : "หมายเลขบัตรประชาชนไม่ถูกต้อง"
+                          : ownerData.length < 8
+                          ? "กรอกหมายเลขพาสปอร์ตให้ครบถ้วน"
+                          : "กรอกหมายเลขพาสปอร์ตให้ถูกต้อง"
+                        : ""
+                    }
+                    // disabled={!selectedRadio}
+                    required
+                  />
+                </Col>
               )}
             </Row>
 

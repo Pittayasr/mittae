@@ -1,3 +1,4 @@
+//App.tsx
 import { useState, useEffect } from "react";
 import { Button } from "react-bootstrap";
 import {
@@ -13,8 +14,10 @@ import FormComponent from "./component/form";
 import Print from "./component/print";
 import Delivery from "./component/delivery";
 import PrintAdmin from "./component/printAdmin";
+import FormAdmin from "./component/formAdmin";
 import "./App.css";
 import SelectFormModal from "./component/selectFromModal";
+import SelectAdminFormModal from "./component/selelctAdminFormModal";
 
 function App() {
   const [isPDPAAgreed, setIsPDPAAgreed] = useState(false);
@@ -64,6 +67,14 @@ function App() {
 
   const handleNavigateToDelivery = () => {
     navigate("/delivery");
+  };
+
+  const handleNavigateToFormAdmin = () => {
+    navigate("/form_admin_hc{SlU(.'rhA");
+  };
+
+  const handleNavigateToPrintAdmin = () => {
+    navigate("/print_admin_XTc}KPf]=Z@J");
   };
 
   if (
@@ -142,7 +153,9 @@ function App() {
           path="/delivery"
           element={isPDPAAgreed ? <Delivery /> : <Navigate to="/" />}
         />
+        <Route path="/form_admin_hc{SlU(.'rhA" element={<FormAdmin />} />
         <Route path="/print_admin_XTc}KPf]=Z@J" element={<PrintAdmin />} />
+
         {/* Default route */}
         <Route
           path="/"
@@ -153,6 +166,17 @@ function App() {
               onNavigateToReadMe={handleNavigateToForm}
               onNavigateToPrint={handleNavigateToPrint}
               onNavigateToDelivery={handleNavigateToDelivery}
+            />
+          }
+        />
+        <Route
+          path="/admin_select"
+          element={
+            <SelectAdminFormModal
+              isVisible={showSelectFormModal}
+              onClose={() => setShowSelectFormModal(false)}
+              onNavigateToFormAdmin={handleNavigateToFormAdmin}
+              onNavigateToPrintAdmin={handleNavigateToPrintAdmin}
             />
           }
         />

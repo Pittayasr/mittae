@@ -7,17 +7,17 @@ import { db } from "../../../firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 import AlertModal from "../textFillComponent/alertModal";
 
-// const formatDate = (date: Date | null) => {
-//   if (!date) return "-";
-//   const formattedDate = dayjs(date).locale("th").format("D MMMM YYYY");
-//   const buddhistYear = dayjs(date).year() + 543;
-//   return formattedDate.replace(`${dayjs(date).year()}`, `${buddhistYear}`);
-// };
-
-const formatDateForFirestore = (date: Date | null) => {
-  if (!date) return null;
-  return dayjs(date).startOf("day").toDate(); // Set time to 00:00:00
+const formatDate = (date: Date | null) => {
+  if (!date) return "-";
+  const formattedDate = dayjs(date).locale("th").format("D MMMM YYYY");
+  const buddhistYear = dayjs(date).year() + 543;
+  return formattedDate.replace(`${dayjs(date).year()}`, `${buddhistYear}`);
 };
+
+// const formatDateForFirestore = (date: Date | null) => {
+//   if (!date) return null;
+//   return dayjs(date).startOf("day").toDate(); // Set time to 00:00:00
+// };
 
 interface SummaryProps {
   ownerData: string;
@@ -109,9 +109,9 @@ const Summary: React.FC<SummaryProps> = ({
       vehicleType: data.selectedCarType,
       bikeTypeOrDoorCount: data.bikeTypeOrDoorCount,
       weightOrCC: data.engineSize,
-      registrationDate: formatDateForFirestore(data.registrationDate),
-      expirationDate: formatDateForFirestore(data.expirationDate), // formatDate only to show on UI, not here
-      latestTaxPaymentDate: formatDateForFirestore(data.latestTaxPaymentDate),
+      registrationDate: formatDate(data.registrationDate),
+      expirationDate: formatDate(data.expirationDate), // formatDate only to show on UI, not here
+      latestTaxPaymentDate: formatDate(data.latestTaxPaymentDate),
       vehicleAge: data.carAge,
       contactNumber: data.contactNumber,
       ownerData: data.ownerData,
@@ -125,7 +125,7 @@ const Summary: React.FC<SummaryProps> = ({
     };
 
     try {
-      const docRef = await addDoc(collection(db, "summary"), updatedData);
+      const docRef = await addDoc(collection(db, "prbform"), updatedData);
       console.log("Document written with ID: ", docRef.id);
       setModalMessage(
         "ข้อมูลถูกส่งสำเร็จแล้ว! ✅\nขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป 🙏❤️\n📢 สักครู่หลังจากชำระเงินแล้ว\nท่านจะได้รับข้อความ SMS ยืนยันความคุ้มครองฯ พ.ร.บ.ไปยังหมายเลขโทรศัพท์ที่ท่านแจ้งมานะคะ ❤️"

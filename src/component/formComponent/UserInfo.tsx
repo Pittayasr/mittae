@@ -1,5 +1,5 @@
 // UserInfo.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import TextInput from "../textFillComponent/textInput";
 import TextSelect from "../textFillComponent/textSelect";
@@ -10,10 +10,13 @@ interface UserInfoProps {
   setUsernameData: (value: string) => void;
   selectedProvince: string | null;
   setSelectedProvince: (value: string | null) => void;
+  selectedProvinceName: string | null;
+  setSelectedProvinceName: (value: string | null) => void;
   selectedCarType: string | null;
   setSelectedCarType: (value: string | null) => void;
   isInvalid: boolean;
   setIsFormValid: (isValid: boolean) => void;
+  onValidateUserInfo: (validations: { isInvalidName: boolean }) => void;
 }
 
 const UserInfo: React.FC<UserInfoProps> = ({
@@ -22,9 +25,11 @@ const UserInfo: React.FC<UserInfoProps> = ({
   setUsernameData,
   selectedProvince,
   setSelectedProvince,
+  setSelectedProvinceName,
   selectedCarType,
   setSelectedCarType,
-  setIsFormValid,
+  onValidateUserInfo,
+  // setIsFormValid,
 }) => {
   const [isInvalidName, setInvalidName] = useState(false);
   const [provinceList] = useState(provinces);
@@ -35,9 +40,25 @@ const UserInfo: React.FC<UserInfoProps> = ({
 
     setUsernameData(value);
     setInvalidName(invalid);
+  };
 
-    // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
-    setIsFormValid(!invalid && !selectedProvince && !selectedCarType);
+  useEffect(() => {
+    const validations = {
+      isInvalidName,
+    };
+
+    onValidateUserInfo(validations);
+  }, [isInvalidName, onValidateUserInfo]);
+
+  const handleProvinceChange = (value: string) => {
+    const selectedProvinceObj = provinces.find(
+      (province) => province.provinceCode.toString() === value
+    );
+
+    if (selectedProvinceObj) {
+      setSelectedProvince(value); // เก็บ provinceCode
+      setSelectedProvinceName(selectedProvinceObj.provinceNameTh); // เก็บชื่อจังหวัด
+    }
   };
 
   return (
@@ -67,7 +88,9 @@ const UserInfo: React.FC<UserInfoProps> = ({
             label: p.provinceNameTh,
           }))}
           placeholder="ค้นหา..."
-          onChange={(value) => setSelectedProvince(value)}
+          onChange={(value) => {
+            if (value !== null) handleProvinceChange(value);
+          }}
           required
           isInvalid={isInvalid}
           alertText="กรุณาเลือกจังหวัด"

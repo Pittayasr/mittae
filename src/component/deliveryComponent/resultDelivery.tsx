@@ -40,10 +40,10 @@ const Summary: React.FC<SummaryProps> = ({
   registrationNumber,
   registrationDate,
   expirationDate,
-  // CCorWeight,
-  // carOrMotorcycleLabel,
+  CCorWeight,
+  carOrMotorcycleLabel,
   latestTaxPaymentDate,
-  // selectedRadio,
+  selectedRadio,
   bikeTypeOrDoorCount,
   selectedCarType,
   totalCost,
@@ -87,6 +87,9 @@ const Summary: React.FC<SummaryProps> = ({
       inspectionCost: inspectionCost || 0,
       processingCost: processingCost || 0,
       carAge: carAge || { years: 0, months: 0, days: 0 },
+      CCorWeight: CCorWeight || "", // Add this line
+      carOrMotorcycleLabel: carOrMotorcycleLabel || "", // Add this line
+      selectedRadio: selectedRadio || "", // Add this line
     };
 
     const updatedData = {
@@ -105,6 +108,9 @@ const Summary: React.FC<SummaryProps> = ({
       inspectionCost: data.inspectionCost,
       processingCost: data.processingCost,
       totalCost: data.totalCost,
+      CCorWeight: data.CCorWeight, // Add this line
+      carOrMotorcycleLabel: data.carOrMotorcycleLabel, // Add this line
+      selectedRadio: data.selectedRadio, // Add this line
     };
 
     try {

@@ -15,6 +15,11 @@ interface VehicleInfoProps {
   setIsFormValid: (isValid: boolean) => void;
   CCorWeight: string;
   setCCorWeight: React.Dispatch<React.SetStateAction<string>>;
+  onValidateVehicleInfo: (validations: {
+    isInvalidContact: boolean;
+    isInvalidLicense: boolean;
+    isInvalidEngineSize: boolean;
+  }) => void;
 }
 
 const VehicleInfo: React.FC<VehicleInfoProps> = ({
@@ -26,9 +31,10 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
   engineSize,
   setEngineSize,
   selectedCarType,
-  setIsFormValid,
+  // setIsFormValid,
   CCorWeight,
   setCCorWeight,
+  onValidateVehicleInfo,
 }) => {
   const [isInvalidContact, setIsInvalidContact] = useState(false);
   const [isInvalidLicense, setIsInvalidLicense] = useState(false);
@@ -50,7 +56,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
     setIsInvalidLicense(invalid);
 
     // ตรวจสอบความถูกต้องของฟอร์มทั้งหมด
-    setIsFormValid(!isInvalidContact && !invalid && !isInvalidEngineSize);
+    // setIsFormValid(!isInvalidContact && !invalid && !isInvalidEngineSize);
   };
 
   const handleContactChange = (value: string) => {
@@ -66,7 +72,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
     const invalid = isLengthInvalid || isFormatInvalid;
     setIsInvalidContact(invalid);
 
-    setIsFormValid(!isInvalidLicense && !invalid && !isInvalidEngineSize); // เช็คความถูกต้อง
+    // setIsFormValid(!isInvalidLicense && !invalid && !isInvalidEngineSize); // เช็คความถูกต้อง
   };
 
   const handleEngineSizeChange = (value: string) => {
@@ -79,6 +85,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
   // Update label when selectedCarType changes
   useEffect(() => {
     if (selectedCarType) {
+      // ตั้งค่าป้ายข้อความ
       const label =
         selectedCarType === "รถบรรทุก" ||
         selectedCarType === "รถบรรทุก(เกิน7ที่นั่ง)" ||
@@ -86,11 +93,29 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
         selectedCarType === "รถไฟฟ้า"
           ? "น้ำหนักรถ (กิโลกรัม)"
           : "ขนาดความจุ CC";
-      setEngineSize("");
 
       setCCorWeight(label);
+
+      // ล้างค่าเมื่อเปลี่ยนประเภท
+      // setEngineSize(""); // ล้างขนาดเครื่องยนต์
     }
-  }, [selectedCarType, setCCorWeight, setEngineSize]);
+
+    const validations = {
+      isInvalidContact,
+      isInvalidLicense,
+      isInvalidEngineSize,
+    };
+
+    onValidateVehicleInfo(validations);
+  }, [
+    selectedCarType,
+    setCCorWeight,
+    setEngineSize,
+    isInvalidContact,
+    isInvalidLicense,
+    isInvalidEngineSize,
+    onValidateVehicleInfo,
+  ]);
 
   return (
     <Row>

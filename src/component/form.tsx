@@ -13,18 +13,21 @@ import Summary from "./formComponent/summary";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const FormComponent: React.FC = () => {
+  const [usernameData, setUsernameData] = useState<string>("");
+  const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
+  const [selectedProvinceName, setSelectedProvinceName] = useState<
+    string | null
+  >(null);
+  const [selectedCarType, setSelectedCarType] = useState<string | null>(null);
   const [registrationDate, setRegistrationDate] = useState<Dayjs | null>(null);
   const [expirationDate, setExpirationDate] = useState<Dayjs | null>(null);
   const [latestTaxPaymentDate, setLatestTaxPaymentDate] =
     useState<Dayjs | null>(null);
   const [selectedRadio, setSelectedRadio] = useState<string | null>(null);
   const [ownerData, setOwnerData] = useState<string>("");
-  const [usernameData, setUsernameData] = useState<string>("");
-  const [engineSize, setEngineSize] = useState<string>("");
-  const [contactNumber, setContactNumber] = useState<string>("");
   const [registrationNumber, setRegistrationNumber] = useState<string>("");
-  const [selectedCarType, setSelectedCarType] = useState<string | null>(null);
-  const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
+  const [contactNumber, setContactNumber] = useState<string>("");
+  const [engineSize, setEngineSize] = useState<string>("");
   const [totalCost, setTotalCost] = useState<number | null>(null);
   const [finalPrb, setFinalPrb] = useState<number | null>(null);
   const [finalTax, setFinalTax] = useState<number | null>(null);
@@ -35,6 +38,10 @@ const FormComponent: React.FC = () => {
     null
   );
   const [ownerLabel, setOwnerLabel] = useState<string>("");
+
+  const [isInvalidUserInfo, setIsInvalidUserInfo] = useState(false);
+  const [isInvalidOwnerInfo, setIsInvalidOwnerInfo] = useState(false);
+  const [isInvalidVehicleInfo, setIsInvalidVehicleInfo] = useState(false);
 
   const [validated, setValidated] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false); // สถานะสำหรับตรวจสอบความถูกต้องของฟอร์ม
@@ -55,32 +62,36 @@ const FormComponent: React.FC = () => {
       selectedCarType === "รถบดถนน" ||
       selectedCarType === "รถแทรกเตอร์"
     ) {
-      setEngineSize("-"); // ล็อคให้เป็น "-"
-    } else if (engineSize === "-") {
+      setEngineSize("ไม่ต้องใส่"); // ล็อคให้เป็น "-"
+    } else if (engineSize === "ไม่ต้องใส่") {
       // ถ้าค่าเดิมเป็น "-" ให้ตั้งเป็นค่าว่าง
       setEngineSize("");
     }
 
-    const formIsValid = !!(
-      ownerData &&
-      usernameData &&
-      selectedProvince &&
-      engineSize &&
-      contactNumber &&
-      registrationNumber &&
-      registrationDate &&
-      expirationDate &&
-      latestTaxPaymentDate &&
-      selectedRadio &&
-      bikeTypeOrDoorCount &&
-      selectedCarType
-    );
+    const formIsValid =
+      !!(
+        ownerData &&
+        usernameData &&
+        selectedProvinceName &&
+        engineSize &&
+        contactNumber &&
+        registrationNumber &&
+        registrationDate &&
+        expirationDate &&
+        latestTaxPaymentDate &&
+        selectedRadio &&
+        bikeTypeOrDoorCount &&
+        selectedCarType
+      ) &&
+      isInvalidUserInfo &&
+      isInvalidOwnerInfo &&
+      isInvalidVehicleInfo;
 
     setIsFormValid(formIsValid);
   }, [
     ownerData,
     usernameData,
-    selectedProvince,
+    selectedProvinceName,
     engineSize,
     contactNumber,
     registrationNumber,
@@ -90,6 +101,9 @@ const FormComponent: React.FC = () => {
     selectedRadio,
     bikeTypeOrDoorCount,
     selectedCarType,
+    isInvalidUserInfo,
+    isInvalidOwnerInfo,
+    isInvalidVehicleInfo,
   ]);
 
   const [carAge, setCarAge] = useState<{
@@ -142,13 +156,36 @@ const FormComponent: React.FC = () => {
     setValidated(false);
   };
 
-  // const handleCarTypeChange = (value: string | null) => {
-  //   if (value !== selectedCarType) {
-  //     setBikeTypeOrDoorCount(""); // รีเซ็ตค่า bikeTypeOrDoorCount เมื่อ selectedCarType เปลี่ยน
-  //     setValidated(false); // รีเซ็ตสถานะ validated
-  //     setSelectedCarType(value); // อัปเดตค่า selectedCarType
-  //   }
-  // };
+  const handleUserInfoValidation = (validations: {
+    isInvalidName: boolean;
+  }) => {
+    const isValid = !Object.values(validations).includes(true); // ถ้ามี false หมายถึงฟอร์ม valid
+    setIsInvalidUserInfo(isValid);
+  };
+
+  const handleOwnerInfoValidation = (validations: {
+    isInvalidOwnerInfo: boolean;
+  }) => {
+    const isValid = !Object.values(validations).includes(true); // ถ้ามี false หมายถึงฟอร์ม valid
+    setIsInvalidOwnerInfo(isValid);
+  };
+
+  const handleVehicleInfoValidation = (validations: {
+    isInvalidContact: boolean;
+    isInvalidLicense: boolean;
+    isInvalidEngineSize: boolean;
+  }) => {
+    const isValid = !Object.values(validations).includes(true); // ถ้ามี false หมายถึงฟอร์ม valid
+    setIsInvalidVehicleInfo(isValid);
+  };
+
+  const handleCarTypeChange = (value: string | null) => {
+    if (value !== selectedCarType) {
+      setSelectedCarType(value);
+      setBikeTypeOrDoorCount(null); // รีเซ็ตประเภทของมอเตอร์ไซค์หรือจำนวนประตู
+      setEngineSize(""); // รีเซ็ตขนาดเครื่องยนต์
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -184,7 +221,7 @@ const FormComponent: React.FC = () => {
         lastTaxDate: latestTaxPaymentDate
           ? latestTaxPaymentDate.toDate()
           : null, // ส่ง lastTaxDate
-        isInChiangRai: selectedProvince === "เชียงราย",
+        isInChiangRai: selectedProvinceName === "เชียงราย",
         isMotorcycle: selectedCarType === "รถจักรยานยนต์",
         isCarTruck: selectedCarType == "รถบรรทุก",
         isElectric: selectedCarType == "รถไฟฟ้า",
@@ -251,7 +288,7 @@ const FormComponent: React.FC = () => {
     console.log("ข้อมูลที่ถูกส่ง:", {
       ownerData,
       usernameData,
-      selectedProvince,
+      selectedProvinceName,
       engineSize,
       contactNumber,
       registrationNumber,
@@ -283,9 +320,14 @@ const FormComponent: React.FC = () => {
             setUsernameData={setUsernameData}
             selectedProvince={selectedProvince}
             setSelectedProvince={setSelectedProvince}
+            selectedProvinceName={selectedProvinceName}
+            setSelectedProvinceName={setSelectedProvinceName}
             selectedCarType={selectedCarType}
-            setSelectedCarType={setSelectedCarType}
+            setSelectedCarType={(value) => {
+              handleCarTypeChange(value); // เรียกใช้ฟังก์ชัน handleCarTypeChange เมื่อมีการเปลี่ยนค่า
+            }}
             setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
+            onValidateUserInfo={handleUserInfoValidation}
           />
 
           {/* DateSection with callback for different dates */}
@@ -314,6 +356,7 @@ const FormComponent: React.FC = () => {
             setIsFormValid={setIsFormValid}
             carOrMotorcycleLabel={ownerLabel} // ส่ง ownerLabel
             setCarOrMotorcycleLabel={setOwnerLabel} // ใช้ setOwnerLabel สำหรับ OwnerInfo
+            onValidateOwnerInfo={handleOwnerInfoValidation}
           />
 
           {/* Integrate VehicleInfo */}
@@ -332,6 +375,7 @@ const FormComponent: React.FC = () => {
             CCorWeight={CCorWeightLabel} // ส่ง vehicleLabel
             setCCorWeight={setCCorWeightLabel}
             setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
+            onValidateVehicleInfo={handleVehicleInfoValidation}
           />
 
           <hr className="my-4" />
@@ -379,7 +423,7 @@ const FormComponent: React.FC = () => {
             CCorWeight={CCorWeightLabel}
             ownerData={ownerData}
             usernameData={usernameData}
-            selectedProvince={selectedProvince}
+            selectedProvince={selectedProvinceName}
             engineSize={engineSize}
             contactNumber={contactNumber}
             registrationNumber={registrationNumber}

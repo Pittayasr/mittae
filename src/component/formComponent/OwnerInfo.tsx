@@ -17,6 +17,7 @@ interface OwnerInfoProps {
   setIsFormValid: (isValid: boolean) => void;
   carOrMotorcycleLabel: string;
   setCarOrMotorcycleLabel: React.Dispatch<React.SetStateAction<string>>;
+  onValidateOwnerInfo: (validations: { isInvalidOwnerInfo: boolean }) => void;
 }
 
 const OwnerInfo: React.FC<OwnerInfoProps> = ({
@@ -28,29 +29,44 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
   selectedCarType,
   setBikeTypeOrDoorCount,
   bikeTypeOrDoorCount,
-  setIsFormValid,
+  // setIsFormValid,
   carOrMotorcycleLabel,
   setCarOrMotorcycleLabel,
+  onValidateOwnerInfo,
 }) => {
   const [isInvalidOwnerInfo, setInvalidOwnerInfo] = useState(false);
 
   useEffect(() => {
-    // setBikeTypeOrDoorCount(null);
-
     if (selectedCarType) {
+      // ตั้งค่าป้ายข้อความ
       const label =
         selectedCarType === "รถจักรยานยนต์"
-          ? "ประเภทของรถมอเตอร์ไซค์"
+          ? "ประเภทของรถจักรยานยนต์"
           : "จำนวนประตูรถยนต์";
-      setCarOrMotorcycleLabel(label); // Set label based on selectedCarType
-      setBikeTypeOrDoorCount(null);
+
+      setCarOrMotorcycleLabel(label);
+
+      // ล้างค่าเมื่อเปลี่ยนประเภท
+      // setBikeTypeOrDoorCount(null); // ล้างค่า BikeTypeOrDoorCount
     }
+
+    const validations = {
+      isInvalidOwnerInfo,
+    };
+
+    onValidateOwnerInfo(validations);
   }, [
     selectedCarType,
     setBikeTypeOrDoorCount,
     carOrMotorcycleLabel,
     setCarOrMotorcycleLabel,
+    isInvalidOwnerInfo,
+    onValidateOwnerInfo,
   ]);
+
+  const handleBikeTypeOrDoorCountChange = (value: string | null) => {
+    setBikeTypeOrDoorCount(value); // อัปเดตจำนวนประตูหรือประเภทของมอเตอร์ไซค์
+  };
 
   // Function to handle changes in owner information
   const handleOwnerInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,9 +98,9 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
 
     setOwnerData(value);
     setInvalidOwnerInfo(invalid);
-    setIsFormValid(
-      !invalid && !!selectedRadio && !!selectedCarType && !!bikeTypeOrDoorCount
-    );
+    // setIsFormValid(
+    //   !invalid && !!selectedRadio && !!selectedCarType && !!bikeTypeOrDoorCount
+    // );
   };
 
   return (
@@ -116,7 +132,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
                 selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
                   ? "กรอกหมายเลขบัตรประชาชน"
                   : selectedRadio === "หมายเลขพาสปอร์ตเจ้าของรถล่าสุด"
-                  ? "กรอกหมายเลขบัตรประชาชน"
+                  ? "กรอกหมายเลขพาสปอร์ต"
                   : "โปรดเลือกประเภทข้อมูลเจ้าของรถ"
               }
               placeholder={
@@ -178,7 +194,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
                   ? "เลือกประเภท..."
                   : "เลือกจำนวนประตู..."
               }
-              onChange={setBikeTypeOrDoorCount}
+              onChange={handleBikeTypeOrDoorCountChange}
               required
               isInvalid={isInvalid}
             />
