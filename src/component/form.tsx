@@ -11,6 +11,7 @@ import { calculateTax } from "../data/calculateTax";
 import dayjs from "dayjs";
 import Summary from "./formComponent/summary";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import FileInput from "./textFillComponent/fileInput";
 
 const FormComponent: React.FC = () => {
   const [usernameData, setUsernameData] = useState<string>("");
@@ -37,6 +38,12 @@ const FormComponent: React.FC = () => {
   const [bikeTypeOrDoorCount, setBikeTypeOrDoorCount] = useState<string | null>(
     null
   );
+  const [selectedRegistBookFile, setSelectedRegistBookFile] =
+    useState<File | null>(null);
+  const [selectedLicenseFile, setSelectedLicenseFile] = useState<File | null>(
+    null
+  );
+
   const [ownerLabel, setOwnerLabel] = useState<string>("");
 
   const [isInvalidUserInfo, setIsInvalidUserInfo] = useState(false);
@@ -81,7 +88,9 @@ const FormComponent: React.FC = () => {
         latestTaxPaymentDate &&
         selectedRadio &&
         bikeTypeOrDoorCount &&
-        selectedCarType
+        selectedCarType &&
+        selectedRegistBookFile &&
+        selectedLicenseFile
       ) &&
       isInvalidUserInfo &&
       isInvalidOwnerInfo &&
@@ -101,6 +110,8 @@ const FormComponent: React.FC = () => {
     selectedRadio,
     bikeTypeOrDoorCount,
     selectedCarType,
+    selectedRegistBookFile,
+    selectedLicenseFile,
     isInvalidUserInfo,
     isInvalidOwnerInfo,
     isInvalidVehicleInfo,
@@ -273,8 +284,10 @@ const FormComponent: React.FC = () => {
   };
 
   const handleBack = () => {
+    setSelectedRegistBookFile(null);
+    setSelectedLicenseFile(null);
     setShowForm(true);
-    setShowResult(false); // ย้อนกลับไปยังหน้าฟอร์ม
+    setShowResult(false);
     setValidated(false);
   };
 
@@ -377,6 +390,24 @@ const FormComponent: React.FC = () => {
             setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
             onValidateVehicleInfo={handleVehicleInfoValidation}
           />
+          <Row>
+            <Col className="mb-4" xs={12} sm={6} md={6} lg={6} xl={6}>
+              <FileInput
+                label="ภาพสำเนาภาพเล่มทะเบียนรถ (รองรับ .png, .jpg)"
+                onFileSelect={(file) => setSelectedRegistBookFile(file)}
+                accept=".jpg, .png"
+                alertText="กรุณาเลือกภาพสำเนาภาพเล่มทะเบียนรถ"
+              />
+            </Col>
+            <Col className="mb-4" xs={12} sm={6} md={6} lg={6} xl={6}>
+              <FileInput
+                label="ภาพแผ่นป้ายทะเบียนรถ (รองรับ .png, .jpg)"
+                onFileSelect={(file) => setSelectedLicenseFile(file)}
+                accept=".jpg, .png"
+                alertText="กรุณาเลือกภาพแผ่นป้ายทะเบียนรถ"
+              />
+            </Col>
+          </Row>
 
           <hr className="my-4" />
 
@@ -444,6 +475,8 @@ const FormComponent: React.FC = () => {
             inspectionCost={inspectionFee} // ส่งค่าตรวจสภาพ
             processingCost={processingFee} // ส่งค่าดำเนินการ
             carAge={carAge}
+            selectedRegistBookFile={selectedRegistBookFile}
+            selectedLicenseFile={selectedLicenseFile}
             onBack={handleBack} // ส่งฟังก์ชันย้อนกลับ
             onConfirm={handleConfirm} // ส่งฟังก์ชันตกลง
           />

@@ -75,6 +75,7 @@ const Print: React.FC = () => {
       if (selectedFile) {
         formData.append("file", selectedFile);
       }
+      formData.append("formType", "prints"); 
 
       const response = await fetch("http://localhost:3000/upload", {
         method: "POST",
@@ -153,7 +154,10 @@ const Print: React.FC = () => {
             <strong>4. หลังจากชำระเงินแล้ว ให้ลูกค้าส่งไฟล์มาได้เลย</strong>
           </li>
           <li>
-            <strong>5. ส่งไฟล์: PDF JPG หรือ PNG เท่านั้น</strong>
+            <strong>
+              5. ส่งไฟล์: PDF, JPG หรือ PNG เท่านั้น (ไม่รับไฟล์อื่นและ Google
+              drive)
+            </strong>
           </li>
           <li>
             <strong>6. รับที่ร้านเท่านั้น</strong>
@@ -213,7 +217,9 @@ const Print: React.FC = () => {
           </Col>
           <Col xl={12} lg={12} className="mb-3">
             <FileInput
+              label="อัปโหลดไฟล์ (รองรับ .pdf, .png, .jpg)"
               onFileSelect={(file) => setSelectedFile(file)}
+              accept=".pdf, .jpg, .png"
               isInvalid={isSubmitted && !selectedFile}
               alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้น"
             />
@@ -239,7 +245,12 @@ const Print: React.FC = () => {
         {/* Loader Modal */}
         <Modal show={isCalculating} centered>
           <Modal.Body className="text-center">
-            <Spinner animation="border" role="status" className="my-3" />
+            <Spinner
+              animation="border"
+              variant="success"
+              role="status"
+              className="my-3"
+            />
             <p>กำลังประมวลผล...</p>
           </Modal.Body>
         </Modal>

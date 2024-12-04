@@ -231,10 +231,10 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
     }
   };
 
-  const dormitoryPattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z0-9\s\-/]*$/;
+  const dormitoryPattern = /^(?![่-๋])[เ-ไก-ฮ-A-Za-z0-9]{1}[ก-ฮะ-์A-Za-z0-9\s\-/]*$/;
   const soiPattern = /^[เ-ไก-ฮa-zA-Z0-9\s\-/]+$/; // สามารถใช้แบบนี้ได้
   const houseNoPattern = /^[เ-ไก-ฮa-zA-Z0-9\-/]+$/; // สามารถใช้แบบนี้ได้เช่นกัน
-  const villageNoPattern = /^\d{1,3}$/;
+  const villageNoPattern = /^\d{1,10}$/;
   const PostalCode = /^\d{5,5}$/;
   // const namePattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z\s]*$/;
 
@@ -274,16 +274,16 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
     }
 
     // ตรวจสอบสถานะฟอร์มที่ครบถ้วนว่าถูกต้องหรือไม่
-    setIsFormValid(
-      houseNo !== "" &&
-        soi !== "" &&
-        villageNo !== "" &&
-        dormitory !== "" &&
-        selectedSubDistrict !== null &&
-        selectedDistrict !== null &&
-        postalCode !== "" &&
-        selectedProvince !== null
-    );
+    // setIsFormValid(
+    //   houseNo !== "" &&
+    //     soi !== "" &&
+    //     villageNo !== "" &&
+    //     dormitory !== "" &&
+    //     selectedSubDistrict !== null &&
+    //     selectedDistrict !== null &&
+    //     postalCode !== "" &&
+    //     selectedProvince !== null
+    // );
   };
   return (
     <Row>

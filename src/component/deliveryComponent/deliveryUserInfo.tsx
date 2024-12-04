@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Col, Row } from "react-bootstrap";
 import TextInput from "../textFillComponent/textInput";
+import FileInput from "../textFillComponent/fileInput";
 
 interface DeliveryUserInfoProps {
   isInvalid: boolean;
@@ -9,11 +10,14 @@ interface DeliveryUserInfoProps {
   setUsername: (value: string) => void;
   contactNum: string;
   setContactNum: (value: string) => void;
+  selectedFile: File | null;
+  setSelectedFile: (value: File | null) => void;
   setIsFormValid: (isValid: boolean) => void;
   onValidateUserInfo: (validations: {
     isInvalidUsername: boolean;
     isInvalidContactNum: boolean;
   }) => void;
+  showSender: boolean;
 }
 
 const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
@@ -22,8 +26,11 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
   setUsername,
   contactNum,
   setContactNum,
+  selectedFile,
+  setSelectedFile,
   setIsFormValid,
   onValidateUserInfo,
+  showSender,
 }) => {
   const [isInvalidUsername, setInvalidName] = useState(false);
   const [isInvalidContactNum, setIsInvalidContactNum] = useState(false);
@@ -43,6 +50,7 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
   }, [
     isInvalidUsername,
     isInvalidContactNum,
+
     onValidateUserInfo,
     setIsFormValid,
   ]);
@@ -78,7 +86,7 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
     <>
       <Row>
         {/* ชื่อ-นามสกุล */}
-        <Col className="mb-4" md={6} xs={12}>
+        <Col className="mb-4" xs={12} sm={6} md={6} lg={6} xl={6}>
           <TextInput
             id="username"
             label="ชื่อ-นามสกุล"
@@ -91,7 +99,7 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
           />
         </Col>
         {/* เบอร์โทรศัพท์ */}
-        <Col className="mb-4" md={6} xs={12}>
+        <Col className="mb-4" xs={12} sm={6} md={6} lg={6} xl={6}>
           <TextInput
             id="contactNum"
             label="เบอร์โทรศัพท์"
@@ -110,6 +118,18 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
             type="tel"
           />
         </Col>
+        {/* ส่วนที่เพิ่มช่องเพิ่มไฟล์รูปสำเนาบัตรประชาชน */}
+        {showSender && (
+          <Col xs={12} sm={12} md={12} lg={12} xl={12} className="mb-4">
+            <FileInput
+              label="ภาพสำเนาบัตรประชาชน (รองรับ .png, .jpg)"
+              onFileSelect={(file) => setSelectedFile(file)}
+              accept=".jpg, .png"
+              isInvalid={isInvalid && !selectedFile}
+              alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้น"
+            />
+          </Col>
+        )}
       </Row>
     </>
   );

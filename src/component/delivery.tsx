@@ -4,14 +4,22 @@ import DeliveryAddress from "./deliveryComponent/deliveryAddress";
 import TextInput from "./textFillComponent/textInput";
 import TextSelect from "./textFillComponent/textSelect";
 import RadioButton from "./textFillComponent/radioButton";
+import FileInput from "./textFillComponent/fileInput";
 
 // import { calculateDelivery } from "../data/calculateDelivery";
 
 import { Form, Row, Col, Button, Alert } from "react-bootstrap";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
+// import { collection, addDoc } from "firebase/firestore";
+// import { db } from "../firebaseConfig";
+
+interface DeliveryProps {
+  showSender: boolean;
+}
+
 //delivery.tsx
-const Delivery: React.FC = () => {
+const Delivery: React.FC<DeliveryProps> = () => {
   const [usernameSender, setUsernameSender] = useState<string>("");
   const [contactNumSender, setContactNumSender] = useState<string>("");
   const [selectedRadio, setSelectedRadio] = useState<string | null>(null);
@@ -25,6 +33,7 @@ const Delivery: React.FC = () => {
   );
   const [districtSender, setDistrictSender] = useState<string | null>(null);
   const [postalCodeSender, setPostalCodeSender] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedProvinceSender, setSelectedProvinceSender] = useState<
     string | null
   >(null);
@@ -75,6 +84,8 @@ const Delivery: React.FC = () => {
   const [selectedSubDistrictNameReceiver, setSelectedSubDistrictNameReceiver] =
     useState<string | null>(null);
 
+  // const [deliveryCost, setDeliveryCost] = useState<number | null>(null);
+
   useEffect(() => {
     if (selectDeliveryType === "ส่งของปกติ") {
       setSelectedCarType("-");
@@ -84,15 +95,23 @@ const Delivery: React.FC = () => {
       setCCsizeCar("");
     }
 
+    // if (selectDeliveryType === "ส่งรถกลับบ้าน" && selectedProvinceNameReceiver && CCsizeCar) {
+    //   const cost = calculateDelivery(selectedProvinceNameReceiver, parseInt(CCsizeCar));
+    //   setDeliveryCost(cost);
+    // } else {
+    //   setDeliveryCost(null);
+    // }
+
     const formSenderIsValid =
       !!(
         usernameSender &&
         contactNumSender &&
         ownerData &&
-        // soiSender &&
+        selectedFile &&
+        soiSender &&
         houseNoSender &&
         villageNoSender &&
-        // dormitorySender &&
+        dormitorySender &&
         subDistrictSender &&
         districtSender &&
         postalCodeSender &&
@@ -148,6 +167,7 @@ const Delivery: React.FC = () => {
   }, [
     usernameSender,
     contactNumSender,
+    selectedFile,
     ownerData,
     soiSender,
     villageNoSender,
@@ -225,13 +245,15 @@ const Delivery: React.FC = () => {
   const handleBackToSender = () => {
     setShowSender(true);
     setValidated(false);
+    setIsFormSenderValid(false);
+    setSelectedFile(null);
   };
 
   const handleOwnerInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     let invalid = false;
 
-    if (selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด") {
+    if (selectedRadio === "หมายเลขบัตรประชาชนของผู้ส่ง") {
       const idCardPattern = /^\d{13}$/; // ID card pattern
       invalid = value.length > 0 && !idCardPattern.test(value);
 
@@ -249,7 +271,7 @@ const Delivery: React.FC = () => {
         // ตรวจสอบว่าเลขหลักที่ 13 ตรงกับเลขตรวจสอบหรือไม่
         invalid = idArray[12] !== checkDigit;
       }
-    } else if (selectedRadio === "หมายเลขพาสปอร์ตเจ้าของรถล่าสุด") {
+    } else if (selectedRadio === "หมายเลขพาสปอร์ตของผู้ส่ง") {
       const passportPattern = /^[A-Za-z0-9]{8,9}$/; // Passport pattern
       invalid = value.length > 0 && !passportPattern.test(value);
     }
@@ -283,8 +305,11 @@ const Delivery: React.FC = () => {
                   setUsername={setUsernameSender}
                   contactNum={contactNumSender}
                   setContactNum={setContactNumSender}
+                  selectedFile={selectedFile}
+                  setSelectedFile={setSelectedFile}
                   setIsFormValid={setIsFormSenderValid}
                   onValidateUserInfo={handleUserValidation}
+                  showSender={showSender}
                 />
               </Col>
               {/* <Col className="mb-4" md={4} xs={12}>
@@ -328,7 +353,7 @@ const Delivery: React.FC = () => {
               {selectedRadio && (
                 <Col
                   className="date-idNo-carType-Input mb-4"
-                  md={6}
+                  md={12}
                   xs={6}
                   lg={4}
                   xl={6}
@@ -355,7 +380,7 @@ const Delivery: React.FC = () => {
                     isInvalid={isInvalidOwnerInfo}
                     alertText={
                       isInvalidOwnerInfo
-                        ? selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
+                        ? selectedRadio === "หมายเลขบัตรประชาชนของผู้ส่ง"
                           ? ownerData.length < 13
                             ? "กรอกหมายเลขบัตรประชาชนให้ครบถ้วน"
                             : "หมายเลขบัตรประชาชนไม่ถูกต้อง"
@@ -404,6 +429,15 @@ const Delivery: React.FC = () => {
 
             <hr className="my-4" />
             <footer>
+              {!isFormSenderValid && (
+                <Alert
+                  variant="success"
+                  className="d-flex align-items-center mb-4 mt-3"
+                >
+                  <i className="fas fa-exclamation-triangle me-2"></i>
+                  <span>กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง</span>
+                </Alert>
+              )}
               <Row className="mb-2 ">
                 <Col className="mb-2 form-button-container">
                   <Button
@@ -417,15 +451,6 @@ const Delivery: React.FC = () => {
                 </Col>
               </Row>
             </footer>
-            {!isFormSenderValid && (
-              <Alert
-                variant="success"
-                className="d-flex align-items-center mb-4 mt-3"
-              >
-                <i className="fas fa-exclamation-triangle me-2"></i>
-                <span>กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง</span>
-              </Alert>
-            )}
           </>
         ) : (
           <>
@@ -436,8 +461,11 @@ const Delivery: React.FC = () => {
               setUsername={setUsernameReceiver}
               contactNum={contactNumReceiver}
               setContactNum={setContactNumReceiver}
+              selectedFile={selectedFile}
+              setSelectedFile={setSelectedFile}
               setIsFormValid={setIsFormReceiverValid}
               onValidateUserInfo={handleUserValidation}
+              showSender={showSender}
             />
 
             <Row>
@@ -476,12 +504,15 @@ const Delivery: React.FC = () => {
                 />
               </Col>
             </Row>
-            {selectDeliveryType == "ส่งรถกลับบ้าน" ? (
+            {selectDeliveryType == "ส่งรถกลับบ้าน" && (
               <Row>
                 <Col
                   className="register-and-contract-number mb-4"
+                  xs={12}
+                  sm={6}
                   md={6}
-                  xs={6}
+                  lg={6}
+                  xl={6}
                 >
                   <TextSelect
                     value={selectCarType || ""}
@@ -504,7 +535,7 @@ const Delivery: React.FC = () => {
                     alertText="กรุณาเลือกประเภทรถ"
                   />
                 </Col>
-                <Col className="mb-4" md={6} xs={6}>
+                <Col className="mb-4" xs={12} sm={6} md={6} lg={6} xl={6}>
                   <TextInput
                     id="CCsizeCar"
                     label="ขนาดความจุ CC"
@@ -516,13 +547,30 @@ const Delivery: React.FC = () => {
                     required
                   />
                 </Col>
+
+                <Col className="mb-4" xs={12} sm={6} md={12} lg={12} xl={12}>
+                  <FileInput
+                    label="ภาพสำเนาภาพเล่มทะเบียนรถ (รองรับ .png, .jpg)"
+                    onFileSelect={(file) => setSelectedFile(file)}
+                    accept=".jpg, .png"
+                    isInvalid={!selectedFile}
+                    alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้น"
+                  />
+                </Col>
               </Row>
-            ) : (
-              <></>
             )}
 
             <hr className="my-4" />
             <footer>
+              {!isFormReceiverValid && (
+                <Alert
+                  variant="success"
+                  className="d-flex align-items-center mb-4"
+                >
+                  <i className="fas fa-exclamation-triangle me-2"></i>
+                  <span>กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง</span>
+                </Alert>
+              )}
               <Row className="mb-2 ">
                 <Col className="mb-2 form-button-container">
                   <Button
@@ -544,15 +592,6 @@ const Delivery: React.FC = () => {
                 </Col>
               </Row>
             </footer>
-            {!isFormReceiverValid && (
-              <Alert
-                variant="success"
-                className="d-flex align-items-center mb-4"
-              >
-                <i className="fas fa-exclamation-triangle me-2"></i>
-                <span>กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง</span>
-              </Alert>
-            )}
           </>
         )}
       </Form>

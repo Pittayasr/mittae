@@ -41,6 +41,8 @@ interface SummaryProps {
   inspectionCost: number | null; // ค่าตรวจสภาพ
   processingCost: number | null; // ค่าดำเนินการ
   carAge: { years: number; months: number; days: number };
+  selectedRegistBookFile: File | null;
+  selectedLicenseFile: File | null;
   onBack: () => void; // ฟังก์ชันสำหรับย้อนกลับ
   onConfirm: () => void; // ฟังก์ชันสำหรับส่งข้อมูล
 }
@@ -67,6 +69,8 @@ const Summary: React.FC<SummaryProps> = ({
   inspectionCost,
   processingCost,
   carAge,
+  selectedRegistBookFile,
+  // selectedLicenseFile,
   onBack,
 }) => {
   const [showModal, setShowModal] = useState(false);
@@ -80,63 +84,89 @@ const Summary: React.FC<SummaryProps> = ({
   };
 
   const handleConfirm = async () => {
-    const data = {
-      ownerData: ownerData || "",
-      usernameData: usernameData || "",
-      selectedProvince: selectedProvince || "",
-      engineSize: engineSize || "0",
-      contactNumber: contactNumber || "",
-      registrationNumber: registrationNumber || "",
-      registrationDate: registrationDate ? registrationDate : new Date(),
-      expirationDate: expirationDate ? expirationDate : new Date(),
-      latestTaxPaymentDate: latestTaxPaymentDate
-        ? latestTaxPaymentDate
-        : new Date(),
-      bikeTypeOrDoorCount: bikeTypeOrDoorCount || "",
-      selectedCarType: selectedCarType || "",
-      totalCost: totalCost || 0,
-      prbCost: prbCost || 0,
-      taxCost: taxCost || 0,
-      lateFee: lateFee || 0,
-      inspectionCost: inspectionCost || 0,
-      processingCost: processingCost || 0,
-      carAge: carAge || { years: 0, months: 0, days: 0 },
-    };
-
-    const updatedData = {
-      usernameData: data.usernameData,
-      province: data.selectedProvince,
-      vehicleType: data.selectedCarType,
-      bikeTypeOrDoorCount: data.bikeTypeOrDoorCount,
-      weightOrCC: data.engineSize,
-      registrationDate: formatDate(data.registrationDate),
-      expirationDate: formatDate(data.expirationDate), // formatDate only to show on UI, not here
-      latestTaxPaymentDate: formatDate(data.latestTaxPaymentDate),
-      vehicleAge: data.carAge,
-      contactNumber: data.contactNumber,
-      ownerData: data.ownerData,
-      prbCost: data.prbCost,
-      registrationNumber: data.registrationNumber,
-      taxCost: data.taxCost,
-      lateFee: data.lateFee,
-      inspectionCost: data.inspectionCost,
-      processingCost: data.processingCost,
-      totalCost: data.totalCost,
-    };
-
     try {
+      const formData = new FormData();
+      if (selectedRegistBookFile) {
+        formData.append("file", selectedRegistBookFile); // ชื่อ key ต้องตรงกับที่เซิร์ฟเวอร์กำหนด
+      }
+      // if (selectedLicenseFile) {
+      //   formData.append("file", selectedLicenseFile); // หรือ append เพิ่มแยก key เช่น licenseFile
+      // }
+
+      formData.append("formType", "forms"); // ระบุประเภทฟอร์ม
+
+      const response = await fetch("http://localhost:3000/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Upload error details:", errorData);
+        throw new Error("Failed to upload file to server");
+      }
+
+      const { filePath, storedFileName } = await response.json();
+      console.log("File uploaded successfully:", { filePath, storedFileName });
+
+      const data = {
+        ownerData: ownerData || "",
+        usernameData: usernameData || "",
+        selectedProvince: selectedProvince || "",
+        engineSize: engineSize || "0",
+        contactNumber: contactNumber || "",
+        registrationNumber: registrationNumber || "",
+        registrationDate: registrationDate ? registrationDate : new Date(),
+        expirationDate: expirationDate ? expirationDate : new Date(),
+        latestTaxPaymentDate: latestTaxPaymentDate
+          ? latestTaxPaymentDate
+          : new Date(),
+        bikeTypeOrDoorCount: bikeTypeOrDoorCount || "",
+        selectedCarType: selectedCarType || "",
+        totalCost: totalCost || 0,
+        prbCost: prbCost || 0,
+        taxCost: taxCost || 0,
+        lateFee: lateFee || 0,
+        inspectionCost: inspectionCost || 0,
+        processingCost: processingCost || 0,
+        carAge: carAge || { years: 0, months: 0, days: 0 },
+      };
+
+      const updatedData = {
+        usernameData: data.usernameData,
+        province: data.selectedProvince,
+        vehicleType: data.selectedCarType,
+        bikeTypeOrDoorCount: data.bikeTypeOrDoorCount,
+        weightOrCC: data.engineSize,
+        registrationDate: formatDate(data.registrationDate),
+        expirationDate: formatDate(data.expirationDate), // formatDate only to show on UI, not here
+        latestTaxPaymentDate: formatDate(data.latestTaxPaymentDate),
+        vehicleAge: data.carAge,
+        contactNumber: data.contactNumber,
+        ownerData: data.ownerData,
+        prbCost: data.prbCost,
+        registrationNumber: data.registrationNumber,
+        taxCost: data.taxCost,
+        lateFee: data.lateFee,
+        inspectionCost: data.inspectionCost,
+        processingCost: data.processingCost,
+        totalCost: data.totalCost,
+        filePath: filePath,
+        storedFileName: storedFileName,
+      };
+
       const docRef = await addDoc(collection(db, "prbform"), updatedData);
       console.log("Document written with ID: ", docRef.id);
-      setModalMessage(
-        "ข้อมูลถูกส่งสำเร็จแล้ว! ✅\nขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป 🙏❤️\n📢 สักครู่หลังจากชำระเงินแล้ว\nท่านจะได้รับข้อความ SMS ยืนยันความคุ้มครองฯ พ.ร.บ.ไปยังหมายเลขโทรศัพท์ที่ท่านแจ้งมานะคะ ❤️"
-      );
+
+      setModalMessage("ข้อมูลถูกส่งสำเร็จ ✅");
       setSuccess(true);
-    } catch (e) {
-      console.error("Error adding document: ", e);
+    } catch (error) {
+      console.error("Error uploading file or saving data:", error);
       setModalMessage("การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง");
       setSuccess(false);
+    } finally {
+      setShowModal(true);
     }
-    setShowModal(true);
   };
 
   return (
