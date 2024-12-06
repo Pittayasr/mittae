@@ -1,3 +1,4 @@
+//calculateDelivery.ts
 type ZoneMapping = {
   [key: number]: string[]; // แผนที่โซนกับชื่อจังหวัด
 };

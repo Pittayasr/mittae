@@ -46,7 +46,7 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
     onValidateUserInfo(validations);
 
     setIsFormValid(isValid);
-    console.log(isInvalidContactNum);
+    // console.log(isInvalidContactNum);
   }, [
     isInvalidUsername,
     isInvalidContactNum,

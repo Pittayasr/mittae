@@ -22,15 +22,15 @@ const DateInput: React.FC<DateInputProps> = ({
   isInvalid = false, // ตั้งค่าเริ่มต้นเป็น false
   alertText, // ข้อความแจ้งเตือนเริ่มต้น
 }) => {
-  const convertToBuddhistYear = (date: Dayjs | null) => {
-    return date ? dayjs(date).year(date.year() + 543) : null;
+  // ฟังก์ชันแปลงเป็นปี พ.ศ.
+  const convertToBuddhistYear = (date: Dayjs | null): Dayjs | null => {
+    return date ? date.add(543, "year") : null; // เพิ่ม 543 ปี
   };
 
-  const convertToGregorianYear = (date: Dayjs | null) => {
-    return date ? dayjs(date).year(date.year() - 543) : null;
+  // ฟังก์ชันแปลงเป็นปี ค.ศ.
+  const convertToGregorianYear = (date: Dayjs | null): Dayjs | null => {
+    return date ? date.subtract(543, "year") : null; // ลด 543 ปี
   };
-
-  const nextYearBuddhist = dayjs().year() + 543;
 
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
 
@@ -64,8 +64,8 @@ const DateInput: React.FC<DateInputProps> = ({
         id="date-picker"
         locale={locale}
         onChange={handleDateChange}
-        format="DD/MM/YYYY"
-        placeholder="วัน/เดือน/ปี พ.ศ."
+        format="D MMMM YYYY"
+        placeholder="วัน เดือน ปี พ.ศ."
         value={selectedDate} // Use selectedDate for controlled input
         inputReadOnly={true}
         showToday={false}
@@ -76,7 +76,7 @@ const DateInput: React.FC<DateInputProps> = ({
           borderColor: isInvalid ? "red" : undefined,
         }}
         allowClear={false}
-        defaultPickerValue={dayjs().year(nextYearBuddhist)}
+        defaultPickerValue={dayjs().add(543, "year")} // ค่าเริ่มต้นเป็นปี พ.ศ.
       />
       {isInvalid && (
         <p style={{ color: "red", fontSize: "14px", marginTop: "5px" }}>

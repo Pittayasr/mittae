@@ -1,4 +1,3 @@
-// alertModal.tsx
 import React from "react";
 import { Modal, Button } from "react-bootstrap";
 import { FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
@@ -56,15 +55,35 @@ const AlertModal: React.FC<AlertModalProps> = ({
 
       <Modal.Footer>
         {success ? (
-          <Button variant="success" onClick={onSuccess} style={{minWidth: "70px"}}>
+          <Button
+            variant="success"
+            onClick={onSuccess}
+            style={{ minWidth: "70px" }}
+          >
+            ตกลง
+          </Button>
+        ) : message === "การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง" ? (
+          <Button
+            variant="outline-success"
+            onClick={onBack} // ใช้ onBack เพื่อปิด Modal
+            style={{ minWidth: "70px" }}
+          >
             ตกลง
           </Button>
         ) : (
           <>
-            <Button variant="outline-success" onClick={onBack} style={{minWidth: "70px"}}>
+            <Button
+              variant="outline-success"
+              onClick={onBack}
+              style={{ minWidth: "70px" }}
+            >
               ยกเลิก
             </Button>
-            <Button variant="success" onClick={onConfirm} style={{minWidth: "70px"}}>
+            <Button
+              variant="success"
+              onClick={onConfirm}
+              style={{ minWidth: "70px" }}
+            >
               ส่ง
             </Button>
           </>

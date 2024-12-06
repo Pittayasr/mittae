@@ -41,7 +41,7 @@ interface SummaryProps {
   inspectionCost: number | null; // ค่าตรวจสภาพ
   processingCost: number | null; // ค่าดำเนินการ
   carAge: { years: number; months: number; days: number };
-  selectedRegistBookFile: File | null;
+  selectedRegistrationBookFile: File | null;
   selectedLicenseFile: File | null;
   onBack: () => void; // ฟังก์ชันสำหรับย้อนกลับ
   onConfirm: () => void; // ฟังก์ชันสำหรับส่งข้อมูล
@@ -56,10 +56,10 @@ const Summary: React.FC<SummaryProps> = ({
   registrationNumber,
   registrationDate,
   expirationDate,
-  // CCorWeight,
-  // carOrMotorcycleLabel,
+  CCorWeight,
+  carOrMotorcycleLabel,
   latestTaxPaymentDate,
-  // selectedRadio,
+  selectedRadio,
   bikeTypeOrDoorCount,
   selectedCarType,
   totalCost,
@@ -69,8 +69,8 @@ const Summary: React.FC<SummaryProps> = ({
   inspectionCost,
   processingCost,
   carAge,
-  selectedRegistBookFile,
-  // selectedLicenseFile,
+  selectedRegistrationBookFile,
+  selectedLicenseFile,
   onBack,
 }) => {
   const [showModal, setShowModal] = useState(false);
@@ -86,16 +86,14 @@ const Summary: React.FC<SummaryProps> = ({
   const handleConfirm = async () => {
     try {
       const formData = new FormData();
-      if (selectedRegistBookFile) {
-        formData.append("file", selectedRegistBookFile); // ชื่อ key ต้องตรงกับที่เซิร์ฟเวอร์กำหนด
+      if (selectedRegistrationBookFile) {
+        formData.append("registrationBookFile", selectedRegistrationBookFile);
       }
-      // if (selectedLicenseFile) {
-      //   formData.append("file", selectedLicenseFile); // หรือ append เพิ่มแยก key เช่น licenseFile
-      // }
+      if (selectedLicenseFile) {
+        formData.append("licenseFile", selectedLicenseFile);
+      }
 
-      formData.append("formType", "forms"); // ระบุประเภทฟอร์ม
-
-      const response = await fetch("http://localhost:3000/upload", {
+      const response = await fetch("http://localhost:3000/upload-multiple", {
         method: "POST",
         body: formData,
       });
@@ -103,11 +101,22 @@ const Summary: React.FC<SummaryProps> = ({
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Upload error details:", errorData);
-        throw new Error("Failed to upload file to server");
+        throw new Error("Failed to upload files to server");
       }
 
-      const { filePath, storedFileName } = await response.json();
-      console.log("File uploaded successfully:", { filePath, storedFileName });
+      const responseData = await response.json();
+
+      // ตรวจสอบว่า responseData มีค่าที่ต้องการ
+      if (!responseData.registrationBookFile || !responseData.licenseFile) {
+        throw new Error("Response data missing required files");
+      }
+
+      const { registrationBookFile, licenseFile } = responseData;
+
+      console.log("Files uploaded successfully:", {
+        registrationBookFile,
+        licenseFile,
+      });
 
       const data = {
         ownerData: ownerData || "",
@@ -130,6 +139,9 @@ const Summary: React.FC<SummaryProps> = ({
         inspectionCost: inspectionCost || 0,
         processingCost: processingCost || 0,
         carAge: carAge || { years: 0, months: 0, days: 0 },
+        CCorWeight: CCorWeight || "",
+        carOrMotorcycleLabel: carOrMotorcycleLabel || "",
+        selectedRadio: selectedRadio || "",
       };
 
       const updatedData = {
@@ -137,7 +149,8 @@ const Summary: React.FC<SummaryProps> = ({
         province: data.selectedProvince,
         vehicleType: data.selectedCarType,
         bikeTypeOrDoorCount: data.bikeTypeOrDoorCount,
-        weightOrCC: data.engineSize,
+        weightOrCC: data.CCorWeight,
+        engineSize: data.engineSize,
         registrationDate: formatDate(data.registrationDate),
         expirationDate: formatDate(data.expirationDate), // formatDate only to show on UI, not here
         latestTaxPaymentDate: formatDate(data.latestTaxPaymentDate),
@@ -151,14 +164,21 @@ const Summary: React.FC<SummaryProps> = ({
         inspectionCost: data.inspectionCost,
         processingCost: data.processingCost,
         totalCost: data.totalCost,
-        filePath: filePath,
-        storedFileName: storedFileName,
+        CCorWeight: data.CCorWeight,
+        carOrMotorcycleLabel: data.carOrMotorcycleLabel,
+        selectedRadio: data.selectedRadio,
+        registrationBookFilePath: registrationBookFile.filePath,
+        registrationBookStoredFileName: registrationBookFile.storedFileName,
+        licensePlateFilePath: licenseFile.filePath,
+        licensePlateStoredFileName: licenseFile.storedFileName,
       };
 
       const docRef = await addDoc(collection(db, "prbform"), updatedData);
       console.log("Document written with ID: ", docRef.id);
 
-      setModalMessage("ข้อมูลถูกส่งสำเร็จ ✅");
+      setModalMessage(
+        `ข้อมูลถูกส่งสำเร็จแล้ว! ✅\nขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป 🙏❤️ \n📢สักครู่หลังจากชำระเงินแล้ว \nท่านจะได้รับข้อความ SMS ยืนยัน \nความคุ้มครองฯพ.ร.บ.ไปยังหมายเลขโทรศัพท์ที่ท่านแจ้งมานะคะ❤️`
+      );
       setSuccess(true);
     } catch (error) {
       console.error("Error uploading file or saving data:", error);

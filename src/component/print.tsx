@@ -14,7 +14,7 @@ const Print: React.FC = () => {
   const [selectTypePrint, setSelectTypePrint] = useState<string | null>(null);
   const [pagePrint, setPagePrint] = useState<number>(0); // Page count as string
   const [copiesSetPrint, setCopiesSetPrint] = useState<string>(""); // Copies count as string
-  const [selectedFile, setSelectedFile] = useState<File | null>(null); // Selected file
+  const [selectedPrintFile, setSelectedPrintFile] = useState<File | null>(null); // Selected file
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [textColorPercentage, setTextColorPercentage] = useState<number | null>(
@@ -43,7 +43,11 @@ const Print: React.FC = () => {
   };
 
   const handleConfirm = async () => {
-    if (!selectTypePrint || !isValidNumber(copiesSetPrint) || !selectedFile) {
+    if (
+      !selectTypePrint ||
+      !isValidNumber(copiesSetPrint) ||
+      !selectedPrintFile
+    ) {
       setIsSubmitted(true);
       return;
     }
@@ -53,7 +57,7 @@ const Print: React.FC = () => {
       const { totalPrice, pageCount } = await calculatePrice(
         selectTypePrint,
         copiesSetPrint,
-        selectedFile
+        selectedPrintFile
       );
       setTotalPrice(totalPrice);
       setPagePrint(pageCount);
@@ -70,12 +74,11 @@ const Print: React.FC = () => {
   // ฟังก์ชันสำหรับยืนยันการส่งข้อมูล
   const handleSubmitData = async () => {
     try {
-      // อัปโหลดไฟล์ไปที่เซิร์ฟเวอร์ก่อน
+      // อัปโหลดไฟล์ไปที่เซิร์ฟเวอร์
       const formData = new FormData();
-      if (selectedFile) {
-        formData.append("file", selectedFile);
+      if (selectedPrintFile) {
+        formData.append("printFile", selectedPrintFile);
       }
-      formData.append("formType", "prints"); 
 
       const response = await fetch("http://localhost:3000/upload", {
         method: "POST",
@@ -88,31 +91,38 @@ const Print: React.FC = () => {
         throw new Error("Failed to upload file to server");
       }
 
-      const { filePath, storedFileName } = await response.json();
-      console.log("File uploaded successfully:", { filePath, storedFileName });
+      const responseData = await response.json();
+
+      if (!responseData.printFile) {
+        throw new Error("Response data missing required files");
+      }
+
+      const { printFile } = responseData;
+
+      console.log("File uploaded successfully:", printFile);
 
       const data = {
-        fileName: selectedFile?.name ?? "ยังไม่ได้เลือกไฟล์", // ชื่อไฟล์ต้นฉบับ
-        fileType: selectedFile?.type ?? "ไม่ทราบประเภทไฟล์", // ประเภทไฟล์
+        fileName: selectedPrintFile?.name ?? "ยังไม่ได้เลือกไฟล์", // ชื่อไฟล์ต้นฉบับ
+        fileType: selectedPrintFile?.type ?? "ไม่ทราบประเภทไฟล์", // ประเภทไฟล์
         numPages: pagePrint, // จำนวนหน้า
         numCopies: parseInt(copiesSetPrint, 10), // จำนวนชุดที่ปริ้น
         colorType: selectTypePrint ?? "ไม่ระบุ", // ประเภทการปริ้น (สี/ขาวดำ)
         totalPrice, // ราคาทั้งหมด
         uploadTime: new Date().toISOString(), // เวลาที่อัปโหลด
-        filePath: filePath, // URL สำหรับไฟล์ที่เซิร์ฟเวอร์
-        storedFileName: storedFileName, // ชื่อไฟล์ที่เซิร์ฟเวอร์จัดเก็บ
+        storedFileName: printFile.storedFileName, // ชื่อไฟล์ที่เซิร์ฟเวอร์จัดเก็บ
+        filePath: printFile.filePath, // URL สำหรับไฟล์ที่เซิร์ฟเวอร์
       };
 
       // ส่งข้อมูลไปที่ Firebase
       const docRef = await addDoc(collection(db, "uploads"), data);
-      console.log("Document written with ID: ", docRef.id); // docRef.id คือ id ของเอกสาร
+      console.log("Document written with ID: ", docRef.id);
 
       setModalMessage(
         `ข้อมูลถูกส่งสำเร็จแล้ว! ✅\nขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป 🙏❤️`
       );
       setSuccess(true);
     } catch (error) {
-      console.error("Error during submission: ", error);
+      console.error("Error during submission:", error);
       setModalMessage("การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง");
       setSuccess(false);
       setShowModal(true); // แสดงข้อความผิดพลาด
@@ -218,9 +228,9 @@ const Print: React.FC = () => {
           <Col xl={12} lg={12} className="mb-3">
             <FileInput
               label="อัปโหลดไฟล์ (รองรับ .pdf, .png, .jpg)"
-              onFileSelect={(file) => setSelectedFile(file)}
+              onFileSelect={(file) => setSelectedPrintFile(file)}
               accept=".pdf, .jpg, .png"
-              isInvalid={isSubmitted && !selectedFile}
+              isInvalid={isSubmitted && !selectedPrintFile}
               alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้น"
             />
           </Col>

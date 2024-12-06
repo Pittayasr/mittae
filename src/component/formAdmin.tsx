@@ -27,7 +27,13 @@ interface VehicleData {
   };
   vehicleType: string;
   weightOrCC: string;
+  CCorWeight: string;
+  carOrMotorcycleLabel: string;
+  engineSize: string | null;
+  selectedRadio: string | null;
   docId: string;
+  registrationBookFilePath: string;
+  licensePlateFilePath: string;
 }
 
 const FormAdmin: React.FC = () => {
@@ -55,17 +61,51 @@ const FormAdmin: React.FC = () => {
     fetchVehicles();
   }, []);
 
-  const handleDelete = async (docId: string) => {
+  const handleDelete = async (vehicle: VehicleData) => {
     try {
-      if (window.confirm("คุณต้องการลบข้อมูลนี้หรือไม่?")) {
-        const docRef = doc(db, "prbform", docId);
+      if (
+        window.confirm(
+          `คุณต้องการลบข้อมูลและไฟล์ที่เกี่ยวข้องของ ${vehicle.registrationNumber} หรือไม่?`
+        )
+      ) {
+        // เรียก API เพื่อลบไฟล์ที่เกี่ยวข้อง
+        const deleteFile = async (filePath: string) => {
+          if (!filePath) return;
+
+          const response = await fetch("http://localhost:3000/delete-file", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              fileName: filePath.replace(/.*\/uploads\//, ""), // เอาเฉพาะ path ภายในโฟลเดอร์ uploads
+            }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            console.error(`Error deleting file: ${filePath}`, error);
+            throw new Error(`Failed to delete file: ${filePath}`);
+          }
+          console.log(`File deleted successfully: ${filePath}`);
+        };
+
+        // ลบไฟล์ทั้งสองรูป
+        await deleteFile(vehicle.registrationBookFilePath);
+        await deleteFile(vehicle.licensePlateFilePath);
+
+        // ลบข้อมูลจาก Firestore
+        const docRef = doc(db, "prbform", vehicle.docId);
         await deleteDoc(docRef);
-        setVehicles(vehicles.filter((vehicle) => vehicle.docId !== docId));
-        alert("ลบข้อมูลสำเร็จ");
+
+        // อัปเดตสถานะใน React State
+        setVehicles(vehicles.filter((v) => v.docId !== vehicle.docId));
+
+        alert("ลบข้อมูลและไฟล์สำเร็จ");
       }
     } catch (error) {
-      console.error("Error deleting vehicle:", error);
-      alert("ไม่สามารถลบข้อมูลได้ กรุณาลองอีกครั้ง");
+      console.error("Error deleting vehicle and files:", error);
+      alert("ไม่สามารถลบข้อมูลหรือไฟล์ได้ กรุณาลองอีกครั้ง");
     }
   };
 
@@ -74,8 +114,12 @@ const FormAdmin: React.FC = () => {
     setShowModal(true);
   };
 
-  const filteredVehicles = vehicles.filter((vehicle) =>
-    vehicle.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredVehicles = vehicles.filter(
+    (vehicle) =>
+      vehicle.registrationNumber
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      vehicle.ownerData.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -86,7 +130,7 @@ const FormAdmin: React.FC = () => {
           <Col>
             <Form.Control
               type="text"
-              placeholder="ค้นหาหมายเลขทะเบียน..."
+              placeholder="ค้นหาหมายเลขทะเบียน, หมายเลขบัตรประชาชน, หมายเลขพาสปอร์ต..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -112,6 +156,9 @@ const FormAdmin: React.FC = () => {
                     ชื่อเจ้าของรถ: {vehicle.usernameData}
                   </p>
                   <p className="card-text">
+                    {vehicle.selectedRadio}: {vehicle.ownerData}
+                  </p>
+                  <p className="card-text">
                     เบอร์ติดต่อ: {vehicle.contactNumber}
                   </p>
                   <p className="card-text">ประเภทรถ: {vehicle.vehicleType}</p>
@@ -121,7 +168,7 @@ const FormAdmin: React.FC = () => {
                   <div className="d-flex justify-content-end">
                     <Button
                       variant="outline-danger"
-                      onClick={() => handleDelete(vehicle.docId)}
+                      onClick={() => handleDelete(vehicle)}
                     >
                       ลบ
                     </Button>
@@ -157,12 +204,16 @@ const FormAdmin: React.FC = () => {
             <p>ชื่อเจ้าของรถ: {selectedVehicle.usernameData}</p>
             <p>เบอร์ติดต่อ: {selectedVehicle.contactNumber}</p>
             <p>
-              หมายเลขบัตรประชาชน / หมายเลขพาสปอร์ต : {selectedVehicle.ownerData}
+              {selectedVehicle.selectedRadio} : {selectedVehicle.ownerData}
             </p>
-            <p>ประเภทรถ: {selectedVehicle.vehicleType}</p>
+            <hr></hr>
+            <p className="mt-4">ประเภทรถ: {selectedVehicle.vehicleType}</p>
             <p>
-              จำนวนประตูรถ / ประเภทของรถจักรยานยนต์:{" "}
+              {selectedVehicle.carOrMotorcycleLabel}:{" "}
               {selectedVehicle.bikeTypeOrDoorCount}
+            </p>
+            <p>
+              {selectedVehicle.CCorWeight}: {selectedVehicle.engineSize}
             </p>
             <p>วันที่จดทะเบียน: {selectedVehicle.registrationDate}</p>
             <p>วันสิ้นอายุ : {selectedVehicle.expirationDate}</p>
@@ -176,7 +227,7 @@ const FormAdmin: React.FC = () => {
               {selectedVehicle.vehicleAge.days > 0 &&
                 `${selectedVehicle.vehicleAge.days} วัน`}
             </p>
-
+            <hr></hr>
             <p className="mt-4">✅ ค่าพรบ. 🚘: {selectedVehicle.prbCost} บาท</p>
             <p>✅ ค่าภาษีประจำปี: {selectedVehicle.taxCost} บาท</p>
             <p>➕ ค่าปรับล่าช้า: {selectedVehicle.lateFee} บาท</p>
@@ -188,11 +239,24 @@ const FormAdmin: React.FC = () => {
             </p>
             <p>✅ ค่าทั้งหมด: {selectedVehicle.totalCost} บาท</p>
           </Modal.Body>
-          {/* <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
-              ปิด
+          <Modal.Footer>
+            <Button
+              variant="success"
+              onClick={() =>
+                window.open(selectedVehicle.registrationBookFilePath, "_blank")
+              }
+            >
+              ภาพสำเนาภาพเล่มทะเบียนรถ
             </Button>
-          </Modal.Footer> */}
+            <Button
+              variant="success"
+              onClick={() =>
+                window.open(selectedVehicle.licensePlateFilePath, "_blank")
+              }
+            >
+              ภาพแผ่นป้ายทะเบียนรถ
+            </Button>
+          </Modal.Footer>
         </Modal>
       )}
     </div>

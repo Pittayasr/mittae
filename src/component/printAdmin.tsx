@@ -42,17 +42,16 @@ const PrintAdmin: React.FC = () => {
     fetchUploads();
   }, []);
 
-  const handleViewFile = (storedFileName: string) => {
-    const fileUrl = `http://localhost:3000/uploads/${storedFileName}`;
-    if (!storedFileName) {
-      alert("ไม่พบไฟล์ที่ต้องการดู");
-      console.log("ลองเปิด:", fileUrl);
-      return;
-    }
+  // const handleViewFile = (filePath: string) => {
+  //   if (!filePath) {
+  //     alert("ไม่พบไฟล์ที่ต้องการดู");
+  //     console.log("ลองเปิด:", filePath);
+  //     return;
+  //   }
 
-    console.log("Opening file at:", fileUrl);
-    window.open(fileUrl, "_blank");
-  };
+  //   console.log("Opening file at:", filePath);
+  //   window.open(filePath, "_blank");
+  // };
 
   // const handleDownload = (filePath: string) => {
   //   if (!filePath) {
@@ -69,9 +68,13 @@ const PrintAdmin: React.FC = () => {
   // };
 
   // ฟังก์ชันลบข้อมูล
-  const handleDelete = async (storedFileName: string, docId: string) => {
+  const handleDelete = async (
+    fileName: string,
+    filePath: string,
+    docId: string
+  ) => {
     try {
-      if (window.confirm(`คุณต้องการลบไฟล์: ${storedFileName}?`)) {
+      if (window.confirm(`คุณต้องการลบข้อมูลและไฟล์ของ ${fileName} หรือไม่?`)) {
         // ลบเอกสารจาก Firestore
         const docRef = doc(db, "uploads", docId);
         await deleteDoc(docRef);
@@ -82,16 +85,19 @@ const PrintAdmin: React.FC = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ fileName: storedFileName }), // ใช้ storedFileName
+          body: JSON.stringify({
+            fileName: filePath.replace(/.*\/uploads\//, ""), // เอาเฉพาะ path ภายในโฟลเดอร์ uploads
+          }),
         });
 
         if (response.ok) {
-          setUploads(
-            uploads.filter((upload) => upload.storedFileName !== storedFileName)
-          );
+          // ลบข้อมูลออกจาก state
+          setUploads(uploads.filter((upload) => upload.filePath !== filePath));
           alert("ลบไฟล์สำเร็จ");
-          console.log(`File deleted successfully: ${storedFileName}`);
+          console.log(`File deleted successfully: ${filePath}`);
         } else {
+          const error = await response.json();
+          console.error("Error deleting file on server:", error);
           throw new Error("Failed to delete file on server");
         }
       }
@@ -134,7 +140,9 @@ const PrintAdmin: React.FC = () => {
               <div className="card">
                 <div className="card-body">
                   <h5 className="card-title text-success">{upload.fileName}</h5>
-                  <p className="card-text mt-4">ประเภทไฟล์: {upload.fileType}</p>
+                  <p className="card-text mt-4">
+                    ประเภทไฟล์: {upload.fileType}
+                  </p>
                   <p className="card-text">
                     จำนวนหน้าเอกสาร: {upload.numPages}
                   </p>
@@ -168,14 +176,18 @@ const PrintAdmin: React.FC = () => {
                       className="mx-2"
                       variant="outline-danger"
                       onClick={() =>
-                        handleDelete(upload.storedFileName, upload.docId)
+                        handleDelete(
+                          upload.fileName,
+                          upload.filePath,
+                          upload.docId
+                        )
                       }
                     >
                       ลบ
                     </Button>
                     <Button
                       variant="success"
-                      onClick={() => handleViewFile(upload.storedFileName)}
+                      onClick={() => window.open(upload.filePath, "_blank")}
                     >
                       ดูไฟล์
                     </Button>

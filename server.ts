@@ -19,27 +19,54 @@ app.use(express.json());
 // server.ts
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // ตรวจสอบ path จาก endpoint หรือพารามิเตอร์ที่ส่งมา
-    const formType = req.body.formType; // ใช้ formType ใน request body
-    let folderPath = "uploads/"; // Default folder
+    let folderPath = "";
 
-    if (formType === "forms") folderPath = "uploads/forms/";
-    else if (formType === "prints") folderPath = "uploads/prints/";
-    else if (formType === "deliveries") folderPath = "uploads/deliveries/";
+    if (file.fieldname === "registrationBookFile") {
+      folderPath = "uploads/forms/registrationBook/";
+    } else if (file.fieldname === "licenseFile") {
+      folderPath = "uploads/forms/licensePlate/";
+    } else if (
+      file.fieldname == "printFile" &&
+      file.mimetype === "application/pdf"
+    ) {
+      folderPath = "uploads/prints/pdf/";
+    } else if (
+      file.fieldname == "printFile" &&
+      ["image/jpeg", "image/png"].includes(file.mimetype)
+    ) {
+      folderPath = "uploads/prints/photo/";
+    }
 
-    cb(null, folderPath); // กำหนดโฟลเดอร์ที่เก็บไฟล์
+    // ตรวจสอบและสร้างโฟลเดอร์หากยังไม่มี
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, { recursive: true });
+      console.log(`Created directory: ${folderPath}`);
+    }
+
+    cb(null, folderPath);
   },
   filename: (req, file, cb) => {
     const randomFileName = `${Date.now()}_${Math.floor(
       1000000000 + Math.random() * 9000000000
     )}`;
-    const ext = path.extname(file.originalname); // ดึงนามสกุลไฟล์
-    cb(null, `${randomFileName}${ext}`); // ใช้เลขสุ่ม + นามสกุล
+    const ext = path.extname(file.originalname);
+    cb(null, `${randomFileName}${ext}`);
   },
 });
 
+// ตั้งค่า multer
+const upload = multer({ storage });
+
 const ensureDirectoriesExist = () => {
-  const directories = ["uploads/forms", "uploads/prints", "uploads/deliveries"];
+  const directories = [
+    "uploads/forms",
+    "uploads/forms/registrationBook",
+    "uploads/forms/licensePlate",
+    "uploads/prints/pdf",
+    "uploads/prints/photo",
+    "uploads/deliveries",
+  ];
+
   directories.forEach((dir) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -49,9 +76,6 @@ const ensureDirectoriesExist = () => {
 };
 
 ensureDirectoriesExist();
-
-// ตั้งค่า multer
-const upload = multer({ storage });
 
 // ให้บริการไฟล์ที่อัปโหลด
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -81,35 +105,84 @@ app.delete("/delete-file", (req, res) => {
 });
 
 // Endpoint สำหรับอัปโหลดไฟล์
-app.post("/upload", upload.single("file"), (req, res) => {
-  try {
-    const file = req.file;
+app.post(
+  "/upload",
+  upload.fields([{ name: "printFile", maxCount: 1 }]),
+  (req, res) => {
+    try {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const printFile = files["printFile"]?.[0];
 
-    if (!file) {
-      return res.status(400).json({ error: "No file uploaded" });
+      if (!printFile) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const filePath = `${req.protocol}://${req.get("host")}/uploads/${
+        printFile.mimetype === "application/pdf" ? "prints/pdf" : "prints/photo"
+      }/${printFile.filename}`;
+
+      console.log(
+        `File uploaded successfully: ${printFile.originalname}, accessible at: ${filePath}`
+      );
+
+      res.status(200).json({
+        printFile: {
+          filePath: filePath,
+          storedFileName: printFile.filename,
+        },
+      });
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      res.status(500).json({ error: "Failed to upload file" });
     }
-
-    const formType = req.body.formType || "unknown";
-    console.log(`Form type: ${formType}`); // ตรวจสอบค่า formType
-
-    const fileUrl = `${req.protocol}://${req.get(
-      "host"
-    )}/uploads/${encodeURIComponent(file.filename)}`;
-    console.log(
-      `File uploaded successfully: ${file.originalname}, accessible at: ${fileUrl}`
-    );
-
-    res.status(200).json({
-      message: "File uploaded successfully",
-      fileName: file.originalname,
-      storedFileName: file.filename,
-      filePath: fileUrl,
-    });
-  } catch (error) {
-    console.error("Error uploading file:", error);
-    res.status(500).json({ error: "Failed to upload file" });
   }
-});
+);
+
+// เพิ่ม endpoint สำหรับการอัปโหลดหลายไฟล์
+app.post(
+  "/upload-multiple",
+  upload.fields([
+    { name: "registrationBookFile", maxCount: 1 },
+    { name: "licenseFile", maxCount: 1 },
+  ]),
+  (req, res) => {
+    try {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const registrationBookFile = files["registrationBookFile"]?.[0];
+      const licenseFile = files["licenseFile"]?.[0];
+
+      if (!registrationBookFile || !licenseFile) {
+        return res.status(400).json({ error: "Required files not uploaded" });
+      }
+
+      const registrationBookFilePath = `${req.protocol}://${req.get(
+        "host"
+      )}/uploads/forms/registrationBook/${registrationBookFile.filename}`;
+      const licenseFilePath = `${req.protocol}://${req.get(
+        "host"
+      )}/uploads/forms/licensePlate/${licenseFile.filename}`;
+
+      console.log(
+        `File uploaded successfully: ${registrationBookFile.originalname}, accessible at: ${registrationBookFilePath}`,
+        `File uploaded successfully: ${licenseFile.originalname}, accessible at: ${licenseFilePath}`
+      );
+
+      res.status(200).json({
+        registrationBookFile: {
+          filePath: registrationBookFilePath,
+          storedFileName: registrationBookFile.filename,
+        },
+        licenseFile: {
+          filePath: licenseFilePath,
+          storedFileName: licenseFile.filename,
+        },
+      });
+    } catch (error) {
+      console.error("Error uploading files:", error);
+      res.status(500).json({ error: "Failed to upload files" });
+    }
+  }
+);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DeliveryUserInfo from "./deliveryComponent/deliveryUserInfo";
 import DeliveryAddress from "./deliveryComponent/deliveryAddress";
+import ResultDelivery from "./deliveryComponent/resultDelivery";
 import TextInput from "./textFillComponent/textInput";
 import TextSelect from "./textFillComponent/textSelect";
 import RadioButton from "./textFillComponent/radioButton";
@@ -14,12 +15,12 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 // import { collection, addDoc } from "firebase/firestore";
 // import { db } from "../firebaseConfig";
 
-interface DeliveryProps {
-  showSender: boolean;
-}
+// interface DeliveryProps {
+//   showSender: boolean;
+// }
 
 //delivery.tsx
-const Delivery: React.FC<DeliveryProps> = () => {
+const Delivery: React.FC = () => {
   const [usernameSender, setUsernameSender] = useState<string>("");
   const [contactNumSender, setContactNumSender] = useState<string>("");
   const [selectedRadio, setSelectedRadio] = useState<string | null>(null);
@@ -62,6 +63,7 @@ const Delivery: React.FC<DeliveryProps> = () => {
   const [isFormSenderValid, setIsFormSenderValid] = useState(false);
   const [isFormReceiverValid, setIsFormReceiverValid] = useState(false);
   const [showSender, setShowSender] = useState(true);
+  const [showReceiver, setShowReceiver] = useState(false);
 
   const [isInvalidOwnerInfo, setInvalidOwnerInfo] = useState(false);
   const [isInvalidAddress, setIsInvalidAddress] = useState(false);
@@ -86,13 +88,37 @@ const Delivery: React.FC<DeliveryProps> = () => {
 
   // const [deliveryCost, setDeliveryCost] = useState<number | null>(null);
 
+  const [selectedRegistrationBookFile, setSelectedRegistrationBookFile] =
+    useState<File | null>(null);
+  const [selectedIDcardVehicleFile, setSelectedIDcardVehicleFile] =
+    useState<File | null>(null);
+
   useEffect(() => {
     if (selectDeliveryType === "ส่งของปกติ") {
-      setSelectedCarType("-");
-      setCCsizeCar("-");
-    } else if (CCsizeCar === "-") {
+      if (
+        selectCarType !== "-" ||
+        CCsizeCar !== "-" ||
+        !selectedRegistrationBookFile ||
+        !selectedIDcardVehicleFile
+      ) {
+        setSelectedCarType("-");
+        setCCsizeCar("-");
+        setSelectedRegistrationBookFile(
+          new File(["dummy content"], "default_registration_book.png", {
+            type: "image/png",
+          })
+        );
+        setSelectedIDcardVehicleFile(
+          new File(["dummy content"], "default_id_card.png", {
+            type: "image/png",
+          })
+        );
+      }
+    } else if (selectDeliveryType !== "ส่งของปกติ" && CCsizeCar === "-") {
       setSelectedCarType("");
       setCCsizeCar("");
+      setSelectedRegistrationBookFile(null);
+      setSelectedIDcardVehicleFile(null);
     }
 
     // if (selectDeliveryType === "ส่งรถกลับบ้าน" && selectedProvinceNameReceiver && CCsizeCar) {
@@ -108,10 +134,10 @@ const Delivery: React.FC<DeliveryProps> = () => {
         contactNumSender &&
         ownerData &&
         selectedFile &&
-        soiSender &&
+        // soiSender &&
         houseNoSender &&
         villageNoSender &&
-        dormitorySender &&
+        // dormitorySender &&
         subDistrictSender &&
         districtSender &&
         postalCodeSender &&
@@ -123,20 +149,23 @@ const Delivery: React.FC<DeliveryProps> = () => {
 
     const formReceiverIsValid =
       !!(
-        usernameReceiver &&
-        contactNumReceiver &&
-        houseNoReceiver &&
-        // soiReceiver &&
-        houseNoReceiver &&
-        villageNoReceiver &&
-        // dormitoryReceiver &&
-        subDistrictReceiver &&
-        districtReceiver &&
-        postalCodeReceiver &&
-        selectedProvinceReceiver &&
-        selectDeliveryType &&
-        selectCarType &&
-        CCsizeCar
+        (
+          usernameReceiver &&
+          contactNumReceiver &&
+          houseNoReceiver &&
+          // soiReceiver &&
+          villageNoReceiver &&
+          // dormitoryReceiver &&
+          subDistrictReceiver &&
+          districtReceiver &&
+          postalCodeReceiver &&
+          selectedProvinceReceiver &&
+          selectDeliveryType &&
+          selectCarType &&
+          CCsizeCar &&
+          selectedRegistrationBookFile
+        )
+        // selectedIDcardVehicleFile
       ) &&
       isInvalidUserInfo &&
       isInvalidAddress;
@@ -144,26 +173,27 @@ const Delivery: React.FC<DeliveryProps> = () => {
     setIsFormSenderValid(formSenderIsValid);
     setIsFormReceiverValid(formReceiverIsValid);
 
-    console.log({
-      usernameSender,
-      contactNumSender,
-      ownerData,
-      soiSender,
-      houseNoSender,
-      villageNoSender,
-      dormitorySender,
-      subDistrictSender,
-      districtSender,
-      postalCodeSender,
-      selectedProvinceSender,
-      isFormSenderValid,
-      isFormReceiverValid,
-      isInvalidOwnerInfo,
-      isInvalidUserInfo,
-      selectedProvinceNameSender,
-      selectedDistrictNameSender,
-      selectedSubDistrictNameSender,
-    });
+    // console.log({
+    //   usernameSender,
+    //   contactNumSender,
+    //   ownerData,
+    //   soiSender,
+    //   houseNoSender,
+    //   villageNoSender,
+    //   dormitorySender,
+    //   subDistrictSender,
+    //   districtSender,
+    //   postalCodeSender,
+    //   selectedProvinceSender,
+    //   isFormSenderValid,
+    //   isFormReceiverValid,
+    //   isInvalidOwnerInfo,
+    //   isInvalidUserInfo,
+    //   selectedProvinceNameSender,
+    //   selectedDistrictNameSender,
+    //   selectedSubDistrictNameSender,
+    //   selectedRegistrationBookFile,
+    // });
   }, [
     usernameSender,
     contactNumSender,
@@ -195,12 +225,14 @@ const Delivery: React.FC<DeliveryProps> = () => {
     isInvalidAddress,
     isInvalidOwnerInfo,
     isInvalidUserInfo,
-    selectedProvinceNameSender,
-    selectedDistrictNameSender,
-    selectedSubDistrictNameSender,
-    selectedProvinceNameReceiver,
-    selectedDistrictNameReceiver,
-    selectedSubDistrictNameReceiver,
+    // selectedProvinceNameSender,
+    // selectedDistrictNameSender,
+    // selectedSubDistrictNameSender,
+    // selectedProvinceNameReceiver,
+    // selectedDistrictNameReceiver,
+    // selectedSubDistrictNameReceiver,
+    selectedRegistrationBookFile,
+    selectedIDcardVehicleFile,
   ]);
 
   const handleAddressValidation = (validations: {
@@ -238,15 +270,39 @@ const Delivery: React.FC<DeliveryProps> = () => {
 
     if (isFormSenderValid) {
       setShowSender(false);
+      setShowReceiver(true);
       setValidated(false);
     }
   };
 
   const handleBackToSender = () => {
     setShowSender(true);
+    setShowReceiver(false);
     setValidated(false);
     setIsFormSenderValid(false);
     setSelectedFile(null);
+  };
+
+  const handleGoToReceiver = () => {
+    setShowSender(false);
+    setShowReceiver(true);
+    setValidated(false);
+    setIsFormSenderValid(true);
+  };
+
+  const handleBackToReceiver = () => {
+    setShowSender(false);
+    setShowReceiver(true);
+    setValidated(false);
+    setIsFormReceiverValid(false);
+  };
+
+  const handleGoToResult = () => {
+    setShowSender(false);
+    setShowReceiver(false);
+    setValidated(false);
+    setIsFormSenderValid(true);
+    setIsFormReceiverValid(true);
   };
 
   const handleOwnerInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -312,25 +368,6 @@ const Delivery: React.FC<DeliveryProps> = () => {
                   showSender={showSender}
                 />
               </Col>
-              {/* <Col className="mb-4" md={4} xs={12}>
-                <TextInput
-                  id="userName"
-                  label="กรอกหมายเลขบัตรประชาชน"
-                  value={NoIDcardSender}
-                  placeholder="กรอกหมายเลขบัตรประชาชน"
-                  onChange={handleNoIDcardChange}
-                  isInvalid={isInvalidNoIDcard}
-                  alertText={
-                    isInvalidNoIDcard
-                      ? NoIDcardSender.length < 13
-                        ? "กรอกหมายเลขบัตรประชาชนให้ครบถ้วน"
-                        : "หมายเลขบัตรประชาชนไม่ถูกต้อง"
-                      : ""
-                  }
-                  required
-                  type="numeric"
-                />
-              </Col> */}
             </Row>
 
             <Row>
@@ -429,30 +466,31 @@ const Delivery: React.FC<DeliveryProps> = () => {
 
             <hr className="my-4" />
             <footer>
-              {!isFormSenderValid && (
-                <Alert
-                  variant="success"
-                  className="d-flex align-items-center mb-4 mt-3"
-                >
-                  <i className="fas fa-exclamation-triangle me-2"></i>
-                  <span>กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง</span>
-                </Alert>
-              )}
               <Row className="mb-2 ">
                 <Col className="mb-2 form-button-container">
                   <Button
                     className="form-button"
                     type="submit"
                     variant="success"
+                    onClick={handleGoToReceiver}
                     disabled={!isFormSenderValid}
                   >
                     ถัดไป
                   </Button>
                 </Col>
               </Row>
+              {!isFormSenderValid && (
+                <Alert
+                  variant="success"
+                  className="d-flex align-items-center mb-4 mt-3"
+                >
+                  <i className="fas fa-exclamation-triangle me-2"></i>
+                  <span>กรุณากรอกข้อมูลและรูปภาพให้ครบถ้วนและถูกต้อง</span>
+                </Alert>
+              )}
             </footer>
           </>
-        ) : (
+        ) : showReceiver ? (
           <>
             <h2 className="text-center mb-4 text-success">ข้อมูลผู้รับ</h2>
             <DeliveryUserInfo
@@ -548,10 +586,21 @@ const Delivery: React.FC<DeliveryProps> = () => {
                   />
                 </Col>
 
-                <Col className="mb-4" xs={12} sm={6} md={12} lg={12} xl={12}>
+                <Col className="mb-4" xs={12} sm={12} md={12} lg={6} xl={6}>
                   <FileInput
-                    label="ภาพสำเนาภาพเล่มทะเบียนรถ (รองรับ .png, .jpg)"
-                    onFileSelect={(file) => setSelectedFile(file)}
+                    label="สำเนาภาพเล่มทะเบียนรถ (รองรับ .png, .jpg)"
+                    onFileSelect={(file) =>
+                      setSelectedRegistrationBookFile(file)
+                    }
+                    accept=".jpg, .png"
+                    isInvalid={!selectedFile}
+                    alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้น"
+                  />
+                </Col>
+                <Col className="mb-4" xs={12} sm={12} md={12} lg={6} xl={6}>
+                  <FileInput
+                    label="สำเนาบัตรประชาชนผู้มีชื่อในสำเนารถ (กรณีเจ้าของไม่ได้ดำเนินการเอง)"
+                    onFileSelect={(file) => setSelectedIDcardVehicleFile(file)}
                     accept=".jpg, .png"
                     isInvalid={!selectedFile}
                     alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้น"
@@ -562,15 +611,6 @@ const Delivery: React.FC<DeliveryProps> = () => {
 
             <hr className="my-4" />
             <footer>
-              {!isFormReceiverValid && (
-                <Alert
-                  variant="success"
-                  className="d-flex align-items-center mb-4"
-                >
-                  <i className="fas fa-exclamation-triangle me-2"></i>
-                  <span>กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง</span>
-                </Alert>
-              )}
               <Row className="mb-2 ">
                 <Col className="mb-2 form-button-container">
                   <Button
@@ -585,13 +625,73 @@ const Delivery: React.FC<DeliveryProps> = () => {
                     className="form-button"
                     type="submit"
                     variant="success"
+                    onClick={handleGoToResult}
                     disabled={!isFormReceiverValid}
                   >
                     ถัดไป
                   </Button>
                 </Col>
               </Row>
+              {!isFormReceiverValid && (
+                <Alert
+                  variant="success"
+                  className="d-flex align-items-center mb-4"
+                >
+                  <i className="fas fa-exclamation-triangle me-2"></i>
+                  <span>กรุณากรอกข้อมูลและรูปภาพให้ครบถ้วนและถูกต้อง</span>
+                </Alert>
+              )}
             </footer>
+          </>
+        ) : (
+          <>
+            <h2 className="text-center mb-4 text-success">
+              สรุปข้อมูลผู้ส่ง/ผู้รับ
+            </h2>
+            <ResultDelivery
+              deliveryType={selectDeliveryType || ""}
+              senderInfo={{
+                username: usernameSender,
+                contactNumber: contactNumSender,
+                ownerData: ownerData,
+                dormitory: dormitorySender,
+                soi: soiSender,
+                houseNo: houseNoSender,
+                villageNo: villageNoSender,
+                subDistrict: selectedSubDistrictNameSender || "",
+                district: selectedDistrictNameSender || "",
+                province: selectedProvinceNameSender || "",
+                postalCode: postalCodeSender,
+                selectedFilePath: selectedFile ? selectedFile.name : "",
+              }}
+              receiverInfo={{
+                username: usernameReceiver,
+                contactNumber: contactNumReceiver,
+                dormitory: dormitoryReceiver,
+                soi: soiReceiver,
+                houseNo: houseNoReceiver,
+                villageNo: villageNoReceiver,
+                subDistrict: selectedSubDistrictNameReceiver || "",
+                district: selectedDistrictNameReceiver || "",
+                province: selectedProvinceNameReceiver || "",
+                postalCode: postalCodeReceiver,
+              }}
+              vehicleInfo={
+                selectDeliveryType === "ส่งรถกลับบ้าน"
+                  ? {
+                      carType: selectCarType || "",
+                      ccSize: CCsizeCar ? parseFloat(CCsizeCar) : 0, // แปลง string เป็น number
+                      registrationBookFilePath: selectedRegistrationBookFile
+                        ? selectedRegistrationBookFile.name
+                        : null, // ใช้ null สำหรับค่าที่ไม่มี
+                      idCardFilePath: selectedIDcardVehicleFile
+                        ? selectedIDcardVehicleFile.name
+                        : null, // ใช้ null สำหรับค่าที่ไม่มี
+                    }
+                  : undefined
+              }
+              onBack={handleBackToReceiver} // ฟังก์ชันสำหรับย้อนกลับ
+            />
           </>
         )}
       </Form>

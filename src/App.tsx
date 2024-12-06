@@ -20,7 +20,7 @@ import SelectFormModal from "./component/selectFromModal";
 import SelectAdminFormModal from "./component/selelctAdminFormModal";
 
 function App() {
-  const [isPDPAAgreed, setIsPDPAAgreed] = useState(false);
+  const [showPDPA, setShowPDPA] = useState(false);
   const [showSelectFormModal, setShowSelectFormModal] = useState(true);
   const [showBrowserWarning, setShowBrowserWarning] = useState(false);
 
@@ -33,28 +33,34 @@ function App() {
     const isWebView = () => {
       const userAgent = window.navigator.userAgent.toLowerCase();
       return (
-        userAgent.includes("wv") || // Android WebView
-        userAgent.includes("webview") || // iOS WebView
+        userAgent.includes("wv") ||
+        userAgent.includes("webview") ||
         ((userAgent.includes("iphone") || userAgent.includes("ipad")) &&
-          userAgent.includes("safari") === false) // iOS WebView (no Safari)
+          userAgent.includes("safari") === false)
       );
     };
 
-    // ตรวจสอบ localStorage ก่อน
-    const storedWarning = localStorage.getItem("showBrowserWarning");
     const shouldShowWarning = location.pathname === "/print" && isWebView();
 
-    if (shouldShowWarning) {
-      setShowBrowserWarning(true);
-      localStorage.setItem("showBrowserWarning", "true"); // บันทึกสถานะ
-    } else if (storedWarning === "true" && location.pathname !== "/print") {
-      setShowBrowserWarning(false);
-      localStorage.removeItem("showBrowserWarning"); // ลบสถานะเมื่อออกจากหน้า
+    setShowBrowserWarning(shouldShowWarning);
+
+    // แสดง PDPA_modal เมื่อเข้าหน้าใหม่
+    if (["/form", "/print", "/delivery"].includes(location.pathname)) {
+      setShowPDPA(true); // เปิด Modal PDPA เสมอเมื่อเปลี่ยนหน้า
+    } else {
+      setShowPDPA(false);
+    }
+
+    // แสดง SelectFormModal ในหน้าหลัก
+    if (location.pathname === "/") {
+      setShowSelectFormModal(true);
+    } else {
+      setShowSelectFormModal(false);
     }
   }, [location.pathname]);
 
   const handlePDPAAgree = () => {
-    setIsPDPAAgreed(true);
+    setShowPDPA(false);
   };
 
   const handleNavigateToForm = () => {
@@ -77,14 +83,14 @@ function App() {
     navigate("/print_admin_XTc}KPf]=Z@J");
   };
 
-  if (
-    !isPDPAAgreed &&
-    (location.pathname === "/form" ||
-      location.pathname === "/print" ||
-      location.pathname === "/delivery")
-  ) {
-    return <PDPA_modal isVisible={!isPDPAAgreed} onAgree={handlePDPAAgree} />;
-  }
+  // if (
+  //   !isPDPAAgreed &&
+  //   (location.pathname === "/form" ||
+  //     location.pathname === "/print" ||
+  //     location.pathname === "/delivery")
+  // ) {
+  //   return <PDPA_modal isVisible={!isPDPAAgreed} onAgree={handlePDPAAgree} />;
+  // }
 
   return (
     <div className="container my-3">
@@ -139,20 +145,14 @@ function App() {
           </div>
         </div>
       )}
+      {showPDPA && (
+        <PDPA_modal isVisible={showPDPA} onAgree={handlePDPAAgree} />
+      )}
 
       <Routes>
-        <Route
-          path="/form"
-          element={isPDPAAgreed ? <FormComponent /> : <Navigate to="/" />}
-        />
-        <Route
-          path="/print"
-          element={isPDPAAgreed ? <Print /> : <Navigate to="/" />}
-        />
-        <Route
-          path="/delivery"
-          element={isPDPAAgreed ? <Delivery /> : <Navigate to="/" />}
-        />
+        <Route path="/form" element={<FormComponent />} />
+        <Route path="/print" element={<Print />} />
+        <Route path="/delivery" element={<Delivery />} />
         <Route path="/form_admin_hc{SlU(.'rhA" element={<FormAdmin />} />
         <Route path="/print_admin_XTc}KPf]=Z@J" element={<PrintAdmin />} />
 
