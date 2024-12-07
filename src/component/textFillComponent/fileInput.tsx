@@ -53,7 +53,7 @@ const FileInput: React.FC<FileInputProps> = ({
           {previewUrl && (
             <Button
               variant="link"
-              className="text-success px-0 py-0"
+              className="text-success px-0 py-0 mb-2"
               onClick={handleOpenModal}
             >
               ดูไฟล์ที่เลือก{" "}

@@ -266,13 +266,6 @@ const Delivery: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setValidated(true);
-
-    if (isFormSenderValid) {
-      setShowSender(false);
-      setShowReceiver(true);
-      setValidated(false);
-    }
   };
 
   const handleBackToSender = () => {
@@ -361,11 +354,8 @@ const Delivery: React.FC = () => {
                   setUsername={setUsernameSender}
                   contactNum={contactNumSender}
                   setContactNum={setContactNumSender}
-                  selectedFile={selectedFile}
-                  setSelectedFile={setSelectedFile}
                   setIsFormValid={setIsFormSenderValid}
                   onValidateUserInfo={handleUserValidation}
-                  showSender={showSender}
                 />
               </Col>
             </Row>
@@ -388,48 +378,65 @@ const Delivery: React.FC = () => {
               </Col>
               {/* ช่องกรอกตามประเภทข้อมูลของเจ้าของรถล่าสุด */}
               {selectedRadio && (
-                <Col
-                  className="date-idNo-carType-Input mb-4"
-                  md={12}
-                  xs={6}
-                  lg={4}
-                  xl={6}
-                >
-                  <TextInput
-                    label={
-                      selectedRadio === "หมายเลขบัตรประชาชนของผู้ส่ง"
-                        ? "กรอกหมายเลขบัตรประชาชน"
-                        : selectedRadio === "หมายเลขพาสปอร์ตของผู้ส่ง"
-                        ? "กรอกหมายเลขพาสปอร์ต"
-                        : "โปรดเลือกประเภทข้อมูลเจ้าของรถ"
-                    }
-                    placeholder={
-                      selectedRadio === "หมายเลขบัตรประชาชนของผู้ส่ง"
-                        ? "กรอกหมายเลขบัตรประชาชน"
-                        : selectedRadio === "หมายเลขพาสปอร์ตของผู้ส่ง"
-                        ? "กรอกหมายเลขพาสปอร์ต"
-                        : ""
-                    }
-                    id="ownerData"
-                    value={ownerData}
-                    type="numeric"
-                    onChange={handleOwnerInfoChange}
-                    isInvalid={isInvalidOwnerInfo}
-                    alertText={
-                      isInvalidOwnerInfo
-                        ? selectedRadio === "หมายเลขบัตรประชาชนของผู้ส่ง"
-                          ? ownerData.length < 13
-                            ? "กรอกหมายเลขบัตรประชาชนให้ครบถ้วน"
-                            : "หมายเลขบัตรประชาชนไม่ถูกต้อง"
-                          : ownerData.length < 8
-                          ? "กรอกหมายเลขพาสปอร์ตให้ครบถ้วน"
-                          : "กรอกหมายเลขพาสปอร์ตให้ถูกต้อง"
-                        : ""
-                    }
-                    // disabled={!selectedRadio}
-                    required
-                  />
-                </Col>
+                <>
+                  <Col
+                    className="date-idNo-carType-Input mb-4"
+                    md={12}
+                    xs={6}
+                    lg={4}
+                    xl={6}
+                  >
+                    <TextInput
+                      label={
+                        selectedRadio === "หมายเลขบัตรประชาชนของผู้ส่ง"
+                          ? "กรอกหมายเลขบัตรประชาชน"
+                          : selectedRadio === "หมายเลขพาสปอร์ตของผู้ส่ง"
+                          ? "กรอกหมายเลขพาสปอร์ต"
+                          : "โปรดเลือกประเภทข้อมูลเจ้าของรถ"
+                      }
+                      placeholder={
+                        selectedRadio === "หมายเลขบัตรประชาชนของผู้ส่ง"
+                          ? "กรอกหมายเลขบัตรประชาชน"
+                          : selectedRadio === "หมายเลขพาสปอร์ตของผู้ส่ง"
+                          ? "กรอกหมายเลขพาสปอร์ต"
+                          : ""
+                      }
+                      id="ownerData"
+                      value={ownerData}
+                      type="numeric"
+                      onChange={handleOwnerInfoChange}
+                      isInvalid={isInvalidOwnerInfo}
+                      alertText={
+                        isInvalidOwnerInfo
+                          ? selectedRadio === "หมายเลขบัตรประชาชนของผู้ส่ง"
+                            ? ownerData.length < 13
+                              ? "กรอกหมายเลขบัตรประชาชนให้ครบถ้วน"
+                              : "หมายเลขบัตรประชาชนไม่ถูกต้อง"
+                            : ownerData.length < 8
+                            ? "กรอกหมายเลขพาสปอร์ตให้ครบถ้วน"
+                            : "กรอกหมายเลขพาสปอร์ตให้ถูกต้อง"
+                          : ""
+                      }
+                      // disabled={!selectedRadio}
+                      required
+                    />
+                  </Col>
+                  <Col xs={12} sm={12} md={12} lg={12} xl={12} className="mb-4">
+                    <FileInput
+                      label={
+                        selectedRadio === "หมายเลขบัตรประชาชนของผู้ส่ง"
+                          ? "ภาพสำเนาบัตรประชาชน (รองรับ .png, .jpg)"
+                          : selectedRadio === "หมายเลขพาสปอร์ตของผู้ส่ง"
+                          ? "ภาพสำเนาพาสปอร์ต (รองรับ .png, .jpg)"
+                          : "โปรดเลือกประเภทข้อมูลเจ้าของรถ"
+                      }
+                      onFileSelect={(file) => setSelectedFile(file)}
+                      accept=".jpg, .png"
+                      isInvalid={!selectedFile && validated}
+                      alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้น"
+                    />
+                  </Col>
+                </>
               )}
             </Row>
 
@@ -499,11 +506,8 @@ const Delivery: React.FC = () => {
               setUsername={setUsernameReceiver}
               contactNum={contactNumReceiver}
               setContactNum={setContactNumReceiver}
-              selectedFile={selectedFile}
-              setSelectedFile={setSelectedFile}
               setIsFormValid={setIsFormReceiverValid}
               onValidateUserInfo={handleUserValidation}
-              showSender={showSender}
             />
 
             <Row>
@@ -662,7 +666,7 @@ const Delivery: React.FC = () => {
                 district: selectedDistrictNameSender || "",
                 province: selectedProvinceNameSender || "",
                 postalCode: postalCodeSender,
-                selectedFilePath: selectedFile ? selectedFile.name : "",
+                selectedFilePath: selectedFile,
               }}
               receiverInfo={{
                 username: usernameReceiver,
@@ -680,13 +684,9 @@ const Delivery: React.FC = () => {
                 selectDeliveryType === "ส่งรถกลับบ้าน"
                   ? {
                       carType: selectCarType || "",
-                      ccSize: CCsizeCar ? parseFloat(CCsizeCar) : 0, // แปลง string เป็น number
-                      registrationBookFilePath: selectedRegistrationBookFile
-                        ? selectedRegistrationBookFile.name
-                        : null, // ใช้ null สำหรับค่าที่ไม่มี
-                      idCardFilePath: selectedIDcardVehicleFile
-                        ? selectedIDcardVehicleFile.name
-                        : null, // ใช้ null สำหรับค่าที่ไม่มี
+                      ccSize: CCsizeCar ? parseFloat(CCsizeCar) : 0,
+                      registrationBookFilePath: selectedRegistrationBookFile, // ส่ง File | null โดยตรง
+                      idCardFilePath: selectedIDcardVehicleFile, // ส่ง File | null โดยตรง
                     }
                   : undefined
               }

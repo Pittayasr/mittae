@@ -1,6 +1,8 @@
 //resultDelivery.tsx
-import React from "react";
-import { Button, Row, Col, Form } from "react-bootstrap";
+import React, { useState } from "react";
+import { Button, Row, Col, Form, Modal, Image } from "react-bootstrap";
+import { Viewer } from "@react-pdf-viewer/core";
+import "@react-pdf-viewer/core/lib/styles/index.css";
 import { calculateDelivery } from "../../data/calculateDelivery";
 // import { db } from "../../../firebaseConfig";
 // import { collection, addDoc } from "firebase/firestore";
@@ -20,7 +22,7 @@ interface ResultDeliveryProps {
     district: string;
     province: string;
     postalCode: string;
-    selectedFilePath: string;
+    selectedFilePath: File | null;
   };
   receiverInfo: {
     username: string;
@@ -37,8 +39,8 @@ interface ResultDeliveryProps {
   vehicleInfo?: {
     carType: string;
     ccSize: number;
-    registrationBookFilePath?: string | null;
-    idCardFilePath?: string | null;
+    registrationBookFilePath?: File | null; 
+    idCardFilePath?: File | null; 
   };
   onBack: () => void;
 }
@@ -50,12 +52,30 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
   vehicleInfo,
   onBack,
 }) => {
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [fileType, setFileType] = useState<string | null>(null);
+
   const deliveryCost =
     vehicleInfo && deliveryType === "ส่งรถกลับบ้าน"
       ? calculateDelivery(receiverInfo.province, vehicleInfo.ccSize)
       : null;
 
-  //   const [showModal, setShowModal] = useState(false);
+  const handleShowPreview = (file: File | null) => {
+    if (file) {
+      const previewUrl = URL.createObjectURL(file); // สร้าง URL ของไฟล์
+      setPreviewUrl(previewUrl);
+      setFileType(file.type); // ระบุประเภทไฟล์
+      setShowPhotoModal(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowPhotoModal(false);
+    setPreviewUrl(null);
+    setFileType(null);
+  };
+
   //   const [modalMessage, setModalMessage] = useState("");
   //   const [success, setSuccess] = useState(false);
 
@@ -153,7 +173,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
   // //       console.log("Document written with ID: ", docRef.id);
 
   // //       setModalMessage(
-  // //         `ข้อมูลถูกส่งสำเร็จแล้ว! ✅\nขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป 🙏❤️ \n📢สักครู่หลังจากชำระเงินแล้ว \nท่านจะได้รับข้อความ SMS ยืนยัน \nความคุ้มครองฯพ.ร.บ.ไปยังหมายเลขโทรศัพท์ที่ท่านแจ้งมานะคะ❤️`
+  // //         `ข้อมูลถูกส่งสำเร็จแล้ว! ✅\nขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป 🙏❤️ `
   // //       );
   // //       setSuccess(true);
   // //     } catch (error) {
@@ -179,13 +199,13 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
           <Col md={6}>
             <h4 className="text-success">✅ ผู้ส่ง</h4>
             <ul className="list-unstyled">
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>ชื่อ-นามสกุล:</strong> {senderInfo.username}
               </li>
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>หมายเลขโทรศัพท์:</strong> {senderInfo.contactNumber}
               </li>
-              <li className="mb-1">
+              <li className="mt-3 mb-0">
                 <strong>
                   {senderInfo.ownerData.includes("@")
                     ? "พาสปอร์ต"
@@ -194,28 +214,37 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
                 </strong>{" "}
                 {senderInfo.ownerData}
               </li>
-              <li className="mb-1">
+              <Button
+                className="text-success px-0 py-0"
+                variant="link"
+                onClick={() => handleShowPreview(senderInfo.selectedFilePath || null)}
+              >
+                {senderInfo.ownerData.includes("@")
+                  ? "ดูไฟล์สำเนาพาสปอร์ต"
+                  : "ดูไฟล์สำเนาเลขบัตรประชาชน"}
+              </Button>
+              <li className="my-3">
                 <strong>บ้านเลขที่:</strong> {senderInfo.houseNo}
               </li>
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>หมู่:</strong> {senderInfo.villageNo}
               </li>
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>หอพัก:</strong> {senderInfo.dormitory}
               </li>
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>ซอย:</strong> {senderInfo.soi}
               </li>
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>ตำบล/แขวง:</strong> {senderInfo.subDistrict}
               </li>
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>อำเภอ/เขต:</strong> {senderInfo.district}
               </li>
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>จังหวัด:</strong> {senderInfo.province}
               </li>
-              <li className="mb-1">
+              <li className="my-3 mb-4">
                 <strong>รหัสไปรษณีย์:</strong> {senderInfo.postalCode}
               </li>
             </ul>
@@ -225,34 +254,34 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
           <Col md={6}>
             <h4 className="text-success">✅ ผู้รับ</h4>
             <ul className="list-unstyled">
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>ชื่อ-นามสกุล:</strong> {receiverInfo.username}
               </li>
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>หมายเลขโทรศัพท์:</strong> {receiverInfo.contactNumber}
               </li>
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>บ้านเลขที่:</strong> {receiverInfo.houseNo}
               </li>
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>หมู่:</strong> {receiverInfo.villageNo}
               </li>
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>หอพัก:</strong> {receiverInfo.dormitory}
               </li>
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>ซอย:</strong> {receiverInfo.soi}
               </li>
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>ตำบล/แขวง:</strong> {receiverInfo.subDistrict}
               </li>
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>อำเภอ/เขต:</strong> {receiverInfo.district}
               </li>
-              <li className="mb-1">
+              <li className="my-3">
                 <strong>จังหวัด:</strong> {receiverInfo.province}
               </li>
-              <li className="mb-1">
+              <li className="my-3 ">
                 <strong>รหัสไปรษณีย์:</strong> {receiverInfo.postalCode}
               </li>
             </ul>
@@ -264,15 +293,41 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
             <Col>
               <h4 className="text-success">🏍️ ข้อมูลรถที่ส่ง</h4>
               <ul className="list-unstyled">
-                <li className="mb-1">
+                <li className="my-3">
                   <strong>ประเภทรถจักรยานยนต์:</strong> {vehicleInfo.carType}
                 </li>
-                <li className="mb-1">
+                <li className="my-3">
                   <strong>ขนาดความจุ CC:</strong> {vehicleInfo.ccSize}
                 </li>
-                <li className="mb-1">
+                <li className="my-3">
                   <strong>ราคาการส่งรถ:</strong>{" "}
                   {`${deliveryCost?.toLocaleString()} บาท`}
+                </li>
+                <li>
+                  <strong>ไฟล์สำเนาภาพเล่มทะเบียน:</strong>{" "}
+                  <Button
+                    className="text-success px-0 py-0"
+                    variant="link"
+                    onClick={() =>
+                      handleShowPreview(
+                        vehicleInfo.registrationBookFilePath || null
+                      )
+                    }
+                  >
+                    ดูไฟล์ตัวอย่าง
+                  </Button>
+                </li>
+                <li>
+                  <strong>ไฟล์สำเนาบัตรประชาชน:</strong>{" "}
+                  <Button
+                    className="text-success my-3 px-0 py-0"
+                    variant="link"
+                    onClick={() =>
+                      handleShowPreview(vehicleInfo.idCardFilePath || null)
+                    }
+                  >
+                    ดูไฟล์ตัวอย่าง
+                  </Button>
                 </li>
               </ul>
             </Col>
@@ -289,7 +344,9 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
               >
                 ย้อนกลับ
               </Button>
-              <Button className="form-button" variant="success">ยืนยัน</Button>
+              <Button className="form-button" variant="success">
+                ยืนยัน
+              </Button>
             </Col>
           </Row>
         </footer>
@@ -315,6 +372,21 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
           success={success}
         /> */}
       </Form>
+      {/* Modal แสดงตัวอย่างไฟล์ */}
+      <Modal show={showPhotoModal} onHide={handleCloseModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>ตัวอย่างไฟล์</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {fileType === "application/pdf" ? (
+            <div style={{ height: "500px" }}>
+              <Viewer fileUrl={previewUrl || ""} />
+            </div>
+          ) : (
+            <Image src={previewUrl || ""} alt="Preview" fluid />
+          )}
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
