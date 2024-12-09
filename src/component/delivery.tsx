@@ -7,17 +7,8 @@ import TextSelect from "./textFillComponent/textSelect";
 import RadioButton from "./textFillComponent/radioButton";
 import FileInput from "./textFillComponent/fileInput";
 
-// import { calculateDelivery } from "../data/calculateDelivery";
-
 import { Form, Row, Col, Button, Alert } from "react-bootstrap";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-
-// import { collection, addDoc } from "firebase/firestore";
-// import { db } from "../firebaseConfig";
-
-// interface DeliveryProps {
-//   showSender: boolean;
-// }
 
 //delivery.tsx
 const Delivery: React.FC = () => {
@@ -273,7 +264,7 @@ const Delivery: React.FC = () => {
     setShowReceiver(false);
     setValidated(false);
     setIsFormSenderValid(false);
-    setSelectedFile(null);
+    // setSelectedFile(null);
   };
 
   const handleGoToReceiver = () => {
@@ -382,7 +373,7 @@ const Delivery: React.FC = () => {
                   <Col
                     className="date-idNo-carType-Input mb-4"
                     md={12}
-                    xs={6}
+                    xs={12}
                     lg={4}
                     xl={6}
                   >
@@ -434,6 +425,7 @@ const Delivery: React.FC = () => {
                       accept=".jpg, .png"
                       isInvalid={!selectedFile && validated}
                       alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้น"
+                      initialFile={selectedFile}
                     />
                   </Col>
                 </>
@@ -599,6 +591,7 @@ const Delivery: React.FC = () => {
                     accept=".jpg, .png"
                     isInvalid={!selectedFile}
                     alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้น"
+                    initialFile={selectedRegistrationBookFile}
                   />
                 </Col>
                 <Col className="mb-4" xs={12} sm={12} md={12} lg={6} xl={6}>
@@ -608,6 +601,7 @@ const Delivery: React.FC = () => {
                     accept=".jpg, .png"
                     isInvalid={!selectedFile}
                     alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้น"
+                    initialFile={selectedIDcardVehicleFile}
                   />
                 </Col>
               </Row>

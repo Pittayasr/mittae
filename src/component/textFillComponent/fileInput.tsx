@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Form, Modal, Button, Image } from "react-bootstrap";
 import { Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
@@ -9,6 +9,7 @@ interface FileInputProps {
   onFileSelect: (file: File | null) => void;
   isInvalid?: boolean;
   alertText?: string;
+  initialFile?: File | null;
 }
 
 const FileInput: React.FC<FileInputProps> = ({
@@ -17,11 +18,28 @@ const FileInput: React.FC<FileInputProps> = ({
   onFileSelect,
   isInvalid,
   alertText,
+  initialFile,
 }) => {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [, setErrorMessage] = useState<string>("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (initialFile) {
+      const url = URL.createObjectURL(initialFile);
+      setPreviewUrl(url);
+      setFileType(initialFile.type);
+
+      // ตั้งค่า value ใน input file
+      if (fileInputRef.current) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(initialFile);
+        fileInputRef.current.files = dataTransfer.files; // ตั้งค่าไฟล์ใน input
+      }
+    }
+  }, [initialFile]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -63,6 +81,7 @@ const FileInput: React.FC<FileInputProps> = ({
         <div className="d-flex flex-column align-items-start">
           {/* แสดง input file */}
           <Form.Control
+            ref={fileInputRef}
             type="file"
             accept={accept}
             onChange={handleFileChange}
@@ -75,13 +94,13 @@ const FileInput: React.FC<FileInputProps> = ({
       </Form.Group>
 
       {/* Modal สำหรับแสดงตัวอย่างรูป */}
-      <Modal  show={isModalOpen} onHide={handleCloseModal} centered>
+      <Modal show={isModalOpen} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>ตัวอย่างไฟล์ที่เลือก</Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{  padding: "10px" }}>
+        <Modal.Body style={{ padding: "10px" }}>
           {fileType === "application/pdf" ? (
-            <div style={{ height: "500px" , padding: "0px" }}>
+            <div style={{ height: "500px", padding: "0px" }}>
               <Viewer fileUrl={previewUrl || ""} />
             </div>
           ) : fileType?.startsWith("image/") ? (

@@ -15,6 +15,7 @@ import Print from "./component/print";
 import Delivery from "./component/delivery";
 import PrintAdmin from "./component/printAdmin";
 import FormAdmin from "./component/formAdmin";
+import DeliveryAdmin from "./component/deliveryAdmin";
 import "./App.css";
 import SelectFormModal from "./component/selectFromModal";
 import SelectAdminFormModal from "./component/selelctAdminFormModal";
@@ -155,6 +156,10 @@ function App() {
         <Route path="/delivery" element={<Delivery />} />
         <Route path="/form_admin_hc{SlU(.'rhA" element={<FormAdmin />} />
         <Route path="/print_admin_XTc}KPf]=Z@J" element={<PrintAdmin />} />
+        <Route
+          path="/delivery_admin_2[sru)x3X[SD"
+          element={<DeliveryAdmin />}
+        />
 
         {/* Default route */}
         <Route

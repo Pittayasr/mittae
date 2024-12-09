@@ -284,8 +284,8 @@ const FormComponent: React.FC = () => {
   };
 
   const handleBack = () => {
-    setSelectedRegistrationBookFile(null);
-    setSelectedLicenseFile(null);
+    // setSelectedRegistrationBookFile(null);
+    // setSelectedLicenseFile(null);
     setShowForm(true);
     setShowResult(false);
     setValidated(false);
@@ -397,6 +397,7 @@ const FormComponent: React.FC = () => {
                 onFileSelect={(file) => setSelectedRegistrationBookFile(file)}
                 accept=".jpg, .png"
                 alertText="กรุณาเลือกภาพสำเนาภาพเล่มทะเบียนรถ"
+                initialFile={selectedRegistrationBookFile}
               />
             </Col>
             <Col className="mb-4" xs={12} sm={6} md={6} lg={6} xl={6}>
@@ -405,6 +406,7 @@ const FormComponent: React.FC = () => {
                 onFileSelect={(file) => setSelectedLicenseFile(file)}
                 accept=".jpg, .png"
                 alertText="กรุณาเลือกภาพแผ่นป้ายทะเบียนรถ"
+                initialFile={selectedLicenseFile}
               />
             </Col>
           </Row>

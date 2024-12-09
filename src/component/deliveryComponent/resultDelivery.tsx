@@ -4,9 +4,9 @@ import { Button, Row, Col, Form, Modal, Image } from "react-bootstrap";
 import { Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { calculateDelivery } from "../../data/calculateDelivery";
-// import { db } from "../../../firebaseConfig";
-// import { collection, addDoc } from "firebase/firestore";
-// import AlertModal from "../textFillComponent/alertModal";
+import { db } from "../../../firebaseConfig";
+import { collection, addDoc } from "firebase/firestore";
+import AlertModal from "../textFillComponent/alertModal";
 
 interface ResultDeliveryProps {
   deliveryType: string;
@@ -39,8 +39,8 @@ interface ResultDeliveryProps {
   vehicleInfo?: {
     carType: string;
     ccSize: number;
-    registrationBookFilePath?: File | null; 
-    idCardFilePath?: File | null; 
+    registrationBookFilePath?: File | null;
+    idCardFilePath?: File | null;
   };
   onBack: () => void;
 }
@@ -76,120 +76,124 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
     setFileType(null);
   };
 
-  //   const [modalMessage, setModalMessage] = useState("");
-  //   const [success, setSuccess] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [success, setSuccess] = useState(false);
 
-  // //   const handleConfirm = async () => {
-  // //     try {
-  // //       const formData = new FormData();
-  // //       if (selectedRegistrationBookFile) {
-  // //         formData.append("registrationBookFile", selectedRegistrationBookFile);
-  // //       }
-  // //       if (selectedLicenseFile) {
-  // //         formData.append("licenseFile", selectedLicenseFile);
-  // //       }
+  const handleConfirm = async () => {
+    try {
+      const formData = new FormData();
 
-  // //       const response = await fetch("http://localhost:3000/upload-multiple", {
-  // //         method: "POST",
-  // //         body: formData,
-  // //       });
+      if (senderInfo.selectedFilePath) {
+        formData.append("passportOrIDnumberFile", senderInfo.selectedFilePath);
+      }
+      if (vehicleInfo?.registrationBookFilePath) {
+        formData.append(
+          "registrationBookFileDelivery",
+          vehicleInfo.registrationBookFilePath
+        );
+      }
+      if (vehicleInfo?.idCardFilePath) {
+        formData.append("licenseFileDelivery", vehicleInfo.idCardFilePath);
+      }
 
-  // //       if (!response.ok) {
-  // //         const errorData = await response.json();
-  // //         console.error("Upload error details:", errorData);
-  // //         throw new Error("Failed to upload files to server");
-  // //       }
+      console.log("FormData Entries:", Array.from(formData.entries()));
 
-  // //       const responseData = await response.json();
+      const response = await fetch("http://localhost:3000/upload-multiple", {
+        method: "POST",
+        body: formData,
+      });
 
-  // //       // ตรวจสอบว่า responseData มีค่าที่ต้องการ
-  // //       if (!responseData.registrationBookFile || !responseData.licenseFile) {
-  // //         throw new Error("Response data missing required files");
-  // //       }
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Upload error details:", errorData);
+        throw new Error("Failed to upload files to server");
+      }
 
-  // //       const { registrationBookFile, licenseFile } = responseData;
+      const responseData = await response.json();
 
-  // //       console.log("Files uploaded successfully:", {
-  // //         registrationBookFile,
-  // //         licenseFile,
-  // //       });
+      // ตรวจสอบเฉพาะไฟล์ที่จำเป็น
+      if (!responseData.passportOrIDnumberFile) {
+        throw new Error("Response data missing required passport/ID file");
+      }
 
-  // //       const data = {
-  // //         ownerData: ownerData || "",
-  // //         usernameData: usernameData || "",
-  // //         selectedProvince: selectedProvince || "",
-  // //         engineSize: engineSize || "0",
-  // //         contactNumber: contactNumber || "",
-  // //         registrationNumber: registrationNumber || "",
-  // //         registrationDate: registrationDate ? registrationDate : new Date(),
-  // //         expirationDate: expirationDate ? expirationDate : new Date(),
-  // //         latestTaxPaymentDate: latestTaxPaymentDate
-  // //           ? latestTaxPaymentDate
-  // //           : new Date(),
-  // //         bikeTypeOrDoorCount: bikeTypeOrDoorCount || "",
-  // //         selectedCarType: selectedCarType || "",
-  // //         totalCost: totalCost || 0,
-  // //         prbCost: prbCost || 0,
-  // //         taxCost: taxCost || 0,
-  // //         lateFee: lateFee || 0,
-  // //         inspectionCost: inspectionCost || 0,
-  // //         processingCost: processingCost || 0,
-  // //         carAge: carAge || { years: 0, months: 0, days: 0 },
-  // //         CCorWeight: CCorWeight || "",
-  // //         carOrMotorcycleLabel: carOrMotorcycleLabel || "",
-  // //         selectedRadio: selectedRadio || "",
-  // //       };
+      // ไฟล์ที่เป็นทางเลือก
+      const registrationBookFileDelivery =
+        responseData.registrationBookFileDelivery || null;
+      const licenseFileDelivery = responseData.licenseFileDelivery || null;
 
-  // //       const updatedData = {
-  // //         usernameData: data.usernameData,
-  // //         province: data.selectedProvince,
-  // //         vehicleType: data.selectedCarType,
-  // //         bikeTypeOrDoorCount: data.bikeTypeOrDoorCount,
-  // //         weightOrCC: data.CCorWeight,
-  // //         engineSize: data.engineSize,
-  // //         registrationDate: formatDate(data.registrationDate),
-  // //         expirationDate: formatDate(data.expirationDate), // formatDate only to show on UI, not here
-  // //         latestTaxPaymentDate: formatDate(data.latestTaxPaymentDate),
-  // //         vehicleAge: data.carAge,
-  // //         contactNumber: data.contactNumber,
-  // //         ownerData: data.ownerData,
-  // //         prbCost: data.prbCost,
-  // //         registrationNumber: data.registrationNumber,
-  // //         taxCost: data.taxCost,
-  // //         lateFee: data.lateFee,
-  // //         inspectionCost: data.inspectionCost,
-  // //         processingCost: data.processingCost,
-  // //         totalCost: data.totalCost,
-  // //         CCorWeight: data.CCorWeight,
-  // //         carOrMotorcycleLabel: data.carOrMotorcycleLabel,
-  // //         selectedRadio: data.selectedRadio,
-  // //         registrationBookFilePath: registrationBookFile.filePath,
-  // //         registrationBookStoredFileName: registrationBookFile.storedFileName,
-  // //         licensePlateFilePath: licenseFile.filePath,
-  // //         licensePlateStoredFileName: licenseFile.storedFileName,
-  // //       };
+      console.log("Files uploaded successfully:", {
+        passportOrIDnumberFile: responseData.passportOrIDnumberFile,
+        registrationBookFileDelivery,
+        licenseFileDelivery,
+      });
 
-  // //       const docRef = await addDoc(collection(db, "delivery"), updatedData);
-  // //       console.log("Document written with ID: ", docRef.id);
+      // สร้างข้อมูลสำหรับ Firestore
+      const data = {
+        deliveryType,
+        senderInfo: {
+          username: senderInfo.username,
+          contactNumber: senderInfo.contactNumber,
+          ownerData: senderInfo.ownerData,
+          dormitory: senderInfo.dormitory,
+          soi: senderInfo.soi,
+          houseNo: senderInfo.houseNo,
+          villageNo: senderInfo.villageNo,
+          subDistrict: senderInfo.subDistrict,
+          district: senderInfo.district,
+          province: senderInfo.province,
+          postalCode: senderInfo.postalCode,
+          passportOrIDnumberFilePath:
+            responseData.passportOrIDnumberFile.filePath,
+        },
+        receiverInfo: {
+          username: receiverInfo.username,
+          contactNumber: receiverInfo.contactNumber,
+          dormitory: receiverInfo.dormitory,
+          soi: receiverInfo.soi,
+          houseNo: receiverInfo.houseNo,
+          villageNo: receiverInfo.villageNo,
+          subDistrict: receiverInfo.subDistrict,
+          district: receiverInfo.district,
+          province: receiverInfo.province,
+          postalCode: receiverInfo.postalCode,
+        },
+        vehicleInfo: vehicleInfo
+          ? {
+              carType: vehicleInfo.carType,
+              ccSize: vehicleInfo.ccSize,
+              registrationBookFilePath: registrationBookFileDelivery
+                ? registrationBookFileDelivery.filePath
+                : null,
+              idCardFilePath: licenseFileDelivery
+                ? licenseFileDelivery.filePath
+                : null,
+            }
+          : null,
+        deliveryCost: deliveryCost || 0,
+      };
 
-  // //       setModalMessage(
-  // //         `ข้อมูลถูกส่งสำเร็จแล้ว! ✅\nขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป 🙏❤️ `
-  // //       );
-  // //       setSuccess(true);
-  // //     } catch (error) {
-  // //       console.error("Error uploading file or saving data:", error);
-  // //       setModalMessage("การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง");
-  // //       setSuccess(false);
-  // //     } finally {
-  // //       setShowModal(true);
-  // //     }
-  // //   };
+      const docRef = await addDoc(collection(db, "delivery"), data);
+      console.log("Document written with ID: ", docRef.id);
 
-  //   const handleOpenModal = () => {
-  //     setModalMessage("คุณต้องการยืนยันว่า\nข้อมูลทั้งหมดถูกต้องใช่ไหม?");
-  //     setSuccess(false);
-  //     setShowModal(true);
-  //   };
+      setModalMessage(
+        `ข้อมูลถูกส่งสำเร็จแล้ว! ✅\nขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป 🙏❤️ `
+      );
+      setSuccess(true);
+    } catch (error) {
+      console.error("Error uploading file or saving data:", error);
+      setModalMessage("การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง");
+      setSuccess(false);
+    } finally {
+      setShowModal(true);
+    }
+  };
+
+  const handleOpenModal = () => {
+    setModalMessage("คุณต้องการยืนยันว่า\nข้อมูลทั้งหมดถูกต้องใช่ไหม?");
+    setSuccess(false);
+    setShowModal(true);
+  };
 
   return (
     <div>
@@ -217,7 +221,9 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
               <Button
                 className="text-success px-0 py-0"
                 variant="link"
-                onClick={() => handleShowPreview(senderInfo.selectedFilePath || null)}
+                onClick={() =>
+                  handleShowPreview(senderInfo.selectedFilePath || null)
+                }
               >
                 {senderInfo.ownerData.includes("@")
                   ? "ดูไฟล์สำเนาพาสปอร์ต"
@@ -344,13 +350,17 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
               >
                 ย้อนกลับ
               </Button>
-              <Button className="form-button" variant="success">
+              <Button
+                className="form-button"
+                variant="success"
+                onClick={handleOpenModal}
+              >
                 ยืนยัน
               </Button>
             </Col>
           </Row>
         </footer>
-        {/* <AlertModal
+        <AlertModal
           show={showModal}
           onBack={() => {
             setShowModal(false);
@@ -366,11 +376,11 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
                   onBack();
                   setShowModal(false);
                 }
-              : (handleConfirm)
+              : handleConfirm
           }
           message={modalMessage}
           success={success}
-        /> */}
+        />
       </Form>
       {/* Modal แสดงตัวอย่างไฟล์ */}
       <Modal show={showPhotoModal} onHide={handleCloseModal} centered>

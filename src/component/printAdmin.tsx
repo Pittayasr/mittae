@@ -18,9 +18,12 @@ interface UploadData {
   storedFileName: string;
 }
 
+//printAdmin.tsx
 const PrintAdmin: React.FC = () => {
   const [uploads, setUploads] = useState<UploadData[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isMultiSelectMode, setIsMultiSelectMode] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchUploads = async () => {
@@ -66,6 +69,51 @@ const PrintAdmin: React.FC = () => {
   //   link.download = fileName; // ตั้งชื่อไฟล์ตรงกับชื่อภาษาไทย
   //   link.click();
   // };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id)
+        ? prev.filter((selectedId) => selectedId !== id)
+        : [...prev, id]
+    );
+  };
+
+  const handleMultiSelectToggle = () => {
+    setIsMultiSelectMode((prev) => !prev);
+    setSelectedIds([]);
+  };
+
+  const handleDeleteSelected = async () => {
+    if (
+      window.confirm(
+        `คุณต้องการลบรายการที่เลือกทั้งหมด (${selectedIds.length} รายการ) หรือไม่?`
+      )
+    ) {
+      try {
+        for (const id of selectedIds) {
+          const upload = uploads.find((u) => u.docId === id);
+          if (upload) {
+            await deleteDoc(doc(db, "uploads", id));
+            await fetch("http://localhost:3000/delete-file", {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                fileName: upload.filePath.replace(/.*\/uploads\//, ""),
+              }),
+            });
+          }
+        }
+        setUploads(uploads.filter((u) => !selectedIds.includes(u.docId)));
+        setSelectedIds([]);
+        alert("ลบรายการที่เลือกทั้งหมดสำเร็จ!");
+      } catch (error) {
+        console.error("Error deleting selected uploads:", error);
+        alert("เกิดข้อผิดพลาดในการลบรายการที่เลือก กรุณาลองใหม่อีกครั้ง");
+      }
+    }
+  };
 
   // ฟังก์ชันลบข้อมูล
   const handleDelete = async (
@@ -135,11 +183,53 @@ const PrintAdmin: React.FC = () => {
               lg={4}
               xl={4}
               key={index}
-              className="mb-3"
+              className={`mb-3 ${isMultiSelectMode ? "selectable-card" : ""}`}
+              onClick={
+                isMultiSelectMode
+                  ? () => toggleSelect(upload.docId)
+                  : () => window.open(upload.filePath, "_blank")
+              }
             >
               <div className="card">
-                <div className="card-body">
-                  <h5 className="card-title text-success">{upload.fileName}</h5>
+                <div
+                  className="card-body"
+                  style={{
+                    cursor: "pointer",
+                    border:
+                      selectedIds.includes(upload.docId) && isMultiSelectMode
+                        ? "2px solid #28a745"
+                        : "none",
+                    borderRadius: "5px",
+                  }}
+                >
+                  <div
+                    className="d-flex align-items-center justify-content-between"
+                    style={{
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <h5
+                      className="card-title text-success mb-0"
+                      style={{
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {upload.fileName}
+                    </h5>
+                    {isMultiSelectMode && (
+                      <Form.Check
+                        className="custom-checkbox"
+                        type="checkbox"
+                        checked={selectedIds.includes(upload.docId)}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={() => toggleSelect(upload.docId)}
+                      />
+                    )}
+                  </div>
                   <p className="card-text mt-4">
                     ประเภทไฟล์: {upload.fileType}
                   </p>
@@ -159,8 +249,7 @@ const PrintAdmin: React.FC = () => {
                     ราคาทั้งหมด: {upload.totalPrice} บาท
                   </p>
                   <p className="card-text">
-                    เวลาที่อัปโหลด:{" "}
-                    {new Date(upload.uploadTime).toLocaleString()}
+                    เวลาที่อัปโหลด: {upload.uploadTime}
                   </p>
                   <div className="d-flex justify-content-end">
                     <div>
@@ -175,19 +264,23 @@ const PrintAdmin: React.FC = () => {
                     <Button
                       className="mx-2"
                       variant="outline-danger"
-                      onClick={() =>
+                      onClick={(e) => {
+                        e.stopPropagation();
                         handleDelete(
                           upload.fileName,
                           upload.filePath,
                           upload.docId
-                        )
-                      }
+                        );
+                      }}
                     >
                       ลบ
                     </Button>
                     <Button
                       variant="success"
-                      onClick={() => window.open(upload.filePath, "_blank")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(upload.filePath, "_blank");
+                      }}
                     >
                       ดูไฟล์
                     </Button>
@@ -196,6 +289,26 @@ const PrintAdmin: React.FC = () => {
               </div>
             </Col>
           ))}
+        </Row>
+        <Row>
+          <Col className="form-button-container">
+            <Button
+              className="form-button mx-2"
+              variant={isMultiSelectMode ? "secondary" : "success"}
+              onClick={handleMultiSelectToggle}
+            >
+              {isMultiSelectMode ? "ยกเลิกเลือกหลายรายการ" : "เลือกหลายรายการ"}
+            </Button>
+            {selectedIds.length > 0 && (
+              <Button
+                className="form-button"
+                variant="danger"
+                onClick={handleDeleteSelected}
+              >
+                ลบรายการที่เลือก ({selectedIds.length})
+              </Button>
+            )}
+          </Col>
         </Row>
       </Form>
     </div>

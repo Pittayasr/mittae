@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"vite\" \"node --loader ts-node/esm server.ts\"",
-    "build": "vite build",
+    "build:frontend": "vite build",
+    "build:backend": "tsc --project tsconfig.backend.json",
+    "build": "npm run build:frontend && npm run build:backend",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node dist/backend/server.js"
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",
@@ -30,6 +33,7 @@
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "docx": "^9.0.3",
+    "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "firebase": "^11.0.1",
     "firebase-admin": "^12.7.0",

@@ -25,6 +25,6 @@
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
   ],
-  "include": ["server.ts", "../server.ts"],
+  "include": ["server.ts"],
   "exclude": ["node_modules"]
 }

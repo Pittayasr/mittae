@@ -8,6 +8,8 @@ import AlertModal from "./textFillComponent/alertModal";
 import { db } from "../../firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import dayjs from "dayjs";
+import "dayjs/locale/th";
 
 // print.tsx
 const Print: React.FC = () => {
@@ -101,6 +103,10 @@ const Print: React.FC = () => {
 
       console.log("File uploaded successfully:", printFile);
 
+      const uploadTime = dayjs()
+        .locale("th")
+        .format("D MMMM YYYY เวลา HH:mm น.");
+
       const data = {
         fileName: selectedPrintFile?.name ?? "ยังไม่ได้เลือกไฟล์", // ชื่อไฟล์ต้นฉบับ
         fileType: selectedPrintFile?.type ?? "ไม่ทราบประเภทไฟล์", // ประเภทไฟล์
@@ -108,7 +114,7 @@ const Print: React.FC = () => {
         numCopies: parseInt(copiesSetPrint, 10), // จำนวนชุดที่ปริ้น
         colorType: selectTypePrint ?? "ไม่ระบุ", // ประเภทการปริ้น (สี/ขาวดำ)
         totalPrice, // ราคาทั้งหมด
-        uploadTime: new Date().toISOString(), // เวลาที่อัปโหลด
+        uploadTime,
         storedFileName: printFile.storedFileName, // ชื่อไฟล์ที่เซิร์ฟเวอร์จัดเก็บ
         filePath: printFile.filePath, // URL สำหรับไฟล์ที่เซิร์ฟเวอร์
       };

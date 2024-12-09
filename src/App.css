@@ -11,6 +11,23 @@
   font-size: 16px; /* กำหนดขนาดตัวอักษรให้เท่ากัน */
 }
 
+.card {
+  transition: border 0.1s ease, box-shadow 0.1s ease; /* เพิ่มความนุ่มนวล */
+}
+
+.card:hover {
+  border: 1px solid #28a745; /* กรอบสีเขียว */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เพิ่มเงาเล็กน้อย */
+  border-radius: 7px; /* ให้ขอบมน */
+  cursor: pointer; /* เปลี่ยนเมาส์เป็นรูปมือ */
+}
+
+/* .selected-card {
+  border: 2px solid #28a745; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+  border-radius: 5px; 
+} */
+
 .radioButton {
   display: flex; /* ใช้ Flexbox */
   flex-direction: row; /* ตั้งค่าการจัดเรียงในแนวนอน */
@@ -42,6 +59,22 @@
   cursor: pointer; /* แสดง cursor แบบ pointer */
 }
 
+.custom-checkbox .form-check-input {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+  margin: 0 0;
+}
+
+.custom-checkbox .form-check-input:checked {
+  background-color: #28a745;
+  border-color: #28a745;
+  box-shadow: 0 0 4px rgba(40, 167, 69, 0.8);
+}
+
 .form-button-container {
   display: flex;
   flex-direction: row;
@@ -53,7 +86,7 @@
 .form-button {
   width: 50%;
   min-width: 100px;
-  max-width: 150px;
+  max-width: 190px;
 }
 
 /* กำหนดกรอบสีแดงเมื่อมีข้อผิดพลาด */

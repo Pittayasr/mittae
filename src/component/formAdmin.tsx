@@ -36,6 +36,7 @@ interface VehicleData {
   licensePlateFilePath: string;
 }
 
+//formAdmin.tsx
 const FormAdmin: React.FC = () => {
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -43,6 +44,21 @@ const FormAdmin: React.FC = () => {
     null
   );
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isMultiSelectMode, setIsMultiSelectMode] = useState<boolean>(false);
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id)
+        ? prev.filter((selectedId) => selectedId !== id)
+        : [...prev, id]
+    );
+  };
+
+  const handleMultiSelectToggle = () => {
+    setIsMultiSelectMode((prev) => !prev);
+    setSelectedIds([]); // Reset selections when toggling mode
+  };
 
   useEffect(() => {
     const fetchVehicles = async () => {
@@ -60,6 +76,57 @@ const FormAdmin: React.FC = () => {
 
     fetchVehicles();
   }, []);
+
+  const handleDeleteSelected = async () => {
+    if (
+      window.confirm(
+        `คุณต้องการลบรายการที่เลือกทั้งหมด (${selectedIds.length} รายการ) หรือไม่?`
+      )
+    ) {
+      try {
+        // เรียก API เพื่อลบไฟล์ที่เกี่ยวข้อง
+        const deleteFile = async (filePath: string) => {
+          if (!filePath) return;
+
+          const response = await fetch("http://localhost:3000/delete-file", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              fileName: filePath.replace(/.*\/uploads\//, ""), // เอาเฉพาะ path ภายในโฟลเดอร์ uploads
+            }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            console.error(`Error deleting file: ${filePath}`, error);
+            throw new Error(`Failed to delete file: ${filePath}`);
+          }
+          console.log(`File deleted successfully: ${filePath}`);
+        };
+        for (const id of selectedIds) {
+          const vehicle = vehicles.find((v) => v.docId === id);
+          if (vehicle) {
+            // ลบไฟล์ที่เกี่ยวข้อง
+            await deleteFile(vehicle.registrationBookFilePath);
+            await deleteFile(vehicle.licensePlateFilePath);
+
+            // ลบข้อมูลใน Firestore
+            const docRef = doc(db, "prbform", id);
+            await deleteDoc(docRef);
+          }
+        }
+        // อัปเดต state
+        setVehicles(vehicles.filter((v) => !selectedIds.includes(v.docId)));
+        setSelectedIds([]); // รีเซ็ตรายการที่เลือก
+        alert("ลบรายการที่เลือกทั้งหมดสำเร็จ!");
+      } catch (error) {
+        console.error("Error deleting selected vehicles:", error);
+        alert("เกิดข้อผิดพลาดในการลบรายการที่เลือก กรุณาลองใหม่อีกครั้ง");
+      }
+    }
+  };
 
   const handleDelete = async (vehicle: VehicleData) => {
     try {
@@ -145,13 +212,53 @@ const FormAdmin: React.FC = () => {
               lg={4}
               xl={4}
               key={index}
-              className="mb-3"
+              className={`mb-3 ${isMultiSelectMode ? "selectable-card" : ""}`}
+              onClick={
+                isMultiSelectMode
+                  ? () => toggleSelect(vehicle.docId)
+                  : () => handleViewDetails(vehicle)
+              }
             >
               <div className="card">
-                <div className="card-body">
-                  <h5 className="card-title text-success">
-                    {vehicle.registrationNumber}
-                  </h5>
+                <div
+                  className="card-body"
+                  style={{
+                    cursor: "pointer",
+                    border:
+                      selectedIds.includes(vehicle.docId) && isMultiSelectMode
+                        ? "2px solid #28a745"
+                        : "none",
+                    borderRadius: "5px",
+                  }}
+                >
+                  <div
+                    className="d-flex align-items-center justify-content-between"
+                    style={{
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <h5
+                      className="card-title text-success mb-0"
+                      style={{
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {vehicle.registrationNumber}
+                    </h5>
+                    {isMultiSelectMode && (
+                      <Form.Check
+                        className="custom-checkbox"
+                        type="checkbox"
+                        checked={selectedIds.includes(vehicle.docId)}
+                        onClick={(e) => e.stopPropagation()} // หยุดการกระจายเหตุการณ์
+                        onChange={() => toggleSelect(vehicle.docId)}
+                      />
+                    )}
+                  </div>
                   <p className="card-text mt-4">
                     ชื่อเจ้าของรถ: {vehicle.usernameData}
                   </p>
@@ -168,13 +275,19 @@ const FormAdmin: React.FC = () => {
                   <div className="d-flex justify-content-end">
                     <Button
                       variant="outline-danger"
-                      onClick={() => handleDelete(vehicle)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // หยุดการกระจายเหตุการณ์ไปยังการ์ด
+                        handleDelete(vehicle);
+                      }}
                     >
                       ลบ
                     </Button>
                     <Button
                       variant="success"
-                      onClick={() => handleViewDetails(vehicle)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // หยุดการกระจายเหตุการณ์ไปยังการ์ด
+                        handleViewDetails(vehicle);
+                      }}
                       className="mx-2"
                     >
                       ดูรายละเอียด
@@ -184,6 +297,26 @@ const FormAdmin: React.FC = () => {
               </div>
             </Col>
           ))}
+        </Row>
+        <Row>
+          <Col className="form-button-container">
+            <Button
+              className="form-button mx-2"
+              variant={isMultiSelectMode ? "secondary" : "success"}
+              onClick={handleMultiSelectToggle}
+            >
+              {isMultiSelectMode ? "ยกเลิกเลือกหลายรายการ" : "เลือกหลายรายการ"}
+            </Button>
+            {selectedIds.length > 0 && (
+              <Button
+                className="form-button"
+                variant="danger"
+                onClick={handleDeleteSelected}
+              >
+                ลบรายการที่เลือก ({selectedIds.length})
+              </Button>
+            )}
+          </Col>
         </Row>
       </Form>
 
