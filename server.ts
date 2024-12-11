@@ -13,11 +13,18 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-const PORT = process.env.PORT || 4000; // ใช้ PORT จากไฟล์ .env หรือค่าดีฟอลต์ 3000
+console.log(process.env.VITE_API_BASE_URL);
+
+const PORT = process.env.PORT || 3000; // ใช้ PORT จากไฟล์ .env หรือค่าดีฟอลต์ 3000
 const UPLOADS_DIR = process.env.UPLOADS_DIRECTORY || "uploads";
 
 // เปิดใช้งาน CORS
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://www.mittaemaefahlung88.com",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 app.use(express.json());
 
 // server.ts
@@ -273,6 +280,11 @@ app.post(
     }
   }
 );
+
+// ตัวอย่าง route
+app.get("/", (req, res) => {
+  res.send("API is working!");
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

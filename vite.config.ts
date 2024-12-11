@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  base: "/", // กำหนด base path สำหรับการใช้งานในโปรเจกต์
+  base: "/", // ใช้เส้นทางหลัก หาก deploy ใน sub-path ต้องปรับเปลี่ยน
   plugins: [
     react(),
     {
@@ -18,14 +18,24 @@ export default defineConfig({
     },
   ],
   server: {
-    open: true,
-    proxy: {
-      "/convert": "http://localhost:3000", // ให้ Proxy ไปยังเซิร์ฟเวอร์ที่ใช้ API
-    },
+    open: true, // เปิดเบราว์เซอร์อัตโนมัติเมื่อเริ่มต้นเซิร์ฟเวอร์
+    // proxy: {
+    //   "/convert": {
+    //     target: "http://localhost:3000", // เปลี่ยนเป็นโดเมนของ Backend
+    //     changeOrigin: true, // เปลี่ยน origin เพื่อให้ตรงกับ backend
+    //     secure: true, // ใช้ HTTPS
+    //     rewrite: (path) => path.replace(/^\/convert/, ""), // ลบ "/convert" ออกจาก path หากจำเป็น
+    //   },
+    // },
   },
   build: {
     rollupOptions: {
-      external: ["sharp", "node:crypto", "node:child_process"],
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom"], // แยก dependencies ขนาดใหญ่
+        },
+      },
+      external: ["sharp", "node:crypto", "node:child_process"], // ตั้งค่า external module ที่ไม่ต้องบันเดิล
     },
   },
 });

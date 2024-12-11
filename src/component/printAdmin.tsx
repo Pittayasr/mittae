@@ -94,7 +94,7 @@ const PrintAdmin: React.FC = () => {
           const upload = uploads.find((u) => u.docId === id);
           if (upload) {
             await deleteDoc(doc(db, "uploads", id));
-            await fetch("http://localhost:3000/delete-file", {
+            await fetch("${process.env.VITE_API_BASE_URL}/delete-file", {
               method: "DELETE",
               headers: {
                 "Content-Type": "application/json",
@@ -128,15 +128,18 @@ const PrintAdmin: React.FC = () => {
         await deleteDoc(docRef);
 
         // ส่งคำขอลบไฟล์ไปที่เซิร์ฟเวอร์
-        const response = await fetch("http://localhost:3000/delete-file", {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            fileName: filePath.replace(/.*\/uploads\//, ""), // เอาเฉพาะ path ภายในโฟลเดอร์ uploads
-          }),
-        });
+        const response = await fetch(
+          "${process.env.VITE_API_BASE_URL}/delete-file",
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              fileName: filePath.replace(/.*\/uploads\//, ""), // เอาเฉพาะ path ภายในโฟลเดอร์ uploads
+            }),
+          }
+        );
 
         if (response.ok) {
           // ลบข้อมูลออกจาก state

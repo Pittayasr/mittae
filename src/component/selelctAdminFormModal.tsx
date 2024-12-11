@@ -1,3 +1,4 @@
+//selelctAdminFormModal.tsx
 import React from "react";
 import { Modal, Button, Col, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
@@ -25,6 +26,11 @@ const SelectAdminFormModal: React.FC<SelectAdminFormModalProps> = ({
     onClose();
   };
 
+  const handleNavigateToDeliveryAdmin = () => {
+    navigate("/delivery_admin_2[sru)x3X[SD");
+    onClose();
+  };
+
   return (
     <Modal
       show={isVisible}
@@ -43,7 +49,7 @@ const SelectAdminFormModal: React.FC<SelectAdminFormModalProps> = ({
           <Col className="mb-2" xs={12}>
             <Button
               variant="success"
-              className="mb-3 w-75"
+              className="mt-3 mb-3 w-75"
               onClick={handleNavigateToFormAdmin}
             >
               ไปยังหน้าแดชบอร์ดแอดมินสำหรับฟอร์มพรบ.ต่อภาษีรถ
@@ -53,10 +59,19 @@ const SelectAdminFormModal: React.FC<SelectAdminFormModalProps> = ({
           <Col className="mb-2" xs={12}>
             <Button
               variant="success"
-              className="w-75"
+              className="mb-3 w-75"
               onClick={handleNavigateToPrintAdmin}
             >
               ไปยังหน้าแดชบอร์ดแอดมินสำหรับปริ้นเอกสาร
+            </Button>
+          </Col>
+          <Col className="mb-2" xs={12}>
+            <Button
+              variant="success"
+              className="mb-3 w-75"
+              onClick={handleNavigateToDeliveryAdmin}
+            >
+              ไปยังหน้าแดชบอร์ดแอดมินสำหรับข้อมูลการจัดส่ง
             </Button>
           </Col>
         </Row>

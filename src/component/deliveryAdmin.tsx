@@ -92,15 +92,18 @@ const DeliveryAdmin: React.FC = () => {
         const deleteFile = async (filePath: string) => {
           if (!filePath) return;
 
-          const response = await fetch("http://localhost:3000/delete-file", {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              fileName: filePath.replace(/.*\/uploads\//, ""), // เอาเฉพาะ path ภายในโฟลเดอร์ uploads
-            }),
-          });
+          const response = await fetch(
+            "${process.env.VITE_API_BASE_URL}/delete-file",
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                fileName: filePath.replace(/.*\/uploads\//, ""), // เอาเฉพาะ path ภายในโฟลเดอร์ uploads
+              }),
+            }
+          );
 
           if (!response.ok) {
             const error = await response.json();
@@ -152,15 +155,18 @@ const DeliveryAdmin: React.FC = () => {
         const deleteFile = async (filePath: string) => {
           if (!filePath) return;
 
-          const response = await fetch("http://localhost:3000/delete-file", {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              fileName: filePath.replace(/.*\/uploads\//, ""), // เอาเฉพาะ path ภายในโฟลเดอร์ uploads
-            }),
-          });
+          const response = await fetch(
+            "${process.env.VITE_API_BASE_URL}/delete-file",
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                fileName: filePath.replace(/.*\/uploads\//, ""), // เอาเฉพาะ path ภายในโฟลเดอร์ uploads
+              }),
+            }
+          );
 
           if (!response.ok) {
             const error = await response.json();

@@ -110,10 +110,13 @@ const Summary: React.FC<SummaryProps> = ({
       }
       console.log("FormData content:", Array.from(formData.entries()));
 
-      const response = await fetch("http://localhost:3000/upload-multiple", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "${process.env.VITE_API_BASE_URL}/upload-multiple",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();

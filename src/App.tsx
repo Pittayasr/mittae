@@ -1,6 +1,8 @@
 //App.tsx
 import { useState, useEffect } from "react";
 import { Button } from "react-bootstrap";
+import { AuthProvider } from "./component/authContext";
+import useAuth from "./component/useAuth";
 import {
   BrowserRouter as Router,
   Routes,
@@ -19,6 +21,12 @@ import DeliveryAdmin from "./component/deliveryAdmin";
 import "./App.css";
 import SelectFormModal from "./component/selectFromModal";
 import SelectAdminFormModal from "./component/selelctAdminFormModal";
+import LoginAdmin from "./component/loginAdmin";
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isLoggedIn } = useAuth();
+  return isLoggedIn ? <>{children}</> : <Navigate to="/login" />;
+};
 
 function App() {
   const [showPDPA, setShowPDPA] = useState(false);
@@ -151,17 +159,7 @@ function App() {
       )}
 
       <Routes>
-        <Route path="/form" element={<FormComponent />} />
-        <Route path="/print" element={<Print />} />
-        <Route path="/delivery" element={<Delivery />} />
-        <Route path="/form_admin_hc{SlU(.'rhA" element={<FormAdmin />} />
-        <Route path="/print_admin_XTc}KPf]=Z@J" element={<PrintAdmin />} />
-        <Route
-          path="/delivery_admin_2[sru)x3X[SD"
-          element={<DeliveryAdmin />}
-        />
-
-        {/* Default route */}
+        {/* เส้นทางของผู้ใช้ทั่วไป */}
         <Route
           path="/"
           element={
@@ -174,17 +172,54 @@ function App() {
             />
           }
         />
+        <Route path="/form" element={<FormComponent />} />
+        <Route path="/print" element={<Print />} />
+        <Route path="/delivery" element={<Delivery />} />
+
+        {/* เส้นทางเข้าสู่ระบบสำหรับแอดมิน */}
+        <Route path="/login" element={<LoginAdmin />} />
+
+        {/* เส้นทางแอดมินที่ต้องการการล็อกอิน */}
         <Route
           path="/admin_select"
           element={
-            <SelectAdminFormModal
-              isVisible={showSelectFormModal}
-              onClose={() => setShowSelectFormModal(false)}
-              onNavigateToFormAdmin={handleNavigateToFormAdmin}
-              onNavigateToPrintAdmin={handleNavigateToPrintAdmin}
-            />
+            <ProtectedRoute>
+              <SelectAdminFormModal
+                isVisible={true}
+                onClose={() => {}}
+                onNavigateToFormAdmin={handleNavigateToFormAdmin}
+                onNavigateToPrintAdmin={handleNavigateToPrintAdmin}
+              />
+            </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/form_admin_hc{SlU(.'rhA"
+          element={
+            <ProtectedRoute>
+              <FormAdmin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/print_admin_XTc}KPf]=Z@J"
+          element={
+            <ProtectedRoute>
+              <PrintAdmin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/delivery_admin_2[sru)x3X[SD"
+          element={
+            <ProtectedRoute>
+              <DeliveryAdmin />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* เส้นทางที่ไม่รู้จัก */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </div>
@@ -193,9 +228,11 @@ function App() {
 
 function AppWrapper() {
   return (
-    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <App />
-    </Router>
+    <AuthProvider>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <App />
+      </Router>
+    </AuthProvider>
   );
 }
 

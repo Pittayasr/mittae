@@ -1,0 +1,45 @@
+# .htaccess
+# เปิดการใช้ Rewrite Engine
+RewriteEngine On
+
+# บังคับ Redirect ไปยัง HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# บังคับใช้ www (ถ้าต้องการ)
+# RewriteCond %{HTTP_HOST} !^www\.
+# RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Proxy ไปยัง Backend (Node.js) เฉพาะ API requests
+RewriteCond %{REQUEST_URI} ^/(.*)$
+RewriteRule ^/(.*)$ http://127.0.0.1:3000/$1 [P,L]
+
+# Redirect ไปยัง index.html สำหรับ React (Single Page Application)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
+
+# บล็อกการเข้าถึงไฟล์สำคัญ
+<FilesMatch "^.*\.(env|json|config|ini|log|sh|bashrc|htaccess|htpasswd)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# อนุญาต CORS (ถ้าจำเป็น)
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS, DELETE, PUT"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+</IfModule>
+
+# กำหนด Cache-Control Headers เพื่อปรับปรุง Performance
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/html "access plus 1 month"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+</IfModule>

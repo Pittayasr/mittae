@@ -82,7 +82,7 @@ const Print: React.FC = () => {
         formData.append("printFile", selectedPrintFile);
       }
 
-      const response = await fetch("http://localhost:3000/upload", {
+      const response = await fetch("${process.env.VITE_API_BASE_URL}/upload", {
         method: "POST",
         body: formData,
       });
