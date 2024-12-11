@@ -7,8 +7,8 @@ RewriteCond %{HTTPS} off
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # บังคับใช้ www (ถ้าต้องการ)
-# RewriteCond %{HTTP_HOST} !^www\.
-# RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+ RewriteCond %{HTTP_HOST} !^www\.
+ RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # Proxy ไปยัง Backend (Node.js) เฉพาะ API requests
 RewriteCond %{REQUEST_URI} ^/(.*)$
