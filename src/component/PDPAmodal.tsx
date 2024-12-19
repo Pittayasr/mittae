@@ -24,11 +24,13 @@ const PDPA_modal: React.FC<PDPA_modalProps> = ({ isVisible, onAgree }) => {
     >
       <Modal.Header className="d-flex justify-content-center">
         <Modal.Title className="text-center text-danger">
-          พระราชบัญญัติคุ้มครองข้อมูลส่วนบุลคล พ.ศ. 2562 (Personal Data
-          Protection Act: PDPA)
+          <h4>
+            พระราชบัญญัติคุ้มครองข้อมูลส่วนบุลคล พ.ศ. 2562 (Personal Data
+            Protection Act: PDPA)
+          </h4>
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body className="mx-4 px-3">
+      <Modal.Body className="mx-2 px-3 modal-body-scroll">
         <p className="text-justify mb-4">
           ตามที่มีการประกาศใช้พระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562
           ข้าพเจ้าในฐานะผู้ให้ข้อมูลได้ตามที่มีการประกาศใช้พระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล
@@ -67,8 +69,8 @@ const PDPA_modal: React.FC<PDPA_modalProps> = ({ isVisible, onAgree }) => {
             label="ข้าพเจ้าได้อนุญาตและยินยอมรับทราบเงื่อนไขทุกประการ"
             checked={isAgreed}
             onChange={handleAgreeChange}
-            style={{ fontSize: "1rem" }}
-            className="custom-checkbox mx-auto"
+            className="custom-checkbox-pdpa px-4"
+            
           />
         </Form>
       </Modal.Body>

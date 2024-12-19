@@ -4,7 +4,7 @@ import UserInfo from "./formComponent/UserInfo";
 import DateSection from "./formComponent/DateSection";
 import VehicleInfo from "./formComponent/VehicleInfo";
 import OwnerInfo from "./formComponent/OwnerInfo";
-import ReadMe from "./formComponent/readME";
+import ReadMe from "./formComponent/formReadME";
 import { Form, Row, Col, Button, Alert } from "react-bootstrap";
 import { Dayjs } from "dayjs";
 import { calculateTax } from "../data/calculateTax";
@@ -12,6 +12,7 @@ import dayjs from "dayjs";
 import Summary from "./formComponent/summary";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import FileInput from "./textFillComponent/fileInput";
+import ScrollToTopAndBottomButton from "./ScrollToTopAndBottomButton";
 
 const FormComponent: React.FC = () => {
   const [usernameData, setUsernameData] = useState<string>("");
@@ -254,7 +255,7 @@ const FormComponent: React.FC = () => {
         processingFee: 0, // Placeholder until the calculation is made
       };
 
-      console.log("Car Details:", carDetails);
+      // console.log("Car Details:", carDetails);
       const {
         finalTotal,
         finalPrb,
@@ -298,25 +299,25 @@ const FormComponent: React.FC = () => {
 
   const handleConfirm = () => {
     // ส่งข้อมูลไปยังเซิร์ฟเวอร์หรือดำเนินการที่คุณต้องการ
-    console.log("ข้อมูลที่ถูกส่ง:", {
-      ownerData,
-      usernameData,
-      selectedProvinceName,
-      engineSize,
-      contactNumber,
-      registrationNumber,
-      registrationDate,
-      expirationDate,
-      latestTaxPaymentDate,
-      bikeTypeOrDoorCount,
-      selectedCarType,
-      totalCost,
-    });
+    // console.log("ข้อมูลที่ถูกส่ง:", {
+    //   ownerData,
+    //   usernameData,
+    //   selectedProvinceName,
+    //   engineSize,
+    //   contactNumber,
+    //   registrationNumber,
+    //   registrationDate,
+    //   expirationDate,
+    //   latestTaxPaymentDate,
+    //   bikeTypeOrDoorCount,
+    //   selectedCarType,
+    //   totalCost,
+    // });
     // ถ้าต้องการให้ผู้ใช้ได้รับข้อมูลหรือเปลี่ยนหน้าหลังจากส่งข้อมูล
   };
 
   return (
-    <div className="form-container mx-auto">
+    <div className="form-container mx-auto ">
       {showReadME ? (
         <ReadMe onAgree={handleNextPage} />
       ) : showForm ? (
@@ -484,6 +485,7 @@ const FormComponent: React.FC = () => {
           />
         )
       )}
+      <ScrollToTopAndBottomButton />
     </div>
   );
 };

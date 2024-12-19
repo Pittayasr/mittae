@@ -37,9 +37,9 @@ const DateSection: React.FC<DateSectionProps> = ({
     <Row>
       {/* วันที่จดทะเบียน */}
       <Col className="date-idNo-carType-Input mb-4" md={4} xs={6}>
-        <div className="d-flex justify-content-between align-items-center mb-1">
-          <span>วันที่จดทะเบียน</span>
-          <ImageModal
+        <div className="responsive-label d-flex justify-content-between align-items-center mb-1">
+          <span className=" mb-1">วันที่จดทะเบียน</span>
+          <ImageModal 
             imageUrl="/src/data/registerDate.png"
             buttonText="ดูรูปตัวอย่าง"
           />
@@ -56,8 +56,8 @@ const DateSection: React.FC<DateSectionProps> = ({
 
       {/* วันสิ้นอายุ */}
       <Col className="date-idNo-carType-Input mb-4" md={4} xs={6}>
-        <div className="d-flex justify-content-between align-items-center mb-1">
-          <span>วันสิ้นอายุ</span>
+        <div className="responsive-label d-flex justify-content-between align-items-center mb-1">
+          <span className="mb-1">วันสิ้นอายุ</span>
           <ImageModal
             imageUrl="/src/data/endDate.png"
             buttonText="ดูรูปตัวอย่าง"
@@ -74,10 +74,11 @@ const DateSection: React.FC<DateSectionProps> = ({
 
       {/* วันต่อภาษีล่าสุด */}
       <Col className="date-idNo-carType-Input mb-4" md={4} xs={12}>
-        <div className="d-flex justify-content-between align-items-center mb-1">
-          <span>วันต่อภาษีล่าสุด</span>
+        <div className="responsive-label d-flex justify-content-between align-items-center " style={{paddingBottom: "10px"}}>
+          <span className="mb-0">วันต่อภาษีล่าสุด</span>
         </div>
         <DateInput
+        
           onDateChange={(date) => handleDateChange(date, "latestTaxPayment")}
           labelText=""
           value={latestTaxPaymentDate} // Directly use latestTaxPaymentDate as Dayjs

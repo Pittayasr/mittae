@@ -9,6 +9,7 @@ import FileInput from "./textFillComponent/fileInput";
 
 import { Form, Row, Col, Button, Alert } from "react-bootstrap";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import ScrollToTopAndBottomButton from "./ScrollToTopAndBottomButton";
 
 //delivery.tsx
 const Delivery: React.FC = () => {
@@ -127,7 +128,7 @@ const Delivery: React.FC = () => {
         selectedFile &&
         // soiSender &&
         houseNoSender &&
-        villageNoSender &&
+        // villageNoSender &&
         // dormitorySender &&
         subDistrictSender &&
         districtSender &&
@@ -145,7 +146,7 @@ const Delivery: React.FC = () => {
           contactNumReceiver &&
           houseNoReceiver &&
           // soiReceiver &&
-          villageNoReceiver &&
+          // villageNoReceiver &&
           // dormitoryReceiver &&
           subDistrictReceiver &&
           districtReceiver &&
@@ -465,19 +466,6 @@ const Delivery: React.FC = () => {
 
             <hr className="my-4" />
             <footer>
-              <Row className="mb-2 ">
-                <Col className="mb-2 form-button-container">
-                  <Button
-                    className="form-button"
-                    type="submit"
-                    variant="success"
-                    onClick={handleGoToReceiver}
-                    disabled={!isFormSenderValid}
-                  >
-                    ถัดไป
-                  </Button>
-                </Col>
-              </Row>
               {!isFormSenderValid && (
                 <Alert
                   variant="success"
@@ -487,6 +475,19 @@ const Delivery: React.FC = () => {
                   <span>กรุณากรอกข้อมูลและรูปภาพให้ครบถ้วนและถูกต้อง</span>
                 </Alert>
               )}
+              <Row className="mb-2 ">
+                <Col className="mb-2 d-flex justify-content-center">
+                  <Button
+                    className="w-50"
+                    type="submit"
+                    variant="success"
+                    onClick={handleGoToReceiver}
+                    disabled={!isFormSenderValid}
+                  >
+                    ถัดไป
+                  </Button>
+                </Col>
+              </Row>
             </footer>
           </>
         ) : showReceiver ? (
@@ -609,6 +610,15 @@ const Delivery: React.FC = () => {
 
             <hr className="my-4" />
             <footer>
+              {!isFormReceiverValid && (
+                <Alert
+                  variant="success"
+                  className="d-flex align-items-center mb-4"
+                >
+                  <i className="fas fa-exclamation-triangle me-2"></i>
+                  <span>กรุณากรอกข้อมูลและรูปภาพให้ครบถ้วนและถูกต้อง</span>
+                </Alert>
+              )}
               <Row className="mb-2 ">
                 <Col className="mb-2 form-button-container">
                   <Button
@@ -630,15 +640,6 @@ const Delivery: React.FC = () => {
                   </Button>
                 </Col>
               </Row>
-              {!isFormReceiverValid && (
-                <Alert
-                  variant="success"
-                  className="d-flex align-items-center mb-4"
-                >
-                  <i className="fas fa-exclamation-triangle me-2"></i>
-                  <span>กรุณากรอกข้อมูลและรูปภาพให้ครบถ้วนและถูกต้อง</span>
-                </Alert>
-              )}
             </footer>
           </>
         ) : (
@@ -689,6 +690,7 @@ const Delivery: React.FC = () => {
           </>
         )}
       </Form>
+      <ScrollToTopAndBottomButton />
     </div>
   );
 };

@@ -21,11 +21,16 @@ const UPLOADS_DIR = process.env.UPLOADS_DIRECTORY || "uploads";
 // เปิดใช้งาน CORS
 app.use(
   cors({
-    origin: "https://www.mittaemaefahlung88.com",
+    origin: [
+      "https://www.mittaemaefahlung88.com",
+      "https://api.mittaemaefahlung88.com",
+      "http://localhost:3000/",
+      "http://localhost:5173",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type"],
   })
 );
-app.use(express.json());
 
 // server.ts
 const storage = multer.diskStorage({
@@ -36,6 +41,8 @@ const storage = multer.diskStorage({
       folderPath = path.join(UPLOADS_DIR, "forms", "registrationBook");
     } else if (file.fieldname === "licensePlateFile") {
       folderPath = path.join(UPLOADS_DIR, "forms", "licensePlate");
+    } else if (file.fieldname === "formSlipQRcode") {
+      folderPath = path.join(UPLOADS_DIR, "forms", "formSlipQRcode");
     } else if (file.fieldname === "passportOrIDnumberFile") {
       folderPath = path.join(UPLOADS_DIR, "deliveries", "passportOrIDnumber");
     } else if (file.fieldname === "registrationBookFileDelivery") {
@@ -56,8 +63,9 @@ const storage = multer.diskStorage({
       ["image/jpeg", "image/png"].includes(file.mimetype)
     ) {
       folderPath = path.join(UPLOADS_DIR, "prints", "photo");
+    } else if (file.fieldname === "printSlipQRcode") {
+      folderPath = path.join(UPLOADS_DIR, "prints", "printSlipQRcode");
     }
-
     // ตรวจสอบและสร้างโฟลเดอร์หากยังไม่มี
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
@@ -93,11 +101,13 @@ const ensureDirectoriesExist = () => {
     path.join(UPLOADS_DIR, "forms"),
     path.join(UPLOADS_DIR, "forms", "registrationBook"),
     path.join(UPLOADS_DIR, "forms", "licensePlate"),
+    path.join(UPLOADS_DIR, "forms", "formSlipQRcode"),
     path.join(UPLOADS_DIR, "deliveries", "passportOrIDnumber"),
     path.join(UPLOADS_DIR, "deliveries", "registrationBookDelivery"),
     path.join(UPLOADS_DIR, "deliveries", "licenseDelivery"),
     path.join(UPLOADS_DIR, "prints", "pdf"),
     path.join(UPLOADS_DIR, "prints", "photo"),
+    path.join(UPLOADS_DIR, "prints", "printSlipQRcode"),
   ];
 
   directories.forEach((dir) => {
@@ -137,73 +147,92 @@ app.delete("/delete-file", (req, res) => {
   }
 });
 
-// Endpoint สำหรับอัปโหลดไฟล์
-app.post(
-  "/upload",
-  upload.fields([{ name: "printFile", maxCount: 1 }]),
-  (req, res) => {
-    try {
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-      const printFile = files["printFile"]?.[0];
-
-      if (!printFile) {
-        return res.status(400).json({ error: "No file uploaded" });
-      }
-
-      const filePath = `${req.protocol}://${req.get("host")}/uploads/${
-        printFile.mimetype === "application/pdf" ? "prints/pdf" : "prints/photo"
-      }/${printFile.filename}`;
-
-      console.log(
-        `File uploaded successfully: ${printFile.originalname}, accessible at: ${filePath}`
-      );
-
-      res.status(200).json({
-        printFile: {
-          filePath: filePath,
-          storedFileName: printFile.filename,
-        },
-      });
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      res.status(500).json({ error: "Failed to upload file" });
-    }
-  }
-);
-
 // เพิ่ม endpoint สำหรับการอัปโหลดหลายไฟล์
 app.post(
   "/upload-multiple",
   upload.fields([
+    { name: "printFile", maxCount: 1 },
+    { name: "printSlipQRcode", maxCount: 1 },
     { name: "passportOrIDnumberFile", maxCount: 1 },
     { name: "registrationBookFileDelivery", maxCount: 1 },
     { name: "licenseFileDelivery", maxCount: 1 },
     { name: "registrationBookFile", maxCount: 1 },
     { name: "licensePlateFile", maxCount: 1 },
+    { name: "formSlipQRcode", maxCount: 1 },
   ]),
   (req, res) => {
+    console.log("Request files:", req.files);
+    console.log("Request body:", req.body);
     try {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-      // ตรวจสอบไฟล์ที่อัปโหลด
+      // Group: Print
+      const printFile = files["printFile"]?.[0];
+      const printSlipQRcode = files["printSlipQRcode"]?.[0];
+
+      // Group: Form
+      const registrationBookFile = files["registrationBookFile"]?.[0];
+      const licensePlateFile = files["licensePlateFile"]?.[0];
+      const formSlipQRcode = files["formSlipQRcode"]?.[0];
+
+      // Group: Delivery
       const passportOrIDnumberFile = files["passportOrIDnumberFile"]?.[0];
       const registrationBookFileDelivery =
         files["registrationBookFileDelivery"]?.[0];
       const licenseFileDelivery = files["licenseFileDelivery"]?.[0];
-      const registrationBookFile = files["registrationBookFile"]?.[0];
-      const licensePlateFile = files["licensePlateFile"]?.[0];
 
-      if (
-        !passportOrIDnumberFile &&
-        !registrationBookFile &&
-        !licensePlateFile
-      ) {
+      // Check if print group files are uploaded together
+      if ((printFile || printSlipQRcode) && (!printFile || !printSlipQRcode)) {
         return res.status(400).json({
-          error: "At least one required file must be uploaded.",
+          error:
+            "Both printFile and printSlipQRcode must be uploaded together.",
         });
       }
 
-      // สร้างเส้นทางไฟล์
+      // Check if form group files are uploaded together
+      if (
+        (registrationBookFile || licensePlateFile || formSlipQRcode) &&
+        (!registrationBookFile || !licensePlateFile || !formSlipQRcode)
+      ) {
+        return res.status(400).json({
+          error:
+            "registrationBookFile, licensePlateFile, and formSlipQRcode must be uploaded together.",
+        });
+      }
+
+      // Generate file paths
+      const printFilePath = printFile
+        ? `${req.protocol}://${req.get("host")}/uploads/${
+            printFile.mimetype === "application/pdf"
+              ? "prints/pdf"
+              : "prints/photo"
+          }/${printFile.filename}`
+        : null;
+
+      const printSlipQRcodePath = printSlipQRcode
+        ? `${req.protocol}://${req.get(
+            "host"
+          )}/uploads/prints/printSlipQRcode/${printSlipQRcode.filename}`
+        : null;
+
+      const registrationBookFilePath = registrationBookFile
+        ? `${req.protocol}://${req.get(
+            "host"
+          )}/uploads/forms/registrationBook/${registrationBookFile.filename}`
+        : null;
+
+      const licensePlateFilePath = licensePlateFile
+        ? `${req.protocol}://${req.get("host")}/uploads/forms/licensePlate/${
+            licensePlateFile.filename
+          }`
+        : null;
+
+      const formSlipQRcodePath = formSlipQRcode
+        ? `${req.protocol}://${req.get("host")}/uploads/forms/formSlipQRcode/${
+            formSlipQRcode.filename
+          }`
+        : null;
+
       const passportOrIDnumberFilePath = passportOrIDnumberFile
         ? `${req.protocol}://${req.get(
             "host"
@@ -226,20 +255,39 @@ app.post(
           )}/uploads/deliveries/licenseDelivery/${licenseFileDelivery.filename}`
         : null;
 
-      const registrationBookFilePath = registrationBookFile
-        ? `${req.protocol}://${req.get(
-            "host"
-          )}/uploads/forms/registrationBook/${registrationBookFile.filename}`
-        : null;
-
-      const licensePlateFilePath = licensePlateFile
-        ? `${req.protocol}://${req.get("host")}/uploads/forms/licensePlate/${
-            licensePlateFile.filename
-          }`
-        : null;
-
-      // สร้าง response
+      // Response object
       const response = {
+        print: {
+          printFile: printFile
+            ? { filePath: printFilePath, storedFileName: printFile.filename }
+            : null,
+          printSlipQRcode: printSlipQRcode
+            ? {
+                filePath: printSlipQRcodePath,
+                storedFileName: printSlipQRcode.filename,
+              }
+            : null,
+        },
+        form: {
+          registrationBookFile: registrationBookFile
+            ? {
+                filePath: registrationBookFilePath,
+                storedFileName: registrationBookFile.filename,
+              }
+            : null,
+          licensePlateFile: licensePlateFile
+            ? {
+                filePath: licensePlateFilePath,
+                storedFileName: licensePlateFile.filename,
+              }
+            : null,
+          formSlipQRcode: formSlipQRcode
+            ? {
+                filePath: formSlipQRcodePath,
+                storedFileName: formSlipQRcode.filename,
+              }
+            : null,
+        },
         passportOrIDnumberFile: passportOrIDnumberFile
           ? {
               filePath: passportOrIDnumberFilePath,
@@ -256,18 +304,6 @@ app.post(
           ? {
               filePath: licenseFileDeliveryPath,
               storedFileName: licenseFileDelivery.filename,
-            }
-          : null,
-        registrationBookFile: registrationBookFile
-          ? {
-              filePath: registrationBookFilePath,
-              storedFileName: registrationBookFile.filename,
-            }
-          : null,
-        licensePlateFile: licensePlateFile
-          ? {
-              filePath: licensePlateFilePath,
-              storedFileName: licensePlateFile.filename,
             }
           : null,
       };

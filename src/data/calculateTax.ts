@@ -64,7 +64,7 @@ export const calculateTax = (
     car.isTwoDoor // ตรวจสอบว่ารถมีเกิน 7 ที่นั่งหรือไม่ (ต้องเพิ่มพรอพเพอร์ตี้นี้ใน CarDetails)
       ? 975 // ถ้าเป็นรถ 2 ประตู หรือเข้าเงื่อนไขอื่นๆ ที่ระบุ
       : 675; // ถ้าไม่ใช่ 2 ประตูและไม่เข้าเงื่อนไขอื่น
-  console.log("ค่าพรบ.รถยนต์   =", basePrbCar);
+  // // console.log("ค่าพรบ.รถยนต์   =", basePrbCar);
 
   // ภาษีตามCCของรถจักรยานยนต์
   const basePrbMotorcycle = car.isMotorcycle
@@ -76,14 +76,14 @@ export const calculateTax = (
       ? 350
       : 211
     : 0;
-  console.log("CC ของจักรยานยนต์:", car.cc);
-  console.log("ค่าพรบ.รถจักรยานยนต์ที่คำนวณ:", basePrbMotorcycle);
+  // // console.log("CC ของจักรยานยนต์:", car.cc);
+  // // console.log("ค่าพรบ.รถจักรยานยนต์ที่คำนวณ:", basePrbMotorcycle);
 
   // พรบ.ประจำปีตามชนิดรถ
   const finalPrb = car.isMotorcycle ? basePrbMotorcycle : basePrbCar;
-  console.log("ค่าพรบ.สุทธิ =", finalPrb);
+  // // console.log("ค่าพรบ.สุทธิ =", finalPrb);
 
-  console.log("ค่าCC =", car.cc);
+  // // console.log("ค่าCC =", car.cc);
 
   // ภาษีตามCCของรถยนต์
   const taxCarCC =
@@ -93,7 +93,7 @@ export const calculateTax = (
       ? car.cc * 0.015
       : car.cc * 0.005;
 
-  console.log("ค่าCCก่อนคำนวณ =", taxCarCC);
+  // // console.log("ค่าCCก่อนคำนวณ =", taxCarCC);
 
   const totalTaxCarCC =
     car.cc > 1800
@@ -102,7 +102,7 @@ export const calculateTax = (
       ? taxCarCC + car.cc - 600
       : taxCarCC + car.cc;
 
-  console.log("ค่าภาษีตามน้ำหนักรถยนต์ =", totalTaxCarCC);
+  // console.log("ค่าภาษีตามน้ำหนักรถยนต์ =", totalTaxCarCC);
 
   // ภาษีตามCCของรถจักรยานยนต์
   const taxMotorcycleCC = car.isMotorcycle
@@ -110,7 +110,7 @@ export const calculateTax = (
       ? 50
       : 100
     : 0;
-  console.log("ค่าภาษีตามน้ำหนักรถจักรยานยนต์ =", taxMotorcycleCC);
+  // console.log("ค่าภาษีตามน้ำหนักรถจักรยานยนต์ =", taxMotorcycleCC);
 
   // คำนวณภาษีตามน้ำหนัก
   const calculateTaxByCarWeight = (weight: number): number => {
@@ -133,7 +133,7 @@ export const calculateTax = (
   };
   // นำไปใช้ในโค้ดหลัก
   const taxCarWeight = calculateTaxByCarWeight(car.weight);
-  console.log("ค่าภาษีตามน้ำหนัก =", taxCarWeight);
+  // console.log("ค่าภาษีตามน้ำหนัก =", taxCarWeight);
 
   // ภาษีตามชนิดรถ
   const finalTax = car.isMotorcycle
@@ -153,7 +153,7 @@ export const calculateTax = (
     ? 100 // ถ้าเป็นรถจักรยานยนต์พ่วง ใช้ภาษีคงที่ 100
     : 50; // ค่าเริ่มต้นถ้าไม่เข้าเงื่อนไขอื่นๆ
 
-  console.log("ค่าภาษีสุทธิ =", finalTax);
+  // console.log("ค่าภาษีสุทธิ =", finalTax);
 
   const inspectionFee = car.isMotorcycle
     ? 100
@@ -161,10 +161,10 @@ export const calculateTax = (
     ? 900 // 400 (ตรวจสภาพ) + 500 (ค่าตรวจแก๊ส)
     : 400; // ค่าตรวจสภาพ
   const processingFee = car.isMotorcycle ? 300 : 400; // ค่าบริการ
-  console.log("ค่าตรวจสภาพ =", inspectionFee);
-  console.log("ค่าดำเนินการ =", processingFee);
+  // console.log("ค่าตรวจสภาพ =", inspectionFee);
+  // console.log("ค่าดำเนินการ =", processingFee);
 
-  console.log("อายุรถ =", car.age);
+  // console.log("อายุรถ =", car.age);
 
   // ค่าปรับสำหรับการล่าช้า
   let lateFee = 0;
@@ -174,13 +174,13 @@ export const calculateTax = (
         ? dayjs(car.lastTaxDate).diff(dayjs(car.expiryDate), "month")
         : 0; // คำนวณเดือนที่ล่าช้า
     lateFee += monthsLate; // ค่าปรับ 1 บาทต่อเดือน
-    console.log("ค่าปรับคิดตามเดือน =", lateFee);
+    // console.log("ค่าปรับคิดตามเดือน =", lateFee);
 
     if (monthsLate >= 12 && monthsLate <= 23) {
       lateFee += finalTax * 0.2;
-      console.log("ค่าปรับคิดตามเดือนแรก =", lateFee); // ปีแรกเพิ่ม 20%
+      // console.log("ค่าปรับคิดตามเดือนแรก =", lateFee); // ปีแรกเพิ่ม 20%
     } else if (monthsLate >= 24 && monthsLate <= 36) {
-      console.log("ค่าปรับคิดตามสอง =", lateFee);
+      // console.log("ค่าปรับคิดตามสอง =", lateFee);
       lateFee += finalTax * 0.4; // ปีที่สองเพิ่ม 40%
     } else if (monthsLate > 36) {
       lateFee = lateFee + finalTax * 0.4 + 300; // ค่าปรับส่งมอบแผ่นป้ายล่าช้า
@@ -189,12 +189,12 @@ export const calculateTax = (
       const registrationFeeRates = car.isMotorcycle
         ? { chiangRai: 1500, other: 2500 }
         : { chiangRai: 2500, other: 3500 };
-      console.log("ค้าจดทะเบียนใหม่ = ", registrationFeeRates);
+      // console.log("ค้าจดทะเบียนใหม่ = ", registrationFeeRates);
 
       lateFee += car.isInChiangRai
         ? registrationFeeRates.chiangRai
         : registrationFeeRates.other;
-      console.log("ค้าปรับล่าช้าเมื่อคิดตามจังหวัด = ", lateFee);
+      // console.log("ค้าปรับล่าช้าเมื่อคิดตามจังหวัด = ", lateFee);
     }
   }
 
@@ -203,29 +203,29 @@ export const calculateTax = (
     isMoreThanThreeYears(dayjs(car.lastTaxDate), dayjs(car.expiryDate))
       ? 0
       : lateFee;
-  console.log("ค่าปรับล่าช้า = ", lateFee);
+  // console.log("ค่าปรับล่าช้า = ", lateFee);
 
   // ส่วนลดจะเพิ่ม 10% ต่อปีตั้งแต่อายุ 6 ปีขึ้นไป และจำกัดส่วนลดที่ 50%
   const discount = car.age >= 10 ? 0.5 : car.age >= 6 ? (car.age - 5) * 0.1 : 0;
 
   // คำนวณผลรวม
-  console.log(
-    "ค่าพรบ.สุทธิ: ",
-    finalPrb,
-    "+ ค่าภาษีสุทธิ: ",
-    finalTax,
-    "+ ค่าปรับล่าช้า: ",
-    lateFee,
-    "+ ค่าตรวจสภาพ: ",
-    inspectionFee,
-    "+ ค่าดำเนินการ: ",
-    processingFee
-  );
+  // console.log(
+  //   "ค่าพรบ.สุทธิ: ",
+  //   finalPrb,
+  //   "+ ค่าภาษีสุทธิ: ",
+  //   finalTax,
+  //   "+ ค่าปรับล่าช้า: ",
+  //   lateFee,
+  //   "+ ค่าตรวจสภาพ: ",
+  //   inspectionFee,
+  //   "+ ค่าดำเนินการ: ",
+  //   processingFee
+  // );
   const total = finalPrb + finalTax + lateFee + inspectionFee + processingFee;
 
   // Return ค่าที่คำนวณ
   const finalTotal = total * (1 - discount);
-  console.log("คำนวณทั้งหมด = ", finalTotal);
+  // console.log("คำนวณทั้งหมด = ", finalTotal);
 
   return {
     finalTotal: Math.max(finalTotal, 0), // Ensure the total is not negative

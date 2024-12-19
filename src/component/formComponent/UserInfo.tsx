@@ -78,7 +78,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
       </Col>
 
       {/* จังหวัด */}
-      <Col className="mb-4" md={4} xs={6}>
+      <Col className="mb-4" md={4} xs={12}>
         <TextSelect
           value={selectedProvince || ""}
           label="จังหวัด"
@@ -98,7 +98,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
       </Col>
 
       {/* ประเภทรถ */}
-      <Col className="mb-4" md={4} xs={6}>
+      <Col className="mb-4" md={4} xs={12}>
         <TextSelect
           value={selectedCarType || ""}
           label="ประเภทรถ"
@@ -123,6 +123,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
           required
           isInvalid={isInvalid}
           alertText="กรุณาเลือกจังหวัด"
+          
         />
       </Col>
     </Row>

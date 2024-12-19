@@ -38,8 +38,11 @@ const TextInput: React.FC<TextInputProps> = ({
 }) => {
   return (
     <Form.Group controlId={id}>
-      <Form.Label>{label}</Form.Label>
+      <Form.Label>
+        <p className="mb-0">{label}</p>
+      </Form.Label>
       <Form.Control
+        className={isInvalid ? "" : "custom-input"}
         type={type}
         required={required}
         value={value}

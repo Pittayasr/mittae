@@ -1,91 +1,150 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, ReactNode } from "react";
 import { calculatePrice } from "../data/calculatePrint";
-import { Col, Row, Form, Button, Alert, Modal, Spinner } from "react-bootstrap";
+import {
+  Col,
+  Row,
+  Form,
+  Button,
+  Alert,
+  Modal,
+  Spinner,
+  Image,
+} from "react-bootstrap";
 import TextInput from "./textFillComponent/textInput";
 import TextSelect from "./textFillComponent/textSelect";
 import FileInput from "./textFillComponent/fileInput";
 import AlertModal from "./textFillComponent/alertModal";
+import QRCodeImage from "../data/QRcodeClean.png";
 import { db } from "../../firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
+import { FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
+import { VscError } from "react-icons/vsc";
+import ScrollToTopAndBottomButton from "./ScrollToTopAndBottomButton";
 
 // print.tsx
 const Print: React.FC = () => {
+  const [currentPage, setCurrentPage] = useState("form");
   const [selectTypePrint, setSelectTypePrint] = useState<string | null>(null);
   const [pagePrint, setPagePrint] = useState<number>(0); // Page count as string
   const [copiesSetPrint, setCopiesSetPrint] = useState<string>(""); // Copies count as string
   const [selectedPrintFile, setSelectedPrintFile] = useState<File | null>(null); // Selected file
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [totalCost, setTotalCost] = useState<number>(0);
   const [textColorPercentage, setTextColorPercentage] = useState<number | null>(
     null
   );
+  const [selectedSlipQRcodeFile, setSelectedSlipQRcodeFile] =
+    useState<File | null>(null);
 
   const [isCalculating, setIsCalculating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
+  const [modalMessage, setModalMessage] = useState<ReactNode>(null);
   const [success, setSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [isInvalid, setIsInvalid] = useState(false);
 
-  useEffect(() => {
-    // เมื่อ `showModal` เป็น false เราจะปิด Modal จริงๆ
-    if (totalPrice > 0 && !showModal) {
-      setModalMessage(
-        `รวมค่าใช้จ่าย: ${totalPrice} บาท \n\nคุณต้องการยืนยันว่าข้อมูลทั้งหมดถูกต้องใช่ไหม?`
-      );
+  const [resetFileInput, setResetFileInput] = useState(false);
+  const [keepSettings, setKeepSettings] = useState(false);
 
-      setShowModal(true);
+  const [lastCalculated, setLastCalculated] = useState({
+    selectTypePrint: "",
+    copiesSetPrint: "",
+    fileName: "",
+  });
+
+  const resetForm = () => {
+    if (!keepSettings) {
+      setCopiesSetPrint("");
+      setSelectTypePrint(null);
     }
-  }, [totalPrice, textColorPercentage, showModal]);
-  // Helper function to check if a value is a valid number
+
+    setPagePrint(0);
+    setSelectedPrintFile(null);
+    setIsSubmitted(false);
+    setTotalCost(0);
+    setTextColorPercentage(null);
+    setSelectedSlipQRcodeFile(null);
+    setTimeout(() => setResetFileInput(false), 0);
+  };
+
+  // useEffect(() => {
+  //   // เมื่อ showModal เป็น false เราจะปิด Modal จริงๆ
+  //   if (totalCost > 0 && !showModal) {
+  //     setModalMessage(
+  //       <div className="d-flex flex-column align-items-center text-center">
+  //         <FaExclamationTriangle className="text-warning my-3" size={50} />
+  //         <p className="px-2">
+  //           คุณต้องการยืนยันว่า
+  //           <br />
+  //           ข้อมูลทั้งหมดถูกต้องใช่ไหม?
+  //         </p>
+  //       </div>
+  //     );
+
+  //     // setShowModal(true);
+  //   }
+  // }, [totalCost, textColorPercentage, showModal]);
+  // // Helper function to check if a value is a valid number
+
   const isValidNumber = (value: string) => {
     const parsedValue = parseInt(value, 10);
     return !isNaN(parsedValue) && parsedValue > 0;
   };
 
-  const handleConfirm = async () => {
-    if (
-      !selectTypePrint ||
-      !isValidNumber(copiesSetPrint) ||
-      !selectedPrintFile
-    ) {
-      setIsSubmitted(true);
+  const handleOpenModal = () => {
+    if (!selectedSlipQRcodeFile) {
+      setIsInvalid(true);
       return;
     }
-    setIsCalculating(true);
 
-    try {
-      const { totalPrice, pageCount } = await calculatePrice(
-        selectTypePrint,
-        copiesSetPrint,
-        selectedPrintFile
-      );
-      setTotalPrice(totalPrice);
-      setPagePrint(pageCount);
-    } catch (error) {
-      console.error("Error during submission: ", error);
-      setModalMessage("การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง");
-      setSuccess(false);
-      setShowModal(true);
-    } finally {
-      setIsCalculating(false);
-    }
+    setModalMessage(
+      <div className="d-flex flex-column align-items-center text-center">
+        <FaExclamationTriangle className="text-warning my-3" size={50} />
+        <p className="px-2">
+          คุณต้องการยืนยันว่า
+          <br />
+          ข้อมูลทั้งหมดถูกต้องใช่ไหม?
+        </p>
+      </div>
+    );
+
+    setIsError(false);
+    setShowModal(true);
+  };
+
+  const downloadQRCode = () => {
+    const link = document.createElement("a");
+    link.href = QRCodeImage; // URL ของรูปภาพ QR Code
+    link.download = "QRCode.png"; // ชื่อไฟล์ที่จะดาวน์โหลด
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // ฟังก์ชันสำหรับยืนยันการส่งข้อมูล
   const handleSubmitData = async () => {
+    setIsSubmitting(true);
     try {
       // อัปโหลดไฟล์ไปที่เซิร์ฟเวอร์
       const formData = new FormData();
       if (selectedPrintFile) {
         formData.append("printFile", selectedPrintFile);
       }
+      if (selectedSlipQRcodeFile) {
+        formData.append("printSlipQRcode", selectedSlipQRcodeFile);
+      }
 
-      const response = await fetch("${process.env.VITE_API_BASE_URL}/upload", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://api.mittaemaefahlung88.com/upload-multiple",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -95,17 +154,18 @@ const Print: React.FC = () => {
 
       const responseData = await response.json();
 
-      if (!responseData.printFile) {
+      if (
+        !responseData.print ||
+        !responseData.print.printFile ||
+        !responseData.print.printSlipQRcode
+      ) {
         throw new Error("Response data missing required files");
       }
+      const { printFile, printSlipQRcode } = responseData.print;
 
-      const { printFile } = responseData;
+      // console.log("File uploaded successfully:", printFile);
 
-      console.log("File uploaded successfully:", printFile);
-
-      const uploadTime = dayjs()
-        .locale("th")
-        .format("D MMMM YYYY เวลา HH:mm น.");
+      const uploadTime = dayjs().toISOString();
 
       const data = {
         fileName: selectedPrintFile?.name ?? "ยังไม่ได้เลือกไฟล์", // ชื่อไฟล์ต้นฉบับ
@@ -113,38 +173,203 @@ const Print: React.FC = () => {
         numPages: pagePrint, // จำนวนหน้า
         numCopies: parseInt(copiesSetPrint, 10), // จำนวนชุดที่ปริ้น
         colorType: selectTypePrint ?? "ไม่ระบุ", // ประเภทการปริ้น (สี/ขาวดำ)
-        totalPrice, // ราคาทั้งหมด
+        totalCost, // ราคาทั้งหมด
         uploadTime,
-        storedFileName: printFile.storedFileName, // ชื่อไฟล์ที่เซิร์ฟเวอร์จัดเก็บ
-        filePath: printFile.filePath, // URL สำหรับไฟล์ที่เซิร์ฟเวอร์
+        printStoredFileName: printFile.storedFileName, // ชื่อไฟล์ที่เซิร์ฟเวอร์จัดเก็บ
+        printFilePath: printFile.filePath, // URL สำหรับไฟล์ที่เซิร์ฟเวอร์
+        printSlipQRcodeFileName: printSlipQRcode.storedFileName, // ชื่อไฟล์ที่เซิร์ฟเวอร์จัดเก็บ
+        printSlipQRcodeFilePath: printSlipQRcode.filePath, // URL สำหรับไฟล์ที่เซิร์ฟเวอร์
       };
 
       // ส่งข้อมูลไปที่ Firebase
-      const docRef = await addDoc(collection(db, "uploads"), data);
-      console.log("Document written with ID: ", docRef.id);
+      await addDoc(collection(db, "uploads"), data);
+      // console.log("Document written with ID: ", docRef.id);
 
       setModalMessage(
-        `ข้อมูลถูกส่งสำเร็จแล้ว! ✅\nขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป 🙏❤️`
+        <div className="d-flex flex-column align-items-center text-center">
+          <FaCheckCircle className="text-success my-3" size={50} />
+          <p className="px-2">
+            ข้อมูลถูกส่งสำเร็จแล้ว! ✅<br />
+            ขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป 🙏❤️
+          </p>
+        </div>
       );
       setSuccess(true);
     } catch (error) {
       console.error("Error during submission:", error);
-      setModalMessage("การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง");
+
+      setModalMessage(
+        <div className="d-flex flex-column align-items-center text-center">
+          <VscError className="text-danger my-3" size={50} />
+          <p className="px-2">การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง</p>
+        </div>
+      );
+      setIsError(true);
       setSuccess(false);
-      setShowModal(true); // แสดงข้อความผิดพลาด
+      setShowModal(true);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const onBack = () => {
-    console.log("onBack called");
-    setTotalPrice(0);
-    setTextColorPercentage(null);
-    setShowModal(false);
+  // const onBack = () => {
+  //   // console.log("onBack called");
+  //   setTotalCost(0);
+  //   setTextColorPercentage(null);
+  //   setShowModal(false);
+  // };
+
+  const handleNext = async () => {
+    if (
+      !selectTypePrint ||
+      !isValidNumber(copiesSetPrint) ||
+      !selectedPrintFile
+    ) {
+      setIsSubmitted(true);
+      return;
+    }
+
+    if (
+      lastCalculated.selectTypePrint === selectTypePrint &&
+      lastCalculated.copiesSetPrint === copiesSetPrint &&
+      lastCalculated.fileName === selectedPrintFile.name
+    ) {
+      setCurrentPage("summary");
+      return; // ไม่ต้องคำนวณใหม่ ใช้ค่าเดิม
+    }
+
+    setIsCalculating(true);
+    try {
+      const { totalPrice, pageCount } = await calculatePrice(
+        selectTypePrint,
+        copiesSetPrint,
+        selectedPrintFile
+      );
+      setTotalCost(totalPrice);
+      setTextColorPercentage(textColorPercentage);
+      setPagePrint(pageCount);
+
+      setLastCalculated({
+        selectTypePrint: selectTypePrint,
+        copiesSetPrint: copiesSetPrint,
+        fileName: selectedPrintFile.name,
+      });
+    } catch (error) {
+      console.error("Error during submission: ", error);
+      setModalMessage("การคำนวณข้อมูลล้มเหลว กรุณาลองอีกครั้ง");
+      setSuccess(false);
+      setShowModal(true);
+    } finally {
+      setIsCalculating(false);
+      setCurrentPage("summary");
+    }
   };
+
+  const handleBack = () => {
+    setCurrentPage("form");
+    setIsCalculating(false);
+  };
+
+  if (currentPage === "summary") {
+    return (
+      <div className="form-container mx-auto mt-1">
+        <Row>
+          <Col>
+            <h5 className="text-center my-3">
+              🙏⭐ขออนุญาตแจ้งยอดค่าใช้จ่ายรวมทั้งสิ้น: {totalCost} บาทค่ะ
+            </h5>
+
+            <Col className="text-center">
+              <Image
+                src={QRCodeImage}
+                className="rounded mx-auto d-block img-fluid  "
+                alt="QR Code Bank"
+                width="170"
+                height="250"
+                style={{ maxWidth: "100%", height: "auto", maxHeight: "250px" }}
+              />
+              <Button
+                className="text-success my-3 px-0 py-0"
+                variant="link"
+                onClick={downloadQRCode}
+              >
+                บันทึกภาพ QRcode
+              </Button>
+            </Col>
+            <Col>
+              <Col className=" mb-3">
+                <FileInput
+                  label="สลิปชำระเงิน (รองรับ .png, .jpg)"
+                  onFileSelect={(file) => setSelectedSlipQRcodeFile(file)}
+                  accept=".jpg, .png"
+                  isInvalid={isInvalid && !selectedSlipQRcodeFile}
+                  alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้นหรือเลือกไฟล์ใหม่อีกครั้ง"
+                  initialFile={selectedSlipQRcodeFile}
+                />
+              </Col>
+            </Col>
+          </Col>
+        </Row>
+
+        <hr className="mb-4" />
+        <footer className="d-flex justify-content-center mt-4">
+          <Col className="form-button-container" xs="auto">
+            <Button
+              variant="outline-success"
+              onClick={handleBack}
+              className="form-button mx-3"
+            >
+              ย้อนกลับ
+            </Button>
+            <Button
+              variant="success"
+              onClick={handleOpenModal}
+              className="form-button"
+            >
+              ส่ง
+            </Button>
+          </Col>
+        </footer>
+
+        <Modal show={isSubmitting} centered>
+          <Modal.Body className="text-center ">
+            <Spinner
+              animation="border"
+              variant="success"
+              role="status"
+              className="my-3"
+            />
+            <p>กำลังส่งข้อมูล...</p>
+          </Modal.Body>
+        </Modal>
+
+        <AlertModal
+          show={showModal}
+          onBack={() => {
+            // console.log("Cancel clicked, closing modal...");
+            setShowModal(false);
+            // onBack();
+          }}
+          onSuccess={() => {
+            // console.log("Cancel clicked, closing modal...");
+            // window.location.reload();
+            resetForm();
+            setCurrentPage("form");
+            setSuccess(false);
+            setShowModal(false);
+          }}
+          onConfirm={handleSubmitData}
+          message={modalMessage}
+          success={success}
+          isError={isError}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="form-container mx-auto mt-1">
-      <Form onSubmit={handleConfirm}>
+      <Form onSubmit={handleNext}>
         <h2 className="text-center mb-4 text-success">ระบบปริ้นเอกสาร</h2>
 
         {/* Alert */}
@@ -193,7 +418,7 @@ const Print: React.FC = () => {
               placeholder="สี/ขาวดำ"
               value={selectTypePrint || ""}
               onChange={(value) => {
-                console.log("Selected Type Print:", value);
+                // console.log("Selected Type Print:", value);
                 setSelectTypePrint(value);
               }}
               required
@@ -237,7 +462,9 @@ const Print: React.FC = () => {
               onFileSelect={(file) => setSelectedPrintFile(file)}
               accept=".pdf, .jpg, .png"
               isInvalid={isSubmitted && !selectedPrintFile}
-              alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้น"
+              alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้นหรือเลือกไฟล์ใหม่อีกครั้ง"
+              initialFile={selectedPrintFile}
+              reset={resetFileInput}
             />
           </Col>
         </Row>
@@ -245,16 +472,24 @@ const Print: React.FC = () => {
         {/* Display Price */}
         {/* <Row>
           <Col className="text-center">
-            <h4>รวมค่าใช้จ่าย: {totalPrice} บาท</h4>
+            <h4>รวมค่าใช้จ่าย: {totalCost} บาท</h4>
             {<p>เปอร์เซ็นต์ของสีในเอกสาร: {textColorPercentage}%</p>}
           </Col>
         </Row> */}
+        <Form.Check
+          type="checkbox"
+          label="คงการตั้งค่าเดิมไว้"
+          id="checkbox"
+          checked={keepSettings}
+          onChange={(e) => setKeepSettings(e.target.checked)}
+          className="custom-checkbox-pdpa mb-4"
+        />
 
         <hr className="mb-4" />
 
         <footer className="d-flex justify-content-center">
-          <Button variant="success" onClick={handleConfirm} className="w-50">
-            ส่ง
+          <Button variant="success" onClick={handleNext} className="w-50">
+            ถัดไป
           </Button>
         </footer>
 
@@ -270,32 +505,8 @@ const Print: React.FC = () => {
             <p>กำลังประมวลผล...</p>
           </Modal.Body>
         </Modal>
-
-        <AlertModal
-          show={showModal}
-          onBack={() => {
-            console.log("Cancel clicked, closing modal...");
-            setShowModal(false);
-            onBack();
-          }}
-          onSuccess={() => {
-            console.log("Cancel clicked, closing modal...");
-            // window.location.reload();
-            onBack();
-            setShowModal(false);
-          }}
-          onConfirm={
-            success
-              ? () => {
-                  onBack();
-                  setShowModal(false);
-                }
-              : handleSubmitData
-          }
-          message={modalMessage}
-          success={success}
-        />
       </Form>
+      <ScrollToTopAndBottomButton />
     </div>
   );
 };

@@ -15,13 +15,13 @@ import PDPA_modal from "./component/PDPAmodal";
 import FormComponent from "./component/form";
 import Print from "./component/print";
 import Delivery from "./component/delivery";
-import PrintAdmin from "./component/printAdmin";
-import FormAdmin from "./component/formAdmin";
-import DeliveryAdmin from "./component/deliveryAdmin";
+import PrintAdmin from "./component/pageAdmin/printAdmin";
+import FormAdmin from "./component/pageAdmin/formAdmin";
+import DeliveryAdmin from "./component/pageAdmin/deliveryAdmin";
 import "./App.css";
 import SelectFormModal from "./component/selectFromModal";
-import SelectAdminFormModal from "./component/selelctAdminFormModal";
-import LoginAdmin from "./component/loginAdmin";
+import SelectAdminFormModal from "./component/pageAdmin/selelctAdminFormModal";
+import LoginAdmin from "./component/pageAdmin/loginAdmin";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isLoggedIn } = useAuth();

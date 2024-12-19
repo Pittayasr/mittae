@@ -29,7 +29,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
           textDecoration: "underline",
         }}
       >
-        {buttonText}
+        <p className="responsive-label mb-1">{buttonText}</p>
       </Button>
 
       {/* โมดัลที่จะแสดงภาพ */}

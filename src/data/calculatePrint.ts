@@ -1,11 +1,9 @@
-// calculatePrint.ts
 import * as pdfjsLib from "pdfjs-dist";
 import { GlobalWorkerOptions } from "pdfjs-dist";
 
 GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.worker.min.js";
 
-// let cachedPdfFile: File;
 let cachedColorPercentage: number;
 let cachedFileHash: string;
 let cachedPageCount: number;
@@ -14,31 +12,82 @@ function getFileHash(file: File): string {
   return `${file.name}_${file.lastModified}`;
 }
 
-// ฟังก์ชันตรวจสอบค่าสีขาวและดำ
+// ฟังก์ชันตรวจสอบค่าสีขาวและดำ โดยใช้ค่าความสว่าง
 const isWhiteOrBlack = (r: number, g: number, b: number): boolean => {
-  const threshold = 20;
-  const isCloseToWhite =
-    r >= 255 - threshold && g >= 255 - threshold && b >= 255 - threshold;
-  const isCloseToBlack = r <= threshold && g <= threshold && b <= threshold;
-
-  return isCloseToWhite || isCloseToBlack;
+  const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+  return brightness > 240 || brightness < 30; // สีขาวสว่างมาก และสีดำมืดมาก
 };
 
-function calculatePixelColors(imageData: ImageData): number {
-  const { data } = imageData;
-  let colorCount = 0;
+// ดึงข้อมูลภาพจาก PDF และคำนวณสีในหน้า
+async function getImageDataFromPDF(
+  pdfFile: File,
+  pageNum: number,
+  canvas: HTMLCanvasElement,
+  context: CanvasRenderingContext2D
+): Promise<number> {
+  const typedArray = new Uint8Array(await pdfFile.arrayBuffer());
+  const pdfDocument = await pdfjsLib.getDocument(typedArray).promise;
+  const page = await pdfDocument.getPage(pageNum);
+  const viewport = page.getViewport({ scale: 1.0 });
 
-  for (let i = 0; i < data.length; i += 4) {
-    const [r, g, b] = [data[i], data[i + 1], data[i + 2]];
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  await page.render({ canvasContext: context, viewport }).promise;
+
+  const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+  let colorPixelCount = 0;
+  for (let i = 0; i < imageData.data.length; i += 4) {
+    const [r, g, b] = [
+      imageData.data[i],
+      imageData.data[i + 1],
+      imageData.data[i + 2],
+    ];
     if (!isWhiteOrBlack(r, g, b)) {
-      colorCount++;
+      colorPixelCount++;
     }
   }
 
-  return colorCount;
+  return (colorPixelCount / (canvas.width * canvas.height)) * 100;
 }
 
-// คำนวณเปอร์เซ็นต์สีในภาพ
+// คำนวณเปอร์เซ็นต์สีใน PDF
+async function calculateColorPercentage(pdfFile: File): Promise<number> {
+  console.log("เริ่มคำนวณเปอร์เซ็นต์สีทั้งหมดใน PDF...");
+  const fileHash = getFileHash(pdfFile);
+
+  // ใช้ข้อมูล Cache ถ้ามี
+  if (cachedFileHash === fileHash) {
+    console.log("ใช้เปอร์เซ็นต์สีที่คำนวณไว้แล้วจาก Cache");
+    return cachedColorPercentage;
+  }
+
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d", { willReadFrequently: true })!;
+  const typedArray = new Uint8Array(await pdfFile.arrayBuffer());
+  const pdfDocument = await pdfjsLib.getDocument(typedArray).promise;
+
+  const totalPages = pdfDocument.numPages;
+  let totalColorPercentage = 0;
+
+  for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+    const colorPercentage = await getImageDataFromPDF(
+      pdfFile,
+      pageNum,
+      canvas,
+      context
+    );
+    totalColorPercentage += colorPercentage;
+  }
+
+  cachedFileHash = fileHash;
+  cachedColorPercentage = totalColorPercentage / totalPages;
+
+  console.log(`เปอร์เซ็นต์สีเฉลี่ยใน PDF: ${cachedColorPercentage}%`);
+  return cachedColorPercentage;
+}
+
+// คำนวณเปอร์เซ็นต์สีในรูปภาพ (PNG/JPEG)
 async function calculateImageColorPercentage(imageFile: File): Promise<number> {
   const image = new Image();
   const imageUrl = URL.createObjectURL(imageFile);
@@ -47,17 +96,27 @@ async function calculateImageColorPercentage(imageFile: File): Promise<number> {
   return new Promise<number>((resolve, reject) => {
     image.onload = () => {
       const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
+      const context = canvas.getContext("2d", { willReadFrequently: true });
       canvas.width = image.width;
       canvas.height = image.height;
       context?.drawImage(image, 0, 0, image.width, image.height);
 
       const imageData = context!.getImageData(0, 0, image.width, image.height);
-      const colorCount = calculatePixelColors(imageData);
 
-      const colorPercentage = (colorCount / (image.width * image.height)) * 100;
+      let colorPixelCount = 0;
+      for (let i = 0; i < imageData.data.length; i += 4) {
+        const [r, g, b] = [
+          imageData.data[i],
+          imageData.data[i + 1],
+          imageData.data[i + 2],
+        ];
+        if (!isWhiteOrBlack(r, g, b)) {
+          colorPixelCount++;
+        }
+      }
+
       URL.revokeObjectURL(imageUrl);
-      resolve(colorPercentage);
+      resolve((colorPixelCount / (image.width * image.height)) * 100);
     };
 
     image.onerror = () => {
@@ -67,78 +126,7 @@ async function calculateImageColorPercentage(imageFile: File): Promise<number> {
   });
 }
 
-// ดึงข้อมูลภาพจากหน้า PDF
-async function getImageDataFromPDF(
-  pdfFile: File,
-  pageNum: number
-): Promise<ImageData> {
-  console.log(`เริ่มดึงข้อมูลภาพจากหน้า PDF ที่ ${pageNum}...`);
-  const typedArray = new Uint8Array(await pdfFile.arrayBuffer());
-  const pdfDocument = await pdfjsLib.getDocument(typedArray).promise;
-  const page = await pdfDocument.getPage(pageNum);
-  const viewport = page.getViewport({ scale: 1.0 });
-
-  const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d")!;
-  canvas.width = viewport.width;
-  canvas.height = viewport.height;
-  await page.render({ canvasContext: context, viewport }).promise;
-
-  console.log(`ดึงข้อมูลจากหน้า PDF ${pageNum} เสร็จสิ้น`);
-  return context.getImageData(0, 0, canvas.width, canvas.height);
-}
-
-// คำนวณเปอร์เซ็นต์สีในหน้า PDF แต่ละหน้า
-async function calculatePageColorPercentage(
-  pdfFile: File,
-  pageNum: number
-): Promise<number> {
-  console.log(`เริ่มคำนวณเปอร์เซ็นต์สีในหน้า PDF ${pageNum}...`);
-  const imageData = await getImageDataFromPDF(pdfFile, pageNum);
-  let coloredPixelCount = 0;
-  const totalPixelCount = imageData.data.length / 4;
-
-  for (let i = 0; i < imageData.data.length; i += 4) {
-    const [r, g, b] = [
-      imageData.data[i],
-      imageData.data[i + 1],
-      imageData.data[i + 2],
-    ];
-    if (!isWhiteOrBlack(r, g, b)) coloredPixelCount++;
-  }
-
-  const colorPercentage = (coloredPixelCount / totalPixelCount) * 100;
-  console.log(`เปอร์เซ็นต์สีในหน้า PDF ${pageNum}: ${colorPercentage}%`);
-  return colorPercentage;
-}
-
-// คำนวณเปอร์เซ็นต์สีทั้งหมดใน PDF
-async function calculateColorPercentage(pdfFile: File): Promise<number> {
-  console.log("เริ่มคำนวณเปอร์เซ็นต์สีทั้งหมดใน PDF...");
-  const typedArray = new Uint8Array(await pdfFile.arrayBuffer());
-  const pdfDocument = await pdfjsLib.getDocument(typedArray).promise;
-
-  const totalPages = pdfDocument.numPages;
-
-  // ใช้ Promise.all เพื่อคำนวณทุกหน้าแบบขนาน
-  const pageColorPercentages = await Promise.all(
-    Array.from({ length: totalPages }, (_, index) =>
-      calculatePageColorPercentage(pdfFile, index + 1)
-    )
-  );
-
-  const totalColorPercentage = pageColorPercentages.reduce(
-    (sum, percentage) => sum + percentage,
-    0
-  );
-
-  const averageColorPercentage = totalColorPercentage / totalPages;
-  console.log(`เปอร์เซ็นต์สีเฉลี่ยใน PDF: ${averageColorPercentage}%`);
-  cachedColorPercentage = averageColorPercentage;
-  return cachedColorPercentage;
-}
-
-// ฟังก์ชันคำนวณเปอร์เซ็นต์สีในไฟล์ที่แปลงแล้ว
+// ฟังก์ชันหลัก: ตรวจสอบประเภทไฟล์ และคำนวณเปอร์เซ็นต์สี
 export async function calculateFileColorPercentage(
   file: File
 ): Promise<number> {
@@ -149,57 +137,27 @@ export async function calculateFileColorPercentage(
   if (fileType === "application/pdf") {
     return calculateColorPercentage(file);
   } else if (fileType === "image/jpeg" || fileType === "image/png") {
-    return calculateImageColorPercentage(file); // คำนวณสีโดยตรงสำหรับรูปภาพ
+    return calculateImageColorPercentage(file);
   } else {
-    console.log("ประเภทไฟล์ไม่รองรับ");
     throw new Error("ประเภทไฟล์ไม่รองรับ");
   }
 }
 
-// ตรวจสอบชนิดไฟล์และเรียกใช้ฟังก์ชันการนับจำนวนหน้า
-async function getPageCount(file: File): Promise<number> {
-  if (cachedPageCount && cachedFileHash === getFileHash(file)) {
-    console.log("ใช้จำนวนหน้าที่ Cache ไว้");
-    return cachedPageCount;
-  }
-
-  if (file.type === "application/pdf") {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    cachedPageCount = pdf.numPages;
-  } else if (file.type === "image/jpeg" || file.type === "image/png") {
-    return 1; // ไฟล์รูปภาพถือว่าเป็น 1 หน้า
-  } else {
-    throw new Error("ชนิดไฟล์ไม่รองรับสำหรับการดึงจำนวนหน้า");
-  }
-
-  cachedFileHash = getFileHash(file);
-  return cachedPageCount;
-}
-
-// ปรับปรุงฟังก์ชัน calculatePrice
+// คำนวณราคาจากประเภทการปริ้น และจำนวน
 export async function calculatePrice(
   selectTypePrint: string,
   copiesSetPrint: string,
   selectedFile: File
 ): Promise<{ totalPrice: number; pageCount: number }> {
-  // await uploadFileToServer(selectedFile);
-  const uploadedFile: File = selectedFile;
+  const pageCount = await getPageCount(selectedFile);
 
-  // ดึงจำนวนหน้า
-  const pageCount = await getPageCount(uploadedFile);
-
-  // คำนวณเปอร์เซ็นต์สี
-  let colorPercentage = 0;
-  if (selectedFile.type === "image/jpeg" || selectedFile.type === "image/png") {
-    colorPercentage = await calculateImageColorPercentage(uploadedFile);
-  } else {
-    colorPercentage = await calculateFileColorPercentage(uploadedFile);
-  }
+  const colorPercentage =
+    selectedFile.type === "application/pdf"
+      ? await calculateColorPercentage(selectedFile)
+      : await calculateImageColorPercentage(selectedFile);
 
   const copiesCount = parseInt(copiesSetPrint, 10) || 1;
 
-  // คำนวณราคาทั้งหมด
   const pricePerPage =
     selectTypePrint === "สี"
       ? colorPercentage >= 75
@@ -210,8 +168,26 @@ export async function calculatePrice(
         ? 10
         : 5
       : 1; // ขาวดำ
+
   const totalPrice = pageCount * pricePerPage * copiesCount;
 
-  console.log(`ราคาทั้งหมด: ${totalPrice}`);
-  return { totalPrice, pageCount: pageCount * copiesCount };
+  return { totalPrice, pageCount };
+}
+
+async function getPageCount(file: File): Promise<number> {
+  const fileHash = getFileHash(file);
+  if (cachedPageCount && cachedFileHash === fileHash) {
+    return cachedPageCount;
+  }
+
+  if (file.type === "application/pdf") {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    cachedPageCount = pdf.numPages;
+  } else {
+    cachedPageCount = 1; // สำหรับไฟล์รูปภาพ
+  }
+
+  cachedFileHash = fileHash;
+  return cachedPageCount;
 }

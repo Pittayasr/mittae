@@ -1,14 +1,14 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Modal, Button } from "react-bootstrap";
-import { FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
 
 interface AlertModalProps {
   show: boolean;
   onSuccess: () => void;
   onConfirm: () => void;
   onBack: () => void;
-  message: string;
+  message: ReactNode;
   success: boolean;
+  isError?: boolean;
 }
 
 const AlertModal: React.FC<AlertModalProps> = ({
@@ -18,39 +18,29 @@ const AlertModal: React.FC<AlertModalProps> = ({
   onConfirm,
   message,
   success,
+  isError,
 }) => {
   return (
     <Modal
       show={show}
       onHide={success ? onSuccess : undefined} // ปิดได้เมื่อสำเร็จเท่านั้น
       centered
-      backdrop={success ? true : "static"} // ป้องกันการคลิกปิดด้านนอกเมื่อยังไม่สำเร็จ
+      backdrop={success || isError ? true : "static"} // ป้องกันการคลิกปิดด้านนอกเมื่อยังไม่สำเร็จ
       keyboard={success} // ปิดการกดปุ่ม Esc เมื่อยังไม่สำเร็จ
     >
       <Modal.Header closeButton={success}>
         <Modal.Title className="d-flex align-items-center">
           {success ? (
-            <>
-              <FaCheckCircle className="text-success me-2" />
-              ส่งสำเร็จ
-            </>
+            <h5 className="m-0">ส่งสำเร็จ</h5>
+          ) : isError ? (
+            <h5 className="m-0">ส่งข้อมูลไม่สำเร็จ</h5>
           ) : (
-            <>
-              <FaExclamationTriangle className="text-warning me-2" />
-              ยืนยันการส่งข้อมูล
-            </>
+            <h5 className="m-0">ยืนยันการส่งข้อมูล</h5>
           )}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p className="text-center">
-          {message.split("\n").map((line, index) => (
-            <React.Fragment key={index}>
-              {line}
-              <br />
-            </React.Fragment>
-          ))}
-        </p>
+        <div className="text-center">{message}</div>
       </Modal.Body>
 
       <Modal.Footer>
@@ -62,10 +52,10 @@ const AlertModal: React.FC<AlertModalProps> = ({
           >
             ตกลง
           </Button>
-        ) : message === "การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง" ? (
+        ) : isError ? (
           <Button
             variant="outline-success"
-            onClick={onBack} // ใช้ onBack เพื่อปิด Modal
+            onClick={onBack} // ใช้ฟังก์ชัน onBack
             style={{ minWidth: "70px" }}
           >
             ตกลง

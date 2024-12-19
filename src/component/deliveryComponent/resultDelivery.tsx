@@ -1,12 +1,16 @@
 //resultDelivery.tsx
-import React, { useState } from "react";
-import { Button, Row, Col, Form, Modal, Image } from "react-bootstrap";
+import React, { useState, ReactNode } from "react";
+import { Button, Row, Col, Form, Modal, Image, Spinner } from "react-bootstrap";
 import { Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { calculateDelivery } from "../../data/calculateDelivery";
 import { db } from "../../../firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 import AlertModal from "../textFillComponent/alertModal";
+import dayjs from "dayjs";
+import "dayjs/locale/th";
+import { FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
+import { VscError } from "react-icons/vsc";
 
 interface ResultDeliveryProps {
   deliveryType: string;
@@ -56,6 +60,8 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const deliveryCost =
     vehicleInfo && deliveryType === "ส่งรถกลับบ้าน"
       ? calculateDelivery(receiverInfo.province, vehicleInfo.ccSize)
@@ -77,10 +83,11 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
   };
 
   const [showModal, setShowModal] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
+  const [modalMessage, setModalMessage] = useState<ReactNode>(null);
   const [success, setSuccess] = useState(false);
 
   const handleConfirm = async () => {
+    setIsSubmitting(true);
     try {
       const formData = new FormData();
 
@@ -97,12 +104,15 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
         formData.append("licenseFileDelivery", vehicleInfo.idCardFilePath);
       }
 
-      console.log("FormData Entries:", Array.from(formData.entries()));
+      // console.log("FormData Entries:", Array.from(formData.entries()));
 
-      const response = await fetch("${process.env.VITE_API_BASE_URL}/upload-multiple", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://api.mittaemaefahlung88.com/upload-multiple",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -122,11 +132,13 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
         responseData.registrationBookFileDelivery || null;
       const licenseFileDelivery = responseData.licenseFileDelivery || null;
 
-      console.log("Files uploaded successfully:", {
-        passportOrIDnumberFile: responseData.passportOrIDnumberFile,
-        registrationBookFileDelivery,
-        licenseFileDelivery,
-      });
+      // console.log("Files uploaded successfully:", {
+      //   passportOrIDnumberFile: responseData.passportOrIDnumberFile,
+      //   registrationBookFileDelivery,
+      //   licenseFileDelivery,
+      // });
+
+      const uploadTime = dayjs().toISOString(); // เก็บเป็นรูปแบบ ISO 8601 เช่น 2024-04-27T10:38:00Z
 
       // สร้างข้อมูลสำหรับ Firestore
       const data = {
@@ -171,26 +183,49 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
             }
           : null,
         deliveryCost: deliveryCost || 0,
+        uploadTime,
       };
 
-      const docRef = await addDoc(collection(db, "delivery"), data);
-      console.log("Document written with ID: ", docRef.id);
+      await addDoc(collection(db, "delivery"), data);
+      // console.log("Document written with ID: ", docRef.id);
 
       setModalMessage(
-        `ข้อมูลถูกส่งสำเร็จแล้ว! ✅\nขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป 🙏❤️ `
+        <div className="d-flex flex-column align-items-center text-center">
+          <FaCheckCircle className="text-success my-3" size={50} />
+          <p className="px-2">
+            ข้อมูลถูกส่งสำเร็จแล้ว! ✅<br />
+            ขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป 🙏❤️
+          </p>
+        </div>
       );
       setSuccess(true);
     } catch (error) {
       console.error("Error uploading file or saving data:", error);
-      setModalMessage("การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง");
+      setModalMessage(
+        <div className="d-flex flex-column align-items-center text-center">
+          <VscError className="text-danger my-3" size={50} />
+          <p className="px-2">การส่งข้อมูลล้มเหลว กรุณาลองอีกครั้ง</p>
+        </div>
+      );
       setSuccess(false);
-    } finally {
       setShowModal(true);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleOpenModal = () => {
-    setModalMessage("คุณต้องการยืนยันว่า\nข้อมูลทั้งหมดถูกต้องใช่ไหม?");
+    setModalMessage(
+      <div className="d-flex flex-column align-items-center text-center">
+        <FaExclamationTriangle className="text-warning my-3" size={50} />
+        <p className="px-2">
+          คุณต้องการยืนยันว่า
+          <br />
+          ข้อมูลทั้งหมดถูกต้องใช่ไหม?
+        </p>
+      </div>
+    );
+
     setSuccess(false);
     setShowModal(true);
   };
@@ -395,6 +430,17 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
           ) : (
             <Image src={previewUrl || ""} alt="Preview" fluid />
           )}
+        </Modal.Body>
+      </Modal>
+      <Modal show={isSubmitting} centered>
+        <Modal.Body className="text-center">
+          <Spinner
+            animation="border"
+            variant="success"
+            role="status"
+            className="my-3"
+          />
+          <p>กำลังส่งข้อมูล...</p>
         </Modal.Body>
       </Modal>
     </div>

@@ -51,13 +51,7 @@ const DateInput: React.FC<DateInputProps> = ({
 
   return (
     <div style={{ flexDirection: "column" }}>
-      <label
-        htmlFor="date-picker"
-        style={{
-          marginBottom: "5px",
-          fontSize: "16px",
-        }}
-      >
+      <label className="responsive-label" htmlFor="date-picker">
         {labelText}
       </label>
       <DatePicker
@@ -71,12 +65,13 @@ const DateInput: React.FC<DateInputProps> = ({
         showToday={false}
         style={{
           width: "100%",
-          padding: "10px",
-          height: "45px",
+          padding: "7px 12px 7px 10px",
           borderColor: isInvalid ? "red" : undefined,
+          fontFamily: "Noto Sans Thai, sans-serif",
         }}
         allowClear={false}
         defaultPickerValue={dayjs().add(543, "year")} // ค่าเริ่มต้นเป็นปี พ.ศ.
+        className={`custom-date-picker ${isInvalid ? "is-invalid" : ""}`}
       />
       {isInvalid && (
         <p style={{ color: "red", fontSize: "14px", marginTop: "5px" }}>

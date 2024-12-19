@@ -1,10 +1,208 @@
+/* ฟอนต์ของข้อความใน ReadMe */
+.readme-title {
+  font-size: 2rem; /* ขนาดสำหรับหัวข้อ */
+  font-weight: bold;
+}
+
+.readme-list {
+  font-size: 1rem; /* ขนาดสำหรับรายการ */
+  line-height: 1.8;
+}
+
+.readme-warning {
+  font-size: 1.5rem; /* ขนาดสำหรับข้อความเตือน */
+  color: red;
+  font-weight: bold;
+}
+
+/* ปรับขนาดตัวอักษรเมื่อเลือกวันที่ */
+.custom-date-picker .ant-picker-input > input {
+  font-size: 16px; /* ขนาดตัวอักษรเมื่อเลือก */
+}
+
+/* ขนาดตัวอักษรเริ่มต้น */
+.custom-date-picker .ant-picker-input-placeholder {
+  font-size: 16px;
+  color: #878787; /* สีตัวอักษร placeholder */
+}
+
+.radioButton input[type="radio"] {
+  width: 18px; /* ขนาดของปุ่ม */
+  height: 18px; /* ขนาดของปุ่ม */
+  border: solid seagreen; /* สีกรอบ */
+  border-radius: 50%; /* ทำให้เป็นวงกลม */
+  outline: none; /* เอา outline ออก */
+  margin-inline-start: auto;
+  margin: 3px 5px 0px 3px;
+  cursor: pointer; /* แสดง cursor แบบ pointer */
+  transition: background 0.2s, border-color 0.2s; /* เพิ่มการเปลี่ยนแปลงสี */
+}
+
+/* สำหรับหน้าจอขนาดกลาง (Tablet) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  body {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+  }
+
+  h4 {
+    font-size: 1.25rem;
+  }
+
+  h5 {
+    font-size: 1rem;
+  }
+
+  p {
+    font-size: 0.95rem;
+  }
+
+  /* ปรับขนาดตัวอักษรเมื่อเลือกวันที่ */
+  .custom-date-picker .ant-picker-input > input {
+    font-size: 15px; /* ขนาดตัวอักษรเมื่อเลือก */
+  }
+
+  /* ขนาดตัวอักษรเริ่มต้น */
+  .custom-date-picker .ant-picker-input-placeholder {
+    font-size: 15px;
+    color: #878787; /* สีตัวอักษร placeholder */
+  }
+
+  .responsive-label {
+    font-size: 15px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="file"],
+  input[type="numeric"],
+  select,
+  textarea {
+    font-size: 15px; /* ฟอนต์ของ input และ select */
+    padding: 7px 10px;
+  }
+}
+
+/* สำหรับหน้าจอขนาดเล็ก (Mobile) */
+@media (max-width: 767px) {
+  .readme-title {
+    font-size: 1.75rem;
+  }
+
+  .readme-list {
+    font-size: 0.9rem;
+  }
+
+  .readme-warning {
+    font-size: 1.25rem;
+  }
+
+  body {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  h4 {
+    font-size: 1rem;
+  }
+
+  h5 {
+    font-size: 1rem;
+  }
+
+  p {
+    font-size: 0.9rem;
+  }
+
+  .form-container {
+    padding: 15px;
+  }
+
+  .form-group {
+    margin-bottom: 10px;
+  }
+
+  .modal-body-scroll {
+    max-height: 50vh;
+  }
+
+  .form-button {
+    width: 100%; /* ขยายความกว้างปุ่มเต็มหน้าจอบนมือถือ */
+    font-size: 14px; /* ลดขนาดตัวอักษร */
+    padding: 10px;
+  }
+
+  /* ปรับขนาดตัวอักษรเมื่อเลือกวันที่ */
+  .custom-date-picker .ant-picker-input > input {
+    font-size: 14px; /* ขนาดตัวอักษรเมื่อเลือก */
+  }
+
+  /* ขนาดตัวอักษรเริ่มต้น */
+  .custom-date-picker .ant-picker-input-placeholder {
+    font-size: 14px;
+    color: #878787; /* สีตัวอักษร placeholder */
+  }
+
+  .responsive-label {
+    font-size: 14px;
+  }
+
+  .radioButton input[type="radio"] {
+    width: 14px; /* ขนาดของปุ่ม */
+    height: 14px; /* ขนาดของปุ่ม */
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="file"],
+  input[type="numeric"],
+  select,
+  textarea {
+    font-size: 14px; /* ฟอนต์ของ input และ select */
+    padding: 8px 10px; /* ปรับ padding ให้น้อยลง */
+  }
+}
+
+.modal-body-scroll {
+  max-height: 60vh; /* ใช้ Viewport Height เพื่อกำหนดความสูง */
+  overflow-y: auto; /* เพิ่ม Scroll ภายใน Modal */
+  padding-right: 1rem;
+}
+
 .form-container {
-  width: 100%; /* ใช้ความกว้างเต็ม */
-  padding: 20px; /* เพิ่มพื้นที่รอบ ๆ */
-  background-color: white; /* สีพื้นหลัง */
-  border-radius: 8px; /* มุมโค้ง */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* เงา */
-  /* margin: 50px; เพิ่มระยะห่างระหว่างฟอร์มกับขอบ */
+  width: 100%; /* ความกว้างเต็ม */
+
+  margin: 20px auto; /* จัดให้อยู่กึ่งกลาง */
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .form {
@@ -12,7 +210,39 @@
 }
 
 .card {
-  transition: border 0.1s ease, box-shadow 0.1s ease; /* เพิ่มความนุ่มนวล */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* ดันเนื้อหาให้อยู่ระหว่าง */
+  height: 100%;
+  min-height: 350px;
+  transition: border 0.1s ease, box-shadow 0.1s ease;
+}
+
+.card-body {
+  flex-grow: 1; /* ให้พื้นที่การ์ดขยายตัวได้ */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* ดันปุ่มไปด้านล่าง */
+}
+
+.card-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px; /* ระยะห่างระหว่างปุ่ม */
+  margin-top: auto; /* ดันปุ่มให้ไปอยู่ล่างสุด */
+}
+
+/* .card-title,
+.card-text {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+} */
+
+.responsive-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .card:hover {
@@ -22,12 +252,6 @@
   cursor: pointer; /* เปลี่ยนเมาส์เป็นรูปมือ */
 }
 
-/* .selected-card {
-  border: 2px solid #28a745; 
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-  border-radius: 5px; 
-} */
-
 .radioButton {
   display: flex; /* ใช้ Flexbox */
   flex-direction: row; /* ตั้งค่าการจัดเรียงในแนวนอน */
@@ -36,21 +260,10 @@
   width: 100%;
 }
 
-.radioButton input[type="radio"] {
-  width: 20px; /* ขนาดของปุ่ม */
-  height: 20px; /* ขนาดของปุ่ม */
-  border: solid seagreen; /* สีกรอบ */
-  border-radius: 50%; /* ทำให้เป็นวงกลม */
-  outline: none; /* เอา outline ออก */
-  margin-inline-start: auto;
-  margin: 3px 5px 0px 0px;
-  cursor: pointer; /* แสดง cursor แบบ pointer */
-  transition: background 0.2s, border-color 0.2s; /* เพิ่มการเปลี่ยนแปลงสี */
-}
-
 .radioButton input[type="radio"]:checked {
   background-color: seagreen;
   border-color: seagreen;
+  box-shadow: 0 0 4px rgba(40, 167, 69, 0.8);
 }
 
 .radioButton label {
@@ -66,8 +279,7 @@
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.1s ease-in-out;
-  margin: 1px 10px 0px 0px;
- 
+  margin: 0px 0px 0px 3px;
 }
 
 .custom-checkbox .form-check-input:checked {
@@ -88,26 +300,10 @@
   width: 50%;
   min-width: 100px;
   max-width: 190px;
+  font-size: 16px;
 }
 
-/* กำหนดกรอบสีแดงเมื่อมีข้อผิดพลาด */
-.select-is-invalid .react-select__control {
-  border-color: red !important; /* กรอบสีแดง */
-}
-
-/* กรอบเมื่อเลือก (focus) */
-.select-is-invalid .react-select__control--is-focused {
-  border-color: red !important; /* กรอบสีแดงเมื่อเลือก */
-  box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.25) !important; /* เพิ่มเงาแดง */
-}
-
-/* กรอบเมื่อเลือก (focus) */
-.select-is-valid .react-select__control--is-focused {
-  border-color: #80bdff !important; /* กรอบสีฟ้าเมื่อเลือก */
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important; /* เพิ่มเงาฟ้า */
-}
-
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .radioButton {
     margin-left: 15px;
     display: flex; /* ใช้ Flexbox */
@@ -156,6 +352,8 @@
     min-width: 100px;
     max-width: 200px;
     margin-bottom: 20px;
+    font-size: 14px; /* ลดขนาดตัวอักษร */
+    padding: 10px;
   }
 }
 
@@ -167,18 +365,22 @@
   }
 }
 
-.custom-checkbox input[type="checkbox"]:checked {
-  background-color: green;
-  border-color: green;
+.custom-checkbox-pdpa input[type="checkbox"]:checked {
+  background-color: #28a745;
+  border-color: #28a745;
+  box-shadow: 0 0 4px rgba(40, 167, 69, 0.8);
 }
 
-/* .custom-link {
-  text-decoration: none; 
+.custom-checkbox-pdpa input[type="checkbox"] {
+  display: flex; /* ใช้ Flexbox */
+  align-items: center; /* จัด checkbox กับ label ให้อยู่ตรงกลางแนวตั้ง */
 }
 
-.custom-link:hover {
-  background-color: silver;
-} */
+select {
+  appearance: none; /* ลบลูกศร default บนบางเบราว์เซอร์ */
+  -moz-appearance: none;
+  -webkit-appearance: none;
+}
 
 .browser-warning-modal {
   position: fixed;
@@ -201,7 +403,128 @@
   max-width: 400px;
 }
 
-.modal-container a {
-  color: #007bff;
-  text-decoration: underline;
+.custom-input:focus {
+  border-color: #28a745 !important; /* สีเขียวสำหรับ border */
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important; /* เงาสีเขียว */
+  outline: none; /* ลบ outline เดิมออก */
+}
+
+/* สำหรับ hover */
+.custom-date-picker:hover {
+  border-color: #e0e0e0 !important; /* สีเขียวเข้มเมื่อ hover */
+}
+
+/* สำหรับ TextSelect, DateInput, และ TextFile */
+.react-select__control--is-focused {
+  border-color: #28a745 !important; /* กรอบสีเขียวเมื่อ focus */
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important; /* เพิ่มเงาสีเขียว */
+}
+
+/* สำหรับ TextFile */
+input[type="file"]:focus {
+  border-color: #28a745;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+/* เมื่อเปิด DatePicker */
+.custom-date-picker.ant-picker-focused {
+  border-color: #28a745 !important; /* กรอบสีเขียวเมื่อเปิด */
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important; /* เพิ่มเงาสีเขียว */
+}
+
+/* สำหรับวันที่ที่เลือก */
+.ant-picker-cell-selected .ant-picker-cell-inner {
+  background-color: #28a745 !important; /* สีเขียวเข้ม */
+  color: white !important; /* สีตัวอักษร */
+}
+
+/* สำหรับ hover */
+.ant-picker-cell-inner:hover {
+  background-color: #d4edda !important; /* สีเขียวอ่อนเมื่อ hover */
+}
+
+/* ปรับสีพื้นหลังของวันที่ที่เลือกเมื่อ focus ผ่านคีย์บอร์ด */
+.ant-picker-cell-selected .ant-picker-cell-inner:focus {
+  background-color: #218838 !important; /* สีเขียวเข้ม */
+  color: white !important;
+}
+
+.react-select-container.is-invalid .react-select__control {
+  border-color: #dc3545 !important; /* สีแดงเมื่อ invalid */
+}
+
+.react-select-container.is-invalid .react-select__control--is-focused {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(212, 108, 119, 0.459) !important;
+}
+
+.custom-file-name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: calc(100% - 80px); /* ปรับให้เหลือพื้นที่พอดีสำหรับปุ่ม */
+}
+
+.custom-file-input.is-invalid {
+  border-color: #dc3545 !important; /* สีแดงเมื่อ invalid */
+}
+.custom-file-input.is-invalid:hover {
+  box-shadow: 0 0 0 0.2rem rgba(212, 108, 119, 0.459) !important;
+}
+
+.custom-pagination .page-item.active .page-link {
+  background-color: #218838 !important; /* สีเขียว */
+  border-color: #28a745 !important; /* ขอบสีเขียว */
+  color: white !important; /* สีข้อความเป็นขาว */
+}
+
+.custom-pagination .page-link {
+  color: #28a745; /* สีเขียวสำหรับปุ่มอื่น ๆ */
+}
+
+.sidebar-admin {
+  position: fixed;
+  top: 0;
+  right: -280px;
+  width: 280px;
+  height: 100%;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+  transition: right 0.3s ease-in-out;
+  z-index: 999;
+}
+
+.sidebar-admin.open {
+  right: 0;
+}
+
+.nav-link {
+  color: #333;
+}
+
+.image-container {
+  width: 100%; /* ปรับขนาดให้เต็ม */
+  aspect-ratio: 1/1; /* กำหนดให้อยู่ในกรอบสี่เหลี่ยมจัตุรัส */
+  overflow: hidden;
+  border-radius: 10px; /* ความโค้งของมุม */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8faf9; /* สีพื้นหลัง */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  flex-direction: column;
+}
+
+.image-container img {
+  width: 100%;
+  height: 70%;
+  object-fit: cover;
+  object-position: center; /* จัดให้อยู่ตรงกลาง */
+  border-radius: 5px; /* เพิ่มขอบโค้งเล็กน้อย */
+}
+
+.menuIcon:hover {
+  background-color: #f8faf9;
 }

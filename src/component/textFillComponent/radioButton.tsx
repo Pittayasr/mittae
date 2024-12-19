@@ -22,8 +22,8 @@ const RadioButton: React.FC<RadioButtonProps> = ({
 }) => {
   return (
     <Form.Group>
-      <Form.Label>{label}</Form.Label>
-      <div className="radioButton">
+      <Form.Label className="responsive-label">{label}</Form.Label>
+      <div className="responsive-label radioButton mx-2">
         {/* ใช้ Flexbox เพื่อให้ radio buttons อยู่ในบรรทัดเดียวกัน */}
         {options.map((option, index) => {
           const id = `${name}-${index}`; // สร้าง id ที่ไม่ซ้ำกัน
@@ -38,8 +38,8 @@ const RadioButton: React.FC<RadioButtonProps> = ({
               checked={selectedValue === option}
               onChange={() => onChange(option)} // ฟังก์ชันจัดการเมื่อมีการเลือก
               style={{
-                margin: "0px 0px 0px 10px",
-                width: "110%", // ปรับขนาดความกว้างของ input
+                // margin: "0px 0px 0px 5px",
+                width: "105%", // ปรับขนาดความกว้างของ input
                 padding: "10px 0px 10px 0px", // เพิ่มช่องว่างภายใน
               }}
               isInvalid={isInvalid && !selectedValue}

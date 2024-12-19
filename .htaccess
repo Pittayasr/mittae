@@ -7,17 +7,13 @@ RewriteCond %{HTTPS} off
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # บังคับใช้ www (ถ้าต้องการ)
- RewriteCond %{HTTP_HOST} !^www\.
- RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
-# Proxy ไปยัง Backend (Node.js) เฉพาะ API requests
-RewriteCond %{REQUEST_URI} ^/(.*)$
-RewriteRule ^/(.*)$ http://127.0.0.1:3000/$1 [P,L]
+RewriteCond %{HTTP_HOST} !^www\.
+RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # Redirect ไปยัง index.html สำหรับ React (Single Page Application)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.html [L]
+RewriteRule ^ /index.html [L]
 
 # บล็อกการเข้าถึงไฟล์สำคัญ
 <FilesMatch "^.*\.(env|json|config|ini|log|sh|bashrc|htaccess|htpasswd)$">
@@ -43,3 +39,10 @@ RewriteRule ^ index.html [L]
     ExpiresByType image/webp "access plus 1 year"
     ExpiresByType image/svg+xml "access plus 1 year"
 </IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(jpg|jpeg|png|gif|js|css|woff|woff2|ttf|otf|eot|svg)$">
+    Header set Cache-Control "max-age=31536000, public"
+  </FilesMatch>
+</IfModule>
+

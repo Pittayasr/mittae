@@ -231,9 +231,11 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
     }
   };
 
-  const dormitoryPattern = /^(?![่-๋])[เ-ไก-ฮ-A-Za-z0-9]{1}[ก-ฮะ-์A-Za-z0-9\s\-/]*$/;
-  const soiPattern = /^[เ-ไก-ฮa-zA-Z0-9\s\-/]+$/; // สามารถใช้แบบนี้ได้
-  const houseNoPattern = /^[เ-ไก-ฮa-zA-Z0-9\-/]+$/; // สามารถใช้แบบนี้ได้เช่นกัน
+  const dormitoryPattern =
+    /^(?![่-๋])[เ-ไก-ฮa-zA-Z0-9]{1}[\u0E01-\u0E4C\u0E4E-\u0E4F\u0E30-\u0E3Aเ-ไก-ฮa-zA-Z0-9\s\-/]*$/;
+  const soiPattern =
+    /^(?![่-๋])[เ-ไก-ฮa-zA-Z0-9]{1}[\u0E01-\u0E4C\u0E4E-\u0E4F\u0E30-\u0E3Aเ-ไก-ฮa-zA-Z0-9\s\-/]*$/;
+  const houseNoPattern = /^[เ-ไก-ฮa-zA-Z0-9\-/]+$/;
   const villageNoPattern = /^\d{1,10}$/;
   const PostalCode = /^\d{5,5}$/;
   // const namePattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z\s]*$/;
@@ -349,7 +351,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
           placeholder="ค้นหา..."
           onChange={(value) => {
             if (value !== null) handleProvinceChange(value);
-            console.log("Selected:", value);
+            // console.log("Selected:", value);
           }}
           required
           isInvalid={isInvalid}
@@ -368,7 +370,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
           placeholder="เลือกอำเภอ"
           onChange={(value) => {
             if (value !== null) handleDistrictChange(value);
-            console.log("Selected:", value);
+            // console.log("Selected:", value);
           }}
           required
           isInvalid={isInvalid}
@@ -387,7 +389,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
           placeholder="เลือกตำบล"
           onChange={(value) => {
             if (value !== null) handleSubDistrictChange(value);
-            console.log("Selected:", value);
+            // console.log("Selected:", value);
           }}
           required
           isInvalid={isInvalid}
