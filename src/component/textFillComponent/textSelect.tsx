@@ -27,6 +27,7 @@ const customStyles: StylesConfig<OptionType, false> = {
   dropdownIndicator: (provided) => ({
     ...provided,
     padding: "2px 2px 2px 0px",
+    zIndex: 3,
   }),
   control: (provided, state) => ({
     ...provided,
@@ -54,7 +55,17 @@ const customStyles: StylesConfig<OptionType, false> = {
       : "white",
     color: state.isSelected ? "white" : "black", // สีข้อความ
     padding: "10px",
+    zIndex: "5",
   }),
+  menuPortal: (provided) => ({
+    ...provided,
+    zIndex: 9999, // เพิ่ม zIndex ให้ dropdown อยู่ด้านหน้า
+  }),
+  menu: (provided) => ({
+    ...provided,
+    zIndex: 9999, // เพิ่ม zIndex ให้ dropdown menu
+  }),
+  
 };
 
 const TextSelect: React.FC<TextSelectProps> = ({

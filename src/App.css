@@ -255,7 +255,7 @@
 .radioButton {
   display: flex; /* ใช้ Flexbox */
   flex-direction: row; /* ตั้งค่าการจัดเรียงในแนวนอน */
-  justify-content: space-between; /* จัดชิดซ้าย หรือคุณสามารถใช้ center หรือ space-between */
+  justify-content: start;
   align-items: center; /* จัดแนวกลางในแนวตั้ง */
   width: 100%;
 }
@@ -264,6 +264,7 @@
   background-color: seagreen;
   border-color: seagreen;
   box-shadow: 0 0 4px rgba(40, 167, 69, 0.8);
+  transition: background 0.1s;
 }
 
 .radioButton label {
@@ -380,6 +381,8 @@ select {
   appearance: none; /* ลบลูกศร default บนบางเบราว์เซอร์ */
   -moz-appearance: none;
   -webkit-appearance: none;
+  position: relative; /* คำสั่งนี้ช่วยให้ select อยู่ในลำดับที่สูงกว่า */
+  z-index: 2;
 }
 
 .browser-warning-modal {
@@ -525,6 +528,82 @@ input[type="file"]:focus {
   border-radius: 5px; /* เพิ่มขอบโค้งเล็กน้อย */
 }
 
+.image-container-print {
+  width: 70%; /* ลดขนาดให้สมส่วน */
+  max-width: 300px; /* จำกัดความกว้างสูงสุด */
+  margin: 0 auto; /* จัดให้อยู่ตรงกลาง */
+  border-radius: 8px; /* เพิ่มความโค้ง */
+  overflow: hidden;
+  background-color: #f9f9f9; /* สีพื้นหลังอ่อน */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+}
+
+.image-container-print img,
+.image-container-print .pdf-thumbnail {
+  width: 100%;
+  height: auto;
+  border-radius: 5px; /* โค้งเล็กน้อย */
+  object-fit: contain; /* ปรับขนาดภาพให้อยู่ในกรอบ */
+}
+
+.image-container-print .pdf-thumbnail {
+  background-color: #e0e0e0; /* พื้นหลังสำหรับ PDF */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #555;
+}
+
+.pdf-thumbnail {
+  background-color: #e0e0e0; /* พื้นหลังสำหรับ PDF */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #555;
+  font-weight: bold;
+  padding: 15px; /* เพิ่ม padding ให้สมดุล */
+  cursor: pointer; /* เปลี่ยนให้เป็น pointer เมื่อ hover */
+  transition: background-color 0.3s ease; /* เพิ่มเอฟเฟกต์ hover */
+}
+
+.pdf-thumbnail:hover {
+  background-color: #d6d6d6; /* เปลี่ยนสีเมื่อ hover */
+}
+
 .menuIcon:hover {
   background-color: #f8faf9;
+}
+
+.modal .btn-secondary {
+  background-color: rgba(0, 0, 0, 0.7); /* สีดำโปร่งใส */
+
+  color: white; /* สีของตัวอักษร */
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.modal .btn-secondary:hover {
+  background-color: rgba(0, 0, 0, 0.9); /* สีเข้มขึ้นเมื่อ hover */
+}
+
+.custom-carousel .carousel-control-prev-icon,
+.custom-carousel .carousel-control-next-icon {
+  filter: brightness(1) invert(1); /* เพิ่มความชัดเจน */
+  border-width: 5px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  
+}
+
+.custom-carousel img {
+  position: relative; /* กำหนดภาพ */
+  z-index: 1; /* อยู่เบื้องหลัง */
 }

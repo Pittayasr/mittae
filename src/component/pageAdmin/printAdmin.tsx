@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../../../firebaseConfig"; // ตั้งค่า Firestore ที่ config ไว้
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
-import { Col, Row, Form, Button } from "react-bootstrap";
+import { Col, Row, Form, Button, Modal } from "react-bootstrap";
 import useAuth from "../useAuth";
 import TextInput from "../textFillComponent/textInput";
 import ScrollToTopAndBottomButton from "../ScrollToTopAndBottomButton";
@@ -38,9 +38,12 @@ const PrintAdmin: React.FC = () => {
   const [filteredUploads, setFilteredUploads] = useState<UploadData[]>([]);
   const [filterType, setFilterType] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedUpload, setSelectedUpload] = useState<UploadData | null>(null);
+  const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isMultiSelectMode, setIsMultiSelectMode] = useState<boolean>(false);
   const [isAllSelected, setIsAllSelected] = useState<boolean>(false);
+  const [modalImage, setModalImage] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 6;
   const [sortField, setSortField] = useState<string>("uploadTime");
@@ -81,19 +84,40 @@ const PrintAdmin: React.FC = () => {
   //   window.open(filePath, "_blank");
   // };
 
-  // const handleDownload = (filePath: string) => {
-  //   if (!filePath) {
-  //     alert("ไม่พบไฟล์ที่ต้องการดาวน์โหลด");
-  //     return;
-  //   }
-  //   const fileName = decodeURIComponent(
-  //     filePath.split("/").pop() || "download"
-  //   );
-  //   const link = document.createElement("a");
-  //   link.href = filePath;
-  //   link.download = fileName; // ตั้งชื่อไฟล์ตรงกับชื่อภาษาไทย
-  //   link.click();
-  // };
+  const handleDownload = async (filePath: string | null, fileName: string) => {
+    if (!filePath) {
+      alert("ไม่พบภาพสำหรับดาวน์โหลด");
+      return;
+    }
+
+    try {
+      // ตรวจสอบว่าภาพนั้นเป็น URL จากเซิร์ฟเวอร์ หรือเป็น Blob URL
+      const response = await fetch(filePath);
+      if (!response.ok) {
+        throw new Error("ไม่สามารถดาวน์โหลดภาพได้");
+      }
+
+      // สร้าง Blob จาก response
+      const blob = await response.blob();
+
+      // สร้างลิงก์ดาวน์โหลด
+      const link = document.createElement("a");
+      const url = window.URL.createObjectURL(blob);
+      link.href = url;
+      link.download = fileName || "downloaded_image";
+      document.body.appendChild(link);
+
+      // เรียกดาวน์โหลด
+      link.click();
+
+      // ลบลิงก์และ URL หลังการใช้งาน
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      alert("เกิดข้อผิดพลาดในการดาวน์โหลดไฟล์ กรุณาลองใหม่อีกครั้ง");
+    }
+  };
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -109,6 +133,8 @@ const PrintAdmin: React.FC = () => {
   };
 
   const handleFilter = (type: string) => {
+    // const types = type.split(",");
+    // console.log("Filtered types:", types);
     setFilterType(type);
     setCurrentPage(1); // รีเซ็ตหน้าปัจจุบัน
     if (type) {
@@ -283,6 +309,11 @@ const PrintAdmin: React.FC = () => {
     setIsAllSelected(!isAllSelected);
   };
 
+  const handleViewDetails = (upload: UploadData) => {
+    setSelectedUpload(upload);
+    setShowModal(true);
+  };
+
   const paginatedUploads = filteredUploads.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -303,7 +334,7 @@ const PrintAdmin: React.FC = () => {
   };
 
   return (
-    <div className="form-container mx-auto mt-1">
+    <div className="form-container page-container mx-auto mt-1">
       <h1 className="text-success text-center">
         แดชบอร์ดแอดมินสำหรับปริ้นเอกสาร
       </h1>
@@ -382,7 +413,12 @@ const PrintAdmin: React.FC = () => {
               filterOptions={[
                 { value: "", label: "แสดงทั้งหมด" },
                 { label: "PDF", value: "application/pdf" },
-                { label: "รูปภาพ", value: "image/jpeg" },
+                { label: "PNG", value: "image/png" },
+                { label: "JPEG", value: "image/jpeg" },
+                // {
+                //   label: "รูปภาพ",
+                //   value: ["image/jpeg", "image/png"].join(","),
+                // },
               ]}
               filterLabel="แสดงประเภทไฟล์"
               onStartDateChange={setStartDate}
@@ -393,7 +429,7 @@ const PrintAdmin: React.FC = () => {
             />
           </Col>
         </Row>
-        <Row className="mb-3">
+        <Row className="responsive-container mb-3">
           {paginatedUploads.map((upload, index) => (
             <Col
               xs={12}
@@ -406,7 +442,7 @@ const PrintAdmin: React.FC = () => {
               onClick={
                 isMultiSelectMode
                   ? () => toggleSelect(upload.docId)
-                  : () => window.open(upload.printFilePath, "_blank")
+                  : () => handleViewDetails(upload)
               }
             >
               <div className="card">
@@ -498,27 +534,10 @@ const PrintAdmin: React.FC = () => {
                       ลบ
                     </Button>
                     <Button
-                      className="mx-2"
                       variant="success"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(upload.printFilePath, "_blank");
-                      }}
+                      onClick={() => handleViewDetails(upload)}
                     >
-                      ดูไฟล์
-                    </Button>
-                    <Button
-                      variant="success"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (upload.printSlipQRcodeFilePath) {
-                          window.open(upload.printSlipQRcodeFilePath, "_blank");
-                        } else {
-                          alert("ไม่พบภาพสลิปชำระเงิน");
-                        }
-                      }}
-                    >
-                      ภาพสลิปชำระเงิน
+                      ดูรายละเอียด
                     </Button>
                   </div>
                 </div>
@@ -556,6 +575,107 @@ const PrintAdmin: React.FC = () => {
           onPageChange={handlePageChange}
         />
       </Form>
+
+      {selectedUpload && (
+        <Modal
+          show={showModal}
+          onHide={() => setShowModal(false)}
+          size="lg"
+          centered
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>รายละเอียดเอกสาร</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p>ชื่อไฟล์: {selectedUpload.fileName}</p>
+            <p>ประเภทไฟล์: {selectedUpload.fileType}</p>
+            <p>จำนวนหน้า: {selectedUpload.numPages}</p>
+            <p>จำนวนชุด: {selectedUpload.numCopies}</p>
+            <p>ประเภทการปริ้น: {selectedUpload.colorType}</p>
+            <p>ราคาทั้งหมด: {selectedUpload.totalCost} บาท</p>
+            <p>
+              เวลาที่อัปโหลด:{" "}
+              {dayjs(selectedUpload.uploadTime).format("D MMMM YYYY HH:mm")}
+            </p>
+          </Modal.Body>
+          <Modal.Footer className=" text-center align-items-end">
+            {/* Preview ไฟล์ PDF หรือรูปภาพ */}
+            <div className="image-container-print text-center">
+              {selectedUpload.fileType === "application/pdf" ? (
+                <div
+                  className="pdf-thumbnail"
+                  onClick={() =>
+                    window.open(selectedUpload.printFilePath, "_blank")
+                  }
+                >
+                  <p>PDF ตัวอย่าง</p>
+                </div>
+              ) : selectedUpload.fileType.startsWith("image/") ? (
+                <img
+                  src={selectedUpload.printFilePath}
+                  alt={selectedUpload.fileName}
+                  className="img-thumbnail"
+                  onClick={() => setModalImage(selectedUpload.printFilePath)}
+                />
+              ) : (
+                <p className="text-muted">ไม่สามารถแสดงตัวอย่างไฟล์ได้</p>
+              )}
+            {/* ปุ่มสำหรับดาวน์โหลด */}
+            <Button
+            className="my-2"
+              variant="outline-success"
+              onClick={() =>
+                handleDownload(
+                  selectedUpload.printFilePath,
+                  selectedUpload.fileName
+                )
+              }
+            >
+              ดาวน์โหลดไฟล์
+            </Button>
+            </div>
+
+          </Modal.Footer>
+          {/* Modal สำหรับดูภาพขยาย */}
+          <Modal
+            show={!!modalImage}
+            onHide={() => setModalImage(null)}
+            size="lg"
+            centered
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>ดูภาพขยาย</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="text-center">
+              {modalImage ? (
+                <img
+                  src={modalImage}
+                  alt="ภาพขยาย"
+                  style={{ maxWidth: "100%", maxHeight: "80vh" }}
+                />
+              ) : (
+                <p className="text-muted">ไม่พบภาพ</p>
+              )}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                variant="outline-success"
+                className="responsive-label"
+                onClick={() => {
+                  if (modalImage) {
+                    handleDownload(modalImage, selectedUpload.fileName);
+                  } else {
+                    alert("ไม่พบภาพสำหรับดาวน์โหลด");
+                  }
+                }}
+              >
+                ดาวน์โหลดไฟล์
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        </Modal>
+      )}
+
       <ScrollToTopAndBottomButton />
     </div>
   );

@@ -76,6 +76,21 @@ const SidebarAdmin: React.FC<SidebarProps> = ({
           />
         </div>
 
+        <div className="mb-3">
+          <TextSelect
+            label="กรองตามสถานะ"
+            id="filterByStatus"
+            options={[
+              { value: "", label: "ทั้งหมด" },
+              { value: "อยู่ระหว่างดำเนินการ", label: "อยู่ระหว่างดำเนินการ" },
+              { value: "สำเร็จแล้ว", label: "สำเร็จแล้ว" },
+              { value: "รอเอกสารเพิ่มเติม", label: "รอเอกสารเพิ่มเติม" },
+            ]}
+            value={filterType}
+            onChange={(value) => onFilter(value || "")}
+          />
+        </div>
+
         {/* Date Filters */}
         <div className="mb-3 ">
           <Col className="mb-3">
@@ -93,15 +108,12 @@ const SidebarAdmin: React.FC<SidebarProps> = ({
               value={endDate}
             />
           </Col>
-          <Col className="mt-3 d-flex justify-content-end">
-            <Button
-              variant="success"
-              onClick={onDateRangeFilter}
-              className="mx-2"
-            >
+          <Col className="mt-3 d-flex justify-content-start">
+            <Button variant="success" onClick={onDateRangeFilter}>
               <FaSearch /> ค้นหา
             </Button>
             <Button
+              className="mx-2"
               variant="secondary"
               onClick={() => {
                 onStartDateChange(null);

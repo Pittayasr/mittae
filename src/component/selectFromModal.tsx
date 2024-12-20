@@ -9,6 +9,7 @@ interface SelectFormModalProps {
   onNavigateToReadMe: () => void;
   onNavigateToPrint: () => void;
   onNavigateToDelivery: () => void;
+  onNavigateToInsurance: () => void;
 }
 
 const SelectFormModal: React.FC<SelectFormModalProps> = ({
@@ -29,6 +30,11 @@ const SelectFormModal: React.FC<SelectFormModalProps> = ({
 
   const handleNavigateToDelivery = () => {
     navigate("/delivery");
+    onClose();
+  };
+
+  const onNavigateToInsurance = () => {
+    navigate("/insurance");
     onClose();
   };
 
@@ -53,7 +59,7 @@ const SelectFormModal: React.FC<SelectFormModalProps> = ({
               className="mb-3 w-75"
               onClick={handleNavigateToForm}
             >
-              ไปยังหน้ากรอกฟอร์ม
+              พรบ. ต่อภาษีรถ
             </Button>
           </Col>
 
@@ -63,7 +69,16 @@ const SelectFormModal: React.FC<SelectFormModalProps> = ({
               className="mb-3 w-75"
               onClick={handleNavigateToPrint}
             >
-              ไปยังหน้าระบบปริ้นเอกสาร
+              ปริ้นเอกสาร
+            </Button>
+          </Col>
+          <Col className="mb-2" xs={12}>
+            <Button
+              variant="success"
+              className="mb-3 w-75"
+              onClick={onNavigateToInsurance}
+            >
+              ประกันภัย ป1 ป2 ป3 ป4 ป5
             </Button>
           </Col>
 
@@ -76,7 +91,6 @@ const SelectFormModal: React.FC<SelectFormModalProps> = ({
               ไปยังหน้าส่งรถส่งของกลับบ้าน แฟลชและไปรษณีย์
             </Button>
           </Col>
-
         </Row>
       </Modal.Body>
     </Modal>

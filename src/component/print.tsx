@@ -179,6 +179,7 @@ const Print: React.FC = () => {
         printFilePath: printFile.filePath, // URL สำหรับไฟล์ที่เซิร์ฟเวอร์
         printSlipQRcodeFileName: printSlipQRcode.storedFileName, // ชื่อไฟล์ที่เซิร์ฟเวอร์จัดเก็บ
         printSlipQRcodeFilePath: printSlipQRcode.filePath, // URL สำหรับไฟล์ที่เซิร์ฟเวอร์
+        status: "อยู่ระหว่างดำเนินการ",
       };
 
       // ส่งข้อมูลไปที่ Firebase

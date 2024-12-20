@@ -46,6 +46,8 @@ interface ResultDeliveryProps {
     registrationBookFilePath?: File | null;
     idCardFilePath?: File | null;
   };
+  status: string;
+
   onBack: () => void;
 }
 
@@ -184,6 +186,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
           : null,
         deliveryCost: deliveryCost || 0,
         uploadTime,
+        status: "อยู่ระหว่างดำเนินการ",
       };
 
       await addDoc(collection(db, "delivery"), data);

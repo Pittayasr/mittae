@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
 import TextInput from "../textFillComponent/textInput";
 import { db } from "../../../firebaseConfig";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
-import { Col, Row, Form, Button, Modal } from "react-bootstrap";
+import {
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
+import { Col, Row, Form, Button, Modal, ToggleButton } from "react-bootstrap";
 import useAuth from "../useAuth";
 import ScrollToTopAndBottomButton from "../ScrollToTopAndBottomButton";
 import PaginationControls from "./pageAdminComponent/paginationControls";
@@ -49,6 +55,7 @@ interface VehicleData {
   licensePlateFilePath: string;
   formSlipQRcodeFilePath: string;
   uploadTime: string;
+  status: "อยู่ระหว่างดำเนินการ" | "สำเร็จแล้ว" | "รอเอกสารเพิ่มเติม";
 }
 
 //formAdmin.tsx
@@ -75,6 +82,35 @@ const FormAdmin: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const { logout } = useAuth();
+
+  const updateStatus = async (
+    vehicleId: string,
+    newStatus: "อยู่ระหว่างดำเนินการ" | "สำเร็จแล้ว" | "รอเอกสารเพิ่มเติม"
+  ) => {
+    try {
+      const docRef = doc(db, "prbform", vehicleId);
+      await updateDoc(docRef, { status: newStatus });
+
+      // อัปเดต vehicles ใน State
+      setVehicles((prevVehicles) =>
+        prevVehicles.map((vehicle) =>
+          vehicle.docId === vehicleId
+            ? { ...vehicle, status: newStatus }
+            : vehicle
+        )
+      );
+
+      // อัปเดต selectedVehicle ด้วยสถานะใหม่
+      setSelectedVehicle((prevSelectedVehicle) =>
+        prevSelectedVehicle?.docId === vehicleId
+          ? { ...prevSelectedVehicle, status: newStatus }
+          : prevSelectedVehicle
+      );
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert("เกิดข้อผิดพลาดในการเปลี่ยนสถานะ");
+    }
+  };
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) =>
@@ -669,32 +705,21 @@ const FormAdmin: React.FC = () => {
                 <p>รวมค่าใช้จ่ายทั้งหมด: {selectedVehicle.totalCost} บาท</p>
               </Col>
             </Row>
-
-            {/* <p className="mt-4">ค่าพรบ.: {selectedVehicle.prbCost} บาท</p>
-            <p>ค่าภาษีประจำปี: {selectedVehicle.taxCost} บาท</p>
-            <p>ค่าปรับล่าช้า: {selectedVehicle.lateFee} บาท</p>
-            <p>
-              ค่าตรวจสภาพรถเอกชน: {selectedVehicle.inspectionCost} บาท
-            </p>
-            <p>
-              ค่าบริการและดำเนินการ: {selectedVehicle.processingCost} บาท
-            </p> */}
-          </Modal.Body>
-          <Modal.Footer className=" text-center align-items-end">
-            {/* ภาพเล่มทะเบียนรถ */}
-            <div className="image-container text-center col mx-2">
-              {selectedVehicle?.registrationBookFilePath ? (
-                <>
-                  <img
-                    src={selectedVehicle.registrationBookFilePath}
-                    alt="ภาพเล่มทะเบียนรถ"
-                    className="img-thumbnail"
-                    onClick={() =>
-                      setModalImage(selectedVehicle.registrationBookFilePath)
-                    }
-                  />
-                  <p className="mb-2">เล่มทะเบียนรถ</p>
-                  {/* <Button
+            <Row>
+              {/* ภาพเล่มทะเบียนรถ */}
+              <div className="image-container text-center col mx-2">
+                {selectedVehicle?.registrationBookFilePath ? (
+                  <>
+                    <img
+                      src={selectedVehicle.registrationBookFilePath}
+                      alt="ภาพเล่มทะเบียนรถ"
+                      className="img-thumbnail"
+                      onClick={() =>
+                        setModalImage(selectedVehicle.registrationBookFilePath)
+                      }
+                    />
+                    <p className="mb-2">เล่มทะเบียนรถ</p>
+                    {/* <Button
                     size="sm"
                     variant="outline-primary"
                     onClick={(e) => {
@@ -707,48 +732,105 @@ const FormAdmin: React.FC = () => {
                   >
                     ดาวน์โหลดภาพ
                   </Button> */}
-                </>
-              ) : (
-                <p className="text-muted">ไม่พบภาพเล่มทะเบียนรถ</p>
-              )}
-            </div>
+                  </>
+                ) : (
+                  <p className="text-muted">ไม่พบภาพเล่มทะเบียนรถ</p>
+                )}
+              </div>
 
-            {/* ภาพแผ่นป้ายทะเบียน */}
-            <div className="image-container text-center col mx-2">
-              {selectedVehicle?.licensePlateFilePath ? (
-                <>
-                  <img
-                    src={selectedVehicle.licensePlateFilePath}
-                    alt="ภาพแผ่นป้ายทะเบียน"
-                    className="img-thumbnail"
-                    onClick={() =>
-                      setModalImage(selectedVehicle.licensePlateFilePath)
-                    }
-                  />
-                  <p className="mb-2">แผ่นป้ายทะเบียน</p>
-                </>
-              ) : (
-                <p className="text-muted">ไม่พบภาพแผ่นป้ายทะเบียน</p>
-              )}
-            </div>
+              {/* ภาพแผ่นป้ายทะเบียน */}
+              <div className="image-container text-center col mx-2">
+                {selectedVehicle?.licensePlateFilePath ? (
+                  <>
+                    <img
+                      src={selectedVehicle.licensePlateFilePath}
+                      alt="ภาพแผ่นป้ายทะเบียน"
+                      className="img-thumbnail"
+                      onClick={() =>
+                        setModalImage(selectedVehicle.licensePlateFilePath)
+                      }
+                    />
+                    <p className="mb-2">แผ่นป้ายทะเบียน</p>
+                  </>
+                ) : (
+                  <p className="text-muted">ไม่พบภาพแผ่นป้ายทะเบียน</p>
+                )}
+              </div>
 
-            {/* ภาพสลิปชำระเงิน */}
-            <div className="image-container text-center col mx-2">
-              {selectedVehicle?.formSlipQRcodeFilePath ? (
-                <>
-                  <img
-                    src={selectedVehicle.formSlipQRcodeFilePath}
-                    alt="ภาพสลิปชำระเงิน"
-                    className="img-thumbnail "
-                    onClick={() =>
-                      setModalImage(selectedVehicle.formSlipQRcodeFilePath)
-                    }
-                  />
-                  <p className="mb-2">สลิปชำระเงิน</p>
-                </>
-              ) : (
-                <p className="text-muted">ไม่พบภาพสลิปชำระเงิน</p>
-              )}
+              {/* ภาพสลิปชำระเงิน */}
+              <div className="image-container text-center col mx-2">
+                {selectedVehicle?.formSlipQRcodeFilePath ? (
+                  <>
+                    <img
+                      src={selectedVehicle.formSlipQRcodeFilePath}
+                      alt="ภาพสลิปชำระเงิน"
+                      className="img-thumbnail "
+                      onClick={() =>
+                        setModalImage(selectedVehicle.formSlipQRcodeFilePath)
+                      }
+                    />
+                    <p className="mb-2">สลิปชำระเงิน</p>
+                  </>
+                ) : (
+                  <p className="text-muted">ไม่พบภาพสลิปชำระเงิน</p>
+                )}
+              </div>
+            </Row>
+
+            {/* <p className="mt-4">ค่าพรบ.: {selectedVehicle.prbCost} บาท</p>
+            <p>ค่าภาษีประจำปี: {selectedVehicle.taxCost} บาท</p>
+            <p>ค่าปรับล่าช้า: {selectedVehicle.lateFee} บาท</p>
+            <p>
+              ค่าตรวจสภาพรถเอกชน: {selectedVehicle.inspectionCost} บาท
+            </p>
+            <p>
+              ค่าบริการและดำเนินการ: {selectedVehicle.processingCost} บาท
+            </p> */}
+          </Modal.Body>
+          <Modal.Footer className="text-center align-items-end">
+            <div>
+              <ToggleButton
+                type="radio"
+                name="update-status"
+                id="update-success"
+                variant="outline-success"
+                value="สำเร็จแล้ว"
+                className="responsive-label mb-3 mx-2"
+                checked={selectedVehicle?.status === "สำเร็จแล้ว"}
+                onClick={() =>
+                  updateStatus(selectedVehicle!.docId, "สำเร็จแล้ว")
+                }
+              >
+                สำเร็จแล้ว
+              </ToggleButton>
+              <ToggleButton
+                type="radio"
+                name="update-status"
+                id="update-ongoing"
+                variant="outline-primary"
+                value="อยู่ระหว่างดำเนินการ"
+                className="responsive-label mb-3 mx-2"
+                onClick={() =>
+                  updateStatus(selectedVehicle!.docId, "อยู่ระหว่างดำเนินการ")
+                }
+                checked={selectedVehicle?.status === "อยู่ระหว่างดำเนินการ"}
+              >
+                อยู่ระหว่างดำเนินการ
+              </ToggleButton>
+              <ToggleButton
+                type="radio"
+                name="update-status"
+                id="update-moreDoc"
+                variant="outline-warning"
+                value="รอเอกสารเพิ่มเติม"
+                className="responsive-label mb-3 mx-2 "
+                checked={selectedVehicle?.status === "รอเอกสารเพิ่มเติม"}
+                onClick={() =>
+                  updateStatus(selectedVehicle!.docId, "รอเอกสารเพิ่มเติม")
+                }
+              >
+                รอเอกสารเพิ่มเติม
+              </ToggleButton>
             </div>
           </Modal.Footer>
 

@@ -22,6 +22,7 @@ import "./App.css";
 import SelectFormModal from "./component/selectFromModal";
 import SelectAdminFormModal from "./component/pageAdmin/selelctAdminFormModal";
 import LoginAdmin from "./component/pageAdmin/loginAdmin";
+import InsuranceForm from "./component/insurance";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isLoggedIn } = useAuth();
@@ -82,6 +83,10 @@ function App() {
 
   const handleNavigateToDelivery = () => {
     navigate("/delivery");
+  };
+
+  const handleNavigateToInsurance = () => {
+    navigate("/insurance");
   };
 
   const handleNavigateToFormAdmin = () => {
@@ -169,12 +174,14 @@ function App() {
               onNavigateToReadMe={handleNavigateToForm}
               onNavigateToPrint={handleNavigateToPrint}
               onNavigateToDelivery={handleNavigateToDelivery}
+              onNavigateToInsurance={handleNavigateToInsurance}
             />
           }
         />
         <Route path="/form" element={<FormComponent />} />
         <Route path="/print" element={<Print />} />
         <Route path="/delivery" element={<Delivery />} />
+        <Route path="/insurance" element={<InsuranceForm />} />
 
         {/* เส้นทางเข้าสู่ระบบสำหรับแอดมิน */}
         <Route path="/login" element={<LoginAdmin />} />

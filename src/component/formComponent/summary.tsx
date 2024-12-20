@@ -45,6 +45,7 @@ interface SummaryProps {
   carAge: { years: number; months: number; days: number };
   selectedRegistrationBookFile: File | null;
   selectedLicenseFile: File | null;
+  status: string;
 
   onBack: () => void; // ฟังก์ชันสำหรับย้อนกลับ
   onConfirm: () => void; // ฟังก์ชันสำหรับส่งข้อมูล
@@ -241,6 +242,7 @@ const Summary: React.FC<SummaryProps> = ({
         formSlipQRcodeFilePath: formSlipQRcode.filePath,
         formSlipQRcodeFileFileName: formSlipQRcode.storedFileName,
         uploadTime,
+        status: "อยู่ระหว่างดำเนินการ",
       };
 
       await addDoc(collection(db, "prbform"), updatedData);
