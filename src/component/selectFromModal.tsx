@@ -88,7 +88,7 @@ const SelectFormModal: React.FC<SelectFormModalProps> = ({
               className="w-75"
               onClick={handleNavigateToDelivery}
             >
-              ไปยังหน้าส่งรถส่งของกลับบ้าน แฟลชและไปรษณีย์
+              ส่งรถส่งของกลับบ้าน แฟลชและไปรษณีย์
             </Button>
           </Col>
         </Row>

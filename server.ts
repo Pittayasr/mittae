@@ -37,12 +37,15 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let folderPath = path.join(UPLOADS_DIR, "forms");
 
+    //form
     if (file.fieldname === "registrationBookFile") {
       folderPath = path.join(UPLOADS_DIR, "forms", "registrationBook");
     } else if (file.fieldname === "licensePlateFile") {
       folderPath = path.join(UPLOADS_DIR, "forms", "licensePlate");
     } else if (file.fieldname === "formSlipQRcode") {
       folderPath = path.join(UPLOADS_DIR, "forms", "formSlipQRcode");
+
+      //delivery
     } else if (file.fieldname === "passportOrIDnumberFile") {
       folderPath = path.join(UPLOADS_DIR, "deliveries", "passportOrIDnumber");
     } else if (file.fieldname === "registrationBookFileDelivery") {
@@ -53,6 +56,44 @@ const storage = multer.diskStorage({
       );
     } else if (file.fieldname === "licenseFileDelivery") {
       folderPath = path.join(UPLOADS_DIR, "deliveries", "licenseDelivery");
+
+      //insurance
+    } else if (file.fieldname === "registrationBookInsuranceCarFile") {
+      folderPath = path.join(
+        UPLOADS_DIR,
+        "insurances",
+        "registrationBookInsuranceCarFile"
+      );
+    } else if (file.fieldname === "registrationBookInsuranceMotorcycleFile") {
+      folderPath = path.join(
+        UPLOADS_DIR,
+        "insurances",
+        "registrationBookInsuranceMotorcycleFile"
+      );
+    } else if (file.fieldname === "titleDeedFile") {
+      folderPath = path.join(UPLOADS_DIR, "insurances", "titleDeedFile");
+    } else if (file.fieldname === "voluntaryInsuranceCarFile") {
+      folderPath = path.join(
+        UPLOADS_DIR,
+        "insurances",
+        "voluntaryInsuranceCarFile"
+      );
+    } else if (file.fieldname === "voluntaryInsuranceMotorcycleFile") {
+      folderPath = path.join(
+        UPLOADS_DIR,
+        "insurances",
+        "voluntaryInsuranceMotorcycleFile"
+      );
+    } else if (file.fieldname === "voluntaryInsuranceHouseFile") {
+      folderPath = path.join(
+        UPLOADS_DIR,
+        "insurances",
+        "voluntaryInsuranceHouseFile"
+      );
+    } else if (file.fieldname === "noIDcardFile") {
+      folderPath = path.join(UPLOADS_DIR, "insurances", "noIDcardFile");
+
+      //print
     } else if (
       file.fieldname == "printFile" &&
       file.mimetype === "application/pdf"
@@ -105,6 +146,18 @@ const ensureDirectoriesExist = () => {
     path.join(UPLOADS_DIR, "deliveries", "passportOrIDnumber"),
     path.join(UPLOADS_DIR, "deliveries", "registrationBookDelivery"),
     path.join(UPLOADS_DIR, "deliveries", "licenseDelivery"),
+    path.join(UPLOADS_DIR, "insurances"),
+    path.join(UPLOADS_DIR, "insurances", "registrationBookInsuranceCarFile"),
+    path.join(
+      UPLOADS_DIR,
+      "insurances",
+      "registrationBookInsuranceMotorcycleFile"
+    ),
+    path.join(UPLOADS_DIR, "insurances", "titleDeedFile"),
+    path.join(UPLOADS_DIR, "insurances", "voluntaryInsuranceCarFile"),
+    path.join(UPLOADS_DIR, "insurances", "voluntaryInsuranceMotorcycleFile"),
+    path.join(UPLOADS_DIR, "insurances", "voluntaryInsuranceHouseFile"),
+    path.join(UPLOADS_DIR, "insurances", "noIDcardFile"),
     path.join(UPLOADS_DIR, "prints", "pdf"),
     path.join(UPLOADS_DIR, "prints", "photo"),
     path.join(UPLOADS_DIR, "prints", "printSlipQRcode"),
@@ -159,12 +212,21 @@ app.post(
     { name: "registrationBookFile", maxCount: 1 },
     { name: "licensePlateFile", maxCount: 1 },
     { name: "formSlipQRcode", maxCount: 1 },
+    { name: "registrationBookInsuranceCarFile", maxCount: 1 },
+    { name: "registrationBookInsuranceMotorcycleFile", maxCount: 1 },
+    { name: "titleDeedFile", maxCount: 1 },
+    { name: "voluntaryInsuranceCarFile", maxCount: 1 },
+    { name: "voluntaryInsuranceMotorcycleFile", maxCount: 1 },
+    { name: "voluntaryInsuranceHouseFile", maxCount: 1 },
+    { name: "noIDcardFile", maxCount: 1 },
   ]),
   (req, res) => {
     console.log("Request files:", req.files);
     console.log("Request body:", req.body);
+
     try {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const body = req.body;
 
       // Group: Print
       const printFile = files["printFile"]?.[0];
@@ -181,26 +243,91 @@ app.post(
         files["registrationBookFileDelivery"]?.[0];
       const licenseFileDelivery = files["licenseFileDelivery"]?.[0];
 
-      // Check if print group files are uploaded together
-      if ((printFile || printSlipQRcode) && (!printFile || !printSlipQRcode)) {
-        return res.status(400).json({
-          error:
-            "Both printFile and printSlipQRcode must be uploaded together.",
-        });
+      // Group: Insurance
+      const registrationBookInsuranceCarFile =
+        files["registrationBookInsuranceCarFile"]?.[0];
+      const registrationBookInsuranceMotorcycleFile =
+        files["registrationBookInsuranceMotorcycleFile"]?.[0];
+      const titleDeedFile = files["titleDeedFile"]?.[0];
+      const voluntaryInsuranceCarFile = files["voluntaryInsuranceCarFile"]?.[0];
+      const voluntaryInsuranceMotorcycleFile =
+        files["voluntaryInsuranceMotorcycleFile"]?.[0];
+      const voluntaryInsuranceHouseFile =
+        files["voluntaryInsuranceHouseFile"]?.[0];
+      const noIDcardFile = files["noIDcardFile"]?.[0];
+
+      // Delivery Validation
+      if (body.type === "Delivery") {
+        if (!passportOrIDnumberFile) {
+          return res.status(400).json({
+            error: "passportOrIDnumberFile is required for Delivery.",
+          });
+        }
+        if (
+          body.selectDeliveryType === "ส่งรถกลับบ้าน" &&
+          !registrationBookFileDelivery
+        ) {
+          return res.status(400).json({
+            error:
+              "registrationBookFileDelivery is required for 'ส่งรถกลับบ้าน'.",
+          });
+        }
       }
 
-      // Check if form group files are uploaded together
-      if (
-        (registrationBookFile || licensePlateFile || formSlipQRcode) &&
-        (!registrationBookFile || !licensePlateFile || !formSlipQRcode)
-      ) {
-        return res.status(400).json({
-          error:
-            "registrationBookFile, licensePlateFile, and formSlipQRcode must be uploaded together.",
-        });
+      // Insurance Validation
+      if (body.type === "Insurance") {
+        if (body.vehicleType === "รถยนต์") {
+          if (!files.registrationBookInsuranceCarFile) {
+            return res.status(400).json({
+              error:
+                "registrationBookInsuranceCarFile is required for รถยนต์ insurance.",
+            });
+          }
+          if (
+            body.hasVoluntaryInsurance === "ยังมีประกันภัยภาคสมัครใจ" &&
+            !files.voluntaryInsuranceCarFile
+          ) {
+            return res.status(400).json({
+              error:
+                "voluntaryInsuranceCarFile is required for รถยนต์ insurance with 'ยังมีประกันภัยภาคสมัครใจ'.",
+            });
+          }
+        } else if (body.vehicleType === "รถจักรยานยนต์") {
+          if (!files.registrationBookInsuranceMotorcycleFile) {
+            return res.status(400).json({
+              error:
+                "registrationBookInsuranceMotorcycleFile is required for รถจักรยานยนต์ insurance.",
+            });
+          }
+          if (
+            body.hasVoluntaryInsurance === "ยังมีประกันภัยภาคสมัครใจ" &&
+            !files.voluntaryInsuranceMotorcycleFile
+          ) {
+            return res.status(400).json({
+              error:
+                "voluntaryInsuranceMotorcycleFile is required for รถจักรยานยนต์ insurance with 'ยังมีประกันภัยภาคสมัครใจ'.",
+            });
+          }
+        } else if (body.vehicleType === "หอพัก บ้าน") {
+          if (!files.titleDeedFile || !files.noIDcardFile) {
+            return res.status(400).json({
+              error:
+                "titleDeedFile and noIDcardFile are required for หอพัก บ้าน insurance.",
+            });
+          }
+          if (
+            body.hasVoluntaryInsurance === "ยังมีประกันภัยภาคสมัครใจ" &&
+            !files.voluntaryInsuranceHouseFile
+          ) {
+            return res.status(400).json({
+              error:
+                "voluntaryInsuranceHouseFile is required for หอพัก บ้าน insurance with 'ยังมีประกันภัยภาคสมัครใจ'.",
+            });
+          }
+        }
       }
 
-      // Generate file paths
+      // Generate print file paths
       const printFilePath = printFile
         ? `${req.protocol}://${req.get("host")}/uploads/${
             printFile.mimetype === "application/pdf"
@@ -215,6 +342,7 @@ app.post(
           )}/uploads/prints/printSlipQRcode/${printSlipQRcode.filename}`
         : null;
 
+      // Generate form file paths
       const registrationBookFilePath = registrationBookFile
         ? `${req.protocol}://${req.get(
             "host"
@@ -232,7 +360,8 @@ app.post(
             formSlipQRcode.filename
           }`
         : null;
-
+      
+      // Generate delivery file paths
       const passportOrIDnumberFilePath = passportOrIDnumberFile
         ? `${req.protocol}://${req.get(
             "host"
@@ -252,7 +381,65 @@ app.post(
       const licenseFileDeliveryPath = licenseFileDelivery
         ? `${req.protocol}://${req.get(
             "host"
-          )}/uploads/deliveries/licenseDelivery/${licenseFileDelivery.filename}`
+          )}/uploads/deliveries/licenseFileDelivery/${
+            licenseFileDelivery.filename
+          }`
+        : null;
+
+      // Generate insurance file paths  
+      const registrationBookInsuranceCarFilePath =
+        registrationBookInsuranceCarFile
+          ? `${req.protocol}://${req.get(
+              "host"
+            )}/uploads/insurances/registrationBookInsuranceCarFile/${
+              registrationBookInsuranceCarFile.filename
+            }`
+          : null;
+
+      const registrationBookInsuranceMotorcycleFilePath =
+        registrationBookInsuranceMotorcycleFile
+          ? `${req.protocol}://${req.get(
+              "host"
+            )}/uploads/insurances/registrationBookInsuranceMotorcycleFile/${
+              registrationBookInsuranceMotorcycleFile.filename
+            }`
+          : null;
+
+      const titleDeedFilePath = titleDeedFile
+        ? `${req.protocol}://${req.get(
+            "host"
+          )}/uploads/insurances/titleDeedFile/${titleDeedFile.filename}`
+        : null;
+
+      const voluntaryInsuranceCarFilePath = voluntaryInsuranceCarFile
+        ? `${req.protocol}://${req.get(
+            "host"
+          )}/uploads/insurances/voluntaryInsuranceCarFile/${
+            voluntaryInsuranceCarFile.filename
+          }`
+        : null;
+
+      const voluntaryInsuranceMotorcycleFilePath =
+        voluntaryInsuranceMotorcycleFile
+          ? `${req.protocol}://${req.get(
+              "host"
+            )}/uploads/insurances/voluntaryInsuranceMotorcycleFile/${
+              voluntaryInsuranceMotorcycleFile.filename
+            }`
+          : null;
+
+      const voluntaryInsuranceHouseFilePath = voluntaryInsuranceHouseFile
+        ? `${req.protocol}://${req.get(
+            "host"
+          )}/uploads/insurances/voluntaryInsuranceHouseFile/${
+            voluntaryInsuranceHouseFile.filename
+          }`
+        : null;
+
+      const noIDcardFilePath = noIDcardFile
+        ? `${req.protocol}://${req.get(
+            "host"
+          )}/uploads/insurances/noIDcardFile/${noIDcardFile.filename}`
         : null;
 
       // Response object
@@ -288,24 +475,72 @@ app.post(
               }
             : null,
         },
-        passportOrIDnumberFile: passportOrIDnumberFile
-          ? {
-              filePath: passportOrIDnumberFilePath,
-              storedFileName: passportOrIDnumberFile.filename,
-            }
-          : null,
-        registrationBookFileDelivery: registrationBookFileDelivery
-          ? {
-              filePath: registrationBookFileDeliveryPath,
-              storedFileName: registrationBookFileDelivery.filename,
-            }
-          : null,
-        licenseFileDelivery: licenseFileDelivery
-          ? {
-              filePath: licenseFileDeliveryPath,
-              storedFileName: licenseFileDelivery.filename,
-            }
-          : null,
+        delivery: {
+          passportOrIDnumberFile: passportOrIDnumberFile
+            ? {
+                filePath: passportOrIDnumberFilePath,
+                storedFileName: passportOrIDnumberFile.filename,
+              }
+            : null,
+          registrationBookFileDelivery: registrationBookFileDelivery
+            ? {
+                filePath: registrationBookFileDeliveryPath,
+                storedFileName: registrationBookFileDelivery.filename,
+              }
+            : null,
+          licenseFileDelivery: licenseFileDelivery
+            ? {
+                filePath: licenseFileDeliveryPath,
+                storedFileName: licenseFileDelivery.filename,
+              }
+            : null,
+        },
+        insurances: {
+          registrationBookInsuranceCarFile: registrationBookInsuranceCarFile
+            ? {
+                filePath: registrationBookInsuranceCarFilePath,
+                storedFileName: registrationBookInsuranceCarFile.filename,
+              }
+            : null,
+          registrationBookInsuranceMotorcycleFile:
+            registrationBookInsuranceMotorcycleFile
+              ? {
+                  filePath: registrationBookInsuranceMotorcycleFilePath,
+                  storedFileName:
+                    registrationBookInsuranceMotorcycleFile.filename,
+                }
+              : null,
+          titleDeedFile: titleDeedFile
+            ? {
+                filePath: titleDeedFilePath,
+                storedFileName: titleDeedFile.filename,
+              }
+            : null,
+          noIDcardFile: noIDcardFile
+            ? {
+                filePath: noIDcardFilePath,
+                storedFileName: noIDcardFile.filename,
+              }
+            : null,
+          voluntaryInsuranceCarFile: voluntaryInsuranceCarFile
+            ? {
+                filePath: voluntaryInsuranceCarFilePath,
+                storedFileName: voluntaryInsuranceCarFile.filename,
+              }
+            : null,
+          voluntaryInsuranceMotorcycleFile: voluntaryInsuranceMotorcycleFile
+            ? {
+                filePath: voluntaryInsuranceMotorcycleFilePath,
+                storedFileName: voluntaryInsuranceMotorcycleFile.filename,
+              }
+            : null,
+          voluntaryInsuranceHouseFile: voluntaryInsuranceHouseFile
+            ? {
+                filePath: voluntaryInsuranceHouseFilePath,
+                storedFileName: voluntaryInsuranceHouseFile.filename,
+              }
+            : null,
+        },
       };
 
       console.log("Files uploaded successfully:", response);

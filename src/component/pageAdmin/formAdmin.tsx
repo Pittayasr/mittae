@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
+//formAdmin.tsx
+import React, { useEffect, useState, useCallback } from "react";
 import TextInput from "../textFillComponent/textInput";
+import AllInfo from "./pageAdminComponent/allInfo";
 import { db } from "../../../firebaseConfig";
 import {
   collection,
@@ -17,6 +19,12 @@ import { IoMdMore } from "react-icons/io";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/th";
 import isBetween from "dayjs/plugin/isBetween";
+import provinces from "../../data/provinces.json";
+import {
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaSpinner,
+} from "react-icons/fa";
 
 dayjs.locale("th");
 
@@ -58,11 +66,14 @@ interface VehicleData {
   status: "อยู่ระหว่างดำเนินการ" | "สำเร็จแล้ว" | "รอเอกสารเพิ่มเติม";
 }
 
-//formAdmin.tsx
 const FormAdmin: React.FC = () => {
+  const [provinceList] = useState(provinces);
+
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
   const [filteredVehicles, setFilteredVehicles] = useState<VehicleData[]>([]);
   const [filterType, setFilterType] = useState<string>("");
+  const [filterStatus, setFilterStatus] = useState<string>("");
+  const [filterProvince, setFilterProvince] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleData | null>(
     null
@@ -80,6 +91,11 @@ const FormAdmin: React.FC = () => {
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const [totalVehicles, setTotalVehicles] = useState(0);
+  const [completedVehicles, setCompletedVehicles] = useState(0);
+  const [inProgressVehicles, setInProgressVehicles] = useState(0);
+  const [additionalDocsVehicles, setAdditionalDocsVehicles] = useState(0);
 
   const { logout } = useAuth();
 
@@ -128,24 +144,6 @@ const FormAdmin: React.FC = () => {
     setIsMultiSelectMode((prev) => !prev);
     setSelectedIds([]); // Reset selections when toggling mode
   };
-
-  useEffect(() => {
-    const fetchVehicles = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "prbform"));
-        const vehicleData = querySnapshot.docs.map((doc) => {
-          const docData = doc.data() as VehicleData;
-          return { ...docData, docId: doc.id };
-        });
-        setVehicles(vehicleData);
-        setFilteredVehicles(vehicleData);
-      } catch (error) {
-        console.error("Error fetching vehicles:", error);
-      }
-    };
-
-    fetchVehicles();
-  }, []);
 
   const handleDeleteSelected = async () => {
     if (
@@ -296,7 +294,7 @@ const FormAdmin: React.FC = () => {
     if (isAllSelected) {
       setSelectedIds([]); // ยกเลิกการเลือกทั้งหมด
     } else {
-      setSelectedIds(vehicles.map((vehicle) => vehicle.docId)); // เลือกทั้งหมด
+      setSelectedIds(filteredVehicles.map((vehicle) => vehicle.docId)); // เลือกทั้งหมด
     }
     setIsAllSelected(!isAllSelected);
   };
@@ -314,19 +312,66 @@ const FormAdmin: React.FC = () => {
     setFilteredVehicles(filtered);
   };
 
+  const handleFilterUpdate = useCallback(() => {
+    let filtered = [...vehicles];
+
+    if (filterType) {
+      filtered = filtered.filter(
+        (vehicle) => vehicle.vehicleType === filterType
+      );
+    }
+
+    if (filterStatus) {
+      filtered = filtered.filter((vehicle) => vehicle.status === filterStatus);
+    }
+
+    if (filterProvince) {
+      filtered = filtered.filter(
+        (vehicle) => vehicle.province === filterProvince
+      );
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (vehicle) =>
+          vehicle.registrationNumber
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          vehicle.ownerData.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (startDate && endDate) {
+      filtered = filtered.filter((vehicle) => {
+        const uploadDate = dayjs(vehicle.uploadTime);
+        return uploadDate.isBetween(startDate, endDate, "day", "[]");
+      });
+    }
+
+    setFilteredVehicles(filtered);
+  }, [
+    vehicles,
+    filterType,
+    filterStatus,
+    filterProvince,
+    searchTerm,
+    startDate,
+    endDate,
+  ]);
+
+  // ฟังก์ชันกรองเมื่อค่า filterType เปลี่ยน
   const handleFilter = (type: string) => {
     setFilterType(type);
-    setCurrentPage(1); // รีเซ็ตหน้าปัจจุบัน
-    if (type) {
-      // กรองตาม vehicleType
-      const filtered = vehicles.filter(
-        (vehicle) => vehicle.vehicleType === type
-      );
-      setFilteredVehicles(filtered);
-    } else {
-      // ถ้าไม่เลือกค่าใดๆ ให้แสดงข้อมูลทั้งหมด
-      setFilteredVehicles(vehicles);
-    }
+  };
+
+  // ฟังก์ชันกรองเมื่อค่า filterStatus เปลี่ยน
+  const handleStatusFilter = (status: string) => {
+    setFilterStatus(status);
+  };
+
+  // ฟังก์ชันกรองเมื่อค่า filterProvince เปลี่ยน
+  const handleProvinceFilter = (province: string) => {
+    setFilterProvince(province);
   };
 
   const handleSort = (field: string) => {
@@ -394,6 +439,41 @@ const FormAdmin: React.FC = () => {
     setFilteredVehicles(data);
   };
 
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "prbform"));
+        const vehicleData = querySnapshot.docs.map((doc) => {
+          const docData = doc.data() as VehicleData;
+          return { ...docData, docId: doc.id };
+        });
+        setVehicles(vehicleData);
+        setFilteredVehicles(vehicleData);
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+      }
+    };
+
+    fetchVehicles();
+  }, []);
+
+  useEffect(() => {
+    handleFilterUpdate();
+  }, [handleFilterUpdate]);
+
+  useEffect(() => {
+    setTotalVehicles(vehicles.length);
+    setCompletedVehicles(
+      vehicles.filter((v) => v.status === "สำเร็จแล้ว").length
+    );
+    setInProgressVehicles(
+      vehicles.filter((v) => v.status === "อยู่ระหว่างดำเนินการ").length
+    );
+    setAdditionalDocsVehicles(
+      vehicles.filter((v) => v.status === "รอเอกสารเพิ่มเติม").length
+    );
+  }, [vehicles]);
+
   const paginatedVehicles = filteredVehicles.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -419,6 +499,14 @@ const FormAdmin: React.FC = () => {
       <h1 className="text-success text-center">
         แดชบอร์ดแอดมินสำหรับฟอร์มพรบ.ต่อภาษีรถ
       </h1>
+
+      <AllInfo
+        total={totalVehicles}
+        completed={completedVehicles}
+        inProgress={inProgressVehicles}
+        additionalDocs={additionalDocsVehicles}
+      />
+
       <Form>
         <Row>
           <Col
@@ -438,19 +526,7 @@ const FormAdmin: React.FC = () => {
               onChange={(e) => handleSearch(e.target.value)}
             />
           </Col>
-          {/* <Col  md={3}>
-            <TextSelect
-              label="ประเภทไฟล์"
-              id="filterSelect"
-              options={[
-                { value: "", label: "แสดงทั้งหมด" },
-                { value: "image", label: "ไฟล์รูปภาพ" },
-                { value: "pdf", label: "ไฟล์ PDF" },
-              ]}
-              value={filterType}
-              onChange={(value) => handleFilter(value || "")}
-            />
-          </Col> */}
+
           <Col
             xs={2}
             sm={1}
@@ -473,11 +549,13 @@ const FormAdmin: React.FC = () => {
               }}
             />
 
-            {/* Sidebar */}
+            {/* Sidebar formAdmin */}
             <SidebarAdmin
+              formType="other"
               isOpen={isSidebarOpen}
               onClose={toggleSidebar}
-              onFilter={handleFilter}
+              onFilterStatus={handleStatusFilter}
+              filterStatus={filterStatus}
               onSort={handleSort}
               sortField={sortField}
               sortOrder={sortOrder}
@@ -490,6 +568,7 @@ const FormAdmin: React.FC = () => {
                   logout();
                 }
               }}
+              filterLabel="แสดงประเภทรถ"
               filterType={filterType}
               filterOptions={[
                 { value: "", label: "แสดงทั้งหมด" },
@@ -507,7 +586,18 @@ const FormAdmin: React.FC = () => {
                 { label: "รถแทรกเตอร์", value: "รถแทรกเตอร์" },
                 { label: "รถแก๊ส", value: "รถแก๊ส" },
               ]}
-              filterLabel="แสดงประเภทรถ"
+              onFilter={handleFilter}
+              filterExtraLabel=""
+              filterExtra={filterType}
+              filterExtraOptions={[{ label: "", value: "" }]}
+              onFilterExtra={handleFilter}
+              filterProvinceLabel="จังหวัด"
+              filterProvince={filterProvince}
+              filterProvinceOptions={provinceList.map((p) => ({
+                value: p.provinceNameTh,
+                label: p.provinceNameTh,
+              }))}
+              onFilterProvince={handleProvinceFilter}
               onStartDateChange={setStartDate}
               onEndDateChange={setEndDate}
               startDate={startDate}
@@ -517,107 +607,134 @@ const FormAdmin: React.FC = () => {
           </Col>
         </Row>
         <Row className="responsive-container mb-3">
-          {paginatedVehicles.map((vehicle, index) => (
-            <Col
-              xs={12}
-              sm={12}
-              md={6}
-              lg={4}
-              xl={4}
-              key={index}
-              className={`mb-3 ${isMultiSelectMode ? "selectable-card" : ""}`}
-              onClick={
-                isMultiSelectMode
-                  ? () => toggleSelect(vehicle.docId)
-                  : () => handleViewDetails(vehicle)
-              }
-            >
-              <div className="card">
-                <div
-                  className="card-body"
-                  style={{
-                    cursor: "pointer",
-                    border:
-                      selectedIds.includes(vehicle.docId) && isMultiSelectMode
-                        ? "2px solid #28a745"
-                        : "none",
-                    borderRadius: "5px",
-                  }}
-                >
+          {vehicles.length === 0 ? (
+            <Col>
+              <p className="text-center text-muted">ไม่มีข้อมูลให้แสดง</p>
+            </Col>
+          ) : filteredVehicles.length === 0 ? (
+            <Col>
+              <p className="text-center text-muted">ไม่มีข้อมูลที่ค้นหา</p>
+            </Col>
+          ) : (
+            paginatedVehicles.map((vehicle, index) => (
+              <Col
+                xs={12}
+                sm={12}
+                md={6}
+                lg={4}
+                xl={4}
+                key={index}
+                className={`mb-3 ${isMultiSelectMode ? "selectable-card" : ""}`}
+                onClick={
+                  isMultiSelectMode
+                    ? () => toggleSelect(vehicle.docId)
+                    : () => handleViewDetails(vehicle)
+                }
+              >
+                <div className="card">
                   <div
-                    className="d-flex align-items-center justify-content-between"
+                    className="card-body"
                     style={{
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
+                      cursor: "pointer",
+                      border:
+                        selectedIds.includes(vehicle.docId) && isMultiSelectMode
+                          ? "2px solid #28a745"
+                          : "none",
+                      borderRadius: "5px",
                     }}
                   >
-                    <h4
-                      className="card-title text-success mb-0"
+                    <div
+                      className="d-flex align-items-center justify-content-between"
                       style={{
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                       }}
                     >
-                      {vehicle.registrationNumber}
-                    </h4>
-                    {isMultiSelectMode && (
-                      <Form.Check
-                        className="custom-checkbox"
-                        type="checkbox"
-                        checked={selectedIds.includes(vehicle.docId)}
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={() => toggleSelect(vehicle.docId)}
-                      />
-                    )}
-                  </div>
-                  <p className="card-text mt-4">
-                    ชื่อเจ้าของรถ: {vehicle.usernameData}
-                  </p>
-                  <p className="card-text">
-                    {vehicle.selectedRadio}: {vehicle.ownerData}
-                  </p>
-                  <p className="card-text">
-                    เบอร์ติดต่อ: {vehicle.contactNumber}
-                  </p>
-                  <p className="card-text">ประเภทรถ: {vehicle.vehicleType}</p>
-                  <p className="card-text">
-                    วันสิ้นอายุ: {vehicle.expirationDate}
-                  </p>
-                  <p className="card-text">
-                    เวลาที่อัปโหลด:{" "}
-                    {dayjs(vehicle.uploadTime).format(
-                      "D MMMM YYYY เวลา HH:mm น."
-                    )}
-                  </p>
+                      <h4
+                        className="card-title text-success mb-0"
+                        style={{
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {vehicle.registrationNumber}
+                      </h4>
+                      {isMultiSelectMode && (
+                        <Form.Check
+                          className="custom-checkbox"
+                          type="checkbox"
+                          checked={selectedIds.includes(vehicle.docId)}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={() => toggleSelect(vehicle.docId)}
+                        />
+                      )}
+                    </div>
+                    <p className="card-text mt-4">
+                      ชื่อเจ้าของรถ: {vehicle.usernameData}
+                    </p>
+                    <p className="card-text">
+                      {vehicle.selectedRadio}: {vehicle.ownerData}
+                    </p>
+                    <p className="card-text">
+                      เบอร์ติดต่อ: {vehicle.contactNumber}
+                    </p>
+                    <p className="card-text">ประเภทรถ: {vehicle.vehicleType}</p>
+                    <p className="card-text">
+                      วันสิ้นอายุ: {vehicle.expirationDate}
+                    </p>
+                    <p className="card-text">
+                      เวลาที่อัปโหลด:{" "}
+                      {dayjs(vehicle.uploadTime).format(
+                        "D MMMM YYYY เวลา HH:mm น."
+                      )}
+                    </p>
+                    <p className="card-text">
+                      สถานะ: {vehicle.status}{" "}
+                      {vehicle.status === "สำเร็จแล้ว" ? (
+                        <FaCheckCircle
+                          className="text-success my-3"
+                          size={20}
+                        />
+                      ) : vehicle.status === "อยู่ระหว่างดำเนินการ" ? (
+                        <FaSpinner className="text-info my-3" size={20} />
+                      ) : (
+                        <FaExclamationTriangle
+                          className="text-warning my-3"
+                          size={20}
+                        />
+                      )}
+                    </p>
 
-                  <div className="d-flex justify-content-end ">
-                    <Button
-                      className="mx-3"
-                      variant="outline-danger"
-                      onClick={(e) => {
-                        e.stopPropagation(); // หยุดการกระจายเหตุการณ์ไปยังการ์ด
-                        handleDelete(vehicle);
-                      }}
-                    >
-                      ลบ
-                    </Button>
-                    <Button
-                      variant="success"
-                      onClick={(e) => {
-                        e.stopPropagation(); // หยุดการกระจายเหตุการณ์ไปยังการ์ด
-                        handleViewDetails(vehicle);
-                      }}
-                    >
-                      ดูรายละเอียด
-                    </Button>
+                    <div className="d-flex justify-content-end ">
+                      <Button
+                        className="mx-3"
+                        variant="outline-danger"
+                        onClick={(e) => {
+                          e.stopPropagation(); // หยุดการกระจายเหตุการณ์ไปยังการ์ด
+                          handleDelete(vehicle);
+                        }}
+                      >
+                        ลบ
+                      </Button>
+                      <Button
+                        variant="success"
+                        onClick={(e) => {
+                          e.stopPropagation(); // หยุดการกระจายเหตุการณ์ไปยังการ์ด
+                          handleViewDetails(vehicle);
+                        }}
+                      >
+                        ดูรายละเอียด
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Col>
-          ))}
+              </Col>
+            ))
+          )}
         </Row>
+
         <Row>
           <Col>
             {selectedIds.length > 0 && (
@@ -642,7 +759,7 @@ const FormAdmin: React.FC = () => {
           </Col>
         </Row>
         <PaginationControls
-          totalItems={vehicles.length}
+          totalItems={filteredVehicles.length}
           itemsPerPage={itemsPerPage}
           currentPage={currentPage}
           onPageChange={handlePageChange}
@@ -807,7 +924,7 @@ const FormAdmin: React.FC = () => {
                 type="radio"
                 name="update-status"
                 id="update-ongoing"
-                variant="outline-primary"
+                variant="outline-info"
                 value="อยู่ระหว่างดำเนินการ"
                 className="responsive-label mb-3 mx-2"
                 onClick={() =>

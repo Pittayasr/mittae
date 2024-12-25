@@ -58,7 +58,7 @@ const ScrollToTopAndBottomButton: React.FC = () => {
           onClick={scrollToPosition}
           style={{
             position: "fixed",
-            bottom: "52px",
+            bottom: "15px",
             right: "15px",
             zIndex: 1000,
             borderRadius: "50%",

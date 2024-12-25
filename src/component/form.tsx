@@ -482,7 +482,7 @@ const FormComponent: React.FC = () => {
             selectedLicenseFile={selectedLicenseFile}
             onBack={handleBack} // ส่งฟังก์ชันย้อนกลับ
             onConfirm={handleConfirm} // ส่งฟังก์ชันตกลง
-            status=""
+        
           />
         )
       )}

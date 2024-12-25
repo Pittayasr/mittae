@@ -590,7 +590,7 @@ const Delivery: React.FC = () => {
                       setSelectedRegistrationBookFile(file)
                     }
                     accept=".jpg, .png"
-                    isInvalid={!selectedFile}
+                    isInvalid={validated && !selectedRegistrationBookFile}
                     alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้น"
                     initialFile={selectedRegistrationBookFile}
                   />
@@ -600,7 +600,7 @@ const Delivery: React.FC = () => {
                     label="สำเนาบัตรประชาชนผู้มีชื่อในสำเนารถ (กรณีเจ้าของไม่ได้ดำเนินการเอง)"
                     onFileSelect={(file) => setSelectedIDcardVehicleFile(file)}
                     accept=".jpg, .png"
-                    isInvalid={!selectedFile}
+                    isInvalid={validated && !selectedIDcardVehicleFile}
                     alertText="กรุณาเลือกไฟล์ที่ต้องการปริ้น"
                     initialFile={selectedIDcardVehicleFile}
                   />

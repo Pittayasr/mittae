@@ -18,6 +18,7 @@ import Delivery from "./component/delivery";
 import PrintAdmin from "./component/pageAdmin/printAdmin";
 import FormAdmin from "./component/pageAdmin/formAdmin";
 import DeliveryAdmin from "./component/pageAdmin/deliveryAdmin";
+import InsuranceAdmin from "./component/pageAdmin/insuranceAdmin";
 import "./App.css";
 import SelectFormModal from "./component/selectFromModal";
 import SelectAdminFormModal from "./component/pageAdmin/selelctAdminFormModal";
@@ -55,7 +56,9 @@ function App() {
     setShowBrowserWarning(shouldShowWarning);
 
     // แสดง PDPA_modal เมื่อเข้าหน้าใหม่
-    if (["/form", "/print", "/delivery"].includes(location.pathname)) {
+    if (
+      ["/form", "/print", "/delivery", "/insurance"].includes(location.pathname)
+    ) {
       setShowPDPA(true); // เปิด Modal PDPA เสมอเมื่อเปลี่ยนหน้า
     } else {
       setShowPDPA(false);
@@ -95,6 +98,14 @@ function App() {
 
   const handleNavigateToPrintAdmin = () => {
     navigate("/print_admin_XTc}KPf]=Z@J");
+  };
+
+  const handleNavigateToDeliveryAdmin = () => {
+    navigate("/delivery_admin_2[sru)x3X[SD");
+  };
+
+  const handleNavigateToInsuranceAdmin = () => {
+    navigate("/insurance_admin_yKLwO~{WoOL(");
   };
 
   // if (
@@ -173,7 +184,7 @@ function App() {
               onClose={() => setShowSelectFormModal(false)}
               onNavigateToReadMe={handleNavigateToForm}
               onNavigateToPrint={handleNavigateToPrint}
-              onNavigateToDelivery={handleNavigateToDelivery}
+              onNavigateToDelivery={handleNavigateToDeliveryAdmin}
               onNavigateToInsurance={handleNavigateToInsurance}
             />
           }
@@ -196,6 +207,8 @@ function App() {
                 onClose={() => {}}
                 onNavigateToFormAdmin={handleNavigateToFormAdmin}
                 onNavigateToPrintAdmin={handleNavigateToPrintAdmin}
+                onNavigateToDeliveryAdmin={handleNavigateToDelivery}
+                onNavigateToInsuranceAdmin={handleNavigateToInsuranceAdmin}
               />
             </ProtectedRoute>
           }
@@ -222,6 +235,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DeliveryAdmin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/insurance_admin_yKLwO~{WoOL("
+          element={
+            <ProtectedRoute>
+              <InsuranceAdmin />
             </ProtectedRoute>
           }
         />

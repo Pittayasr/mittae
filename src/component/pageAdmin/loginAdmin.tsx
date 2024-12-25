@@ -42,7 +42,7 @@ const LoginAdmin: React.FC = () => {
       });
 
       if (loginSuccess) {
-        window.alert("เข้าสู่ระบบสำเร็จ");
+        // window.alert("เข้าสู่ระบบสำเร็จ");
         login();
         navigate("/admin_select");
       } else {

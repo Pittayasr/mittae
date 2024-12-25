@@ -46,7 +46,6 @@ interface ResultDeliveryProps {
     registrationBookFilePath?: File | null;
     idCardFilePath?: File | null;
   };
-  status: string;
 
   onBack: () => void;
 }
@@ -69,14 +68,14 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
       ? calculateDelivery(receiverInfo.province, vehicleInfo.ccSize)
       : null;
 
-  const handleShowPreview = (file: File | null) => {
-    if (file) {
-      const previewUrl = URL.createObjectURL(file); // สร้าง URL ของไฟล์
-      setPreviewUrl(previewUrl);
-      setFileType(file.type); // ระบุประเภทไฟล์
-      setShowPhotoModal(true);
-    }
-  };
+  // const handleShowPreview = (file: File | null) => {
+  //   if (file) {
+  //     const previewUrl = URL.createObjectURL(file); // สร้าง URL ของไฟล์
+  //     setPreviewUrl(previewUrl);
+  //     setFileType(file.type); // ระบุประเภทไฟล์
+  //     setShowPhotoModal(true);
+  //   }
+  // };
 
   const handleCloseModal = () => {
     setShowPhotoModal(false);
@@ -93,6 +92,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
     try {
       const formData = new FormData();
 
+      // เพิ่มไฟล์สำหรับ Delivery
       if (senderInfo.selectedFilePath) {
         formData.append("passportOrIDnumberFile", senderInfo.selectedFilePath);
       }
@@ -106,39 +106,43 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
         formData.append("licenseFileDelivery", vehicleInfo.idCardFilePath);
       }
 
-      // console.log("FormData Entries:", Array.from(formData.entries()));
+      // เพิ่มประเภท request
+      formData.append("type", "Delivery");
+      formData.append("selectDeliveryType", deliveryType);
 
-      const response = await fetch(
-        "https://api.mittaemaefahlung88.com/upload-multiple",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch("https://api.mittaemaefahlung88.com/upload-multiple", {
+        method: "POST",
+        body: formData,
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Upload error details:", errorData);
-        throw new Error("Failed to upload files to server");
+        throw new Error(errorData.error || "Failed to upload files to server");
       }
 
       const responseData = await response.json();
 
-      // ตรวจสอบเฉพาะไฟล์ที่จำเป็น
-      if (!responseData.passportOrIDnumberFile) {
-        throw new Error("Response data missing required passport/ID file");
+      // ตรวจสอบ response สำหรับไฟล์ที่จำเป็น
+      if (!responseData.delivery?.passportOrIDnumberFile) {
+        throw new Error(
+          "Response data missing required passportOrIDnumberFile"
+        );
       }
 
-      // ไฟล์ที่เป็นทางเลือก
-      const registrationBookFileDelivery =
-        responseData.registrationBookFileDelivery || null;
-      const licenseFileDelivery = responseData.licenseFileDelivery || null;
+      const passportOrIDnumberFilePath =
+        responseData.delivery.passportOrIDnumberFile.filePath;
 
-      // console.log("Files uploaded successfully:", {
-      //   passportOrIDnumberFile: responseData.passportOrIDnumberFile,
-      //   registrationBookFileDelivery,
-      //   licenseFileDelivery,
-      // });
+      // ตรวจสอบไฟล์ที่เกี่ยวข้องกับการส่งรถกลับบ้าน
+      const registrationBookFileDelivery =
+        deliveryType === "ส่งรถกลับบ้าน"
+          ? responseData.delivery?.registrationBookFileDelivery || null
+          : null;
+
+      const licenseFileDelivery =
+        deliveryType === "ส่งรถกลับบ้าน"
+          ? responseData.delivery?.licenseFileDelivery || null
+          : null;
 
       const uploadTime = dayjs().toISOString(); // เก็บเป็นรูปแบบ ISO 8601 เช่น 2024-04-27T10:38:00Z
 
@@ -157,8 +161,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
           district: senderInfo.district,
           province: senderInfo.province,
           postalCode: senderInfo.postalCode,
-          passportOrIDnumberFilePath:
-            responseData.passportOrIDnumberFile.filePath,
+          passportOrIDnumberFilePath,
         },
         receiverInfo: {
           username: receiverInfo.username,
@@ -172,25 +175,25 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
           province: receiverInfo.province,
           postalCode: receiverInfo.postalCode,
         },
-        vehicleInfo: vehicleInfo
-          ? {
-              carType: vehicleInfo.carType,
-              ccSize: vehicleInfo.ccSize,
-              registrationBookFilePath: registrationBookFileDelivery
-                ? registrationBookFileDelivery.filePath
-                : null,
-              idCardFilePath: licenseFileDelivery
-                ? licenseFileDelivery.filePath
-                : null,
-            }
-          : null,
+        vehicleInfo:
+          deliveryType === "ส่งรถกลับบ้าน" && vehicleInfo
+            ? {
+                carType: vehicleInfo.carType,
+                ccSize: vehicleInfo.ccSize,
+                registrationBookFilePath: registrationBookFileDelivery
+                  ? registrationBookFileDelivery.filePath
+                  : null,
+                idCardFilePath: licenseFileDelivery
+                  ? licenseFileDelivery.filePath
+                  : null,
+              }
+            : null,
         deliveryCost: deliveryCost || 0,
         uploadTime,
         status: "อยู่ระหว่างดำเนินการ",
       };
 
       await addDoc(collection(db, "delivery"), data);
-      // console.log("Document written with ID: ", docRef.id);
 
       setModalMessage(
         <div className="d-flex flex-column align-items-center text-center">
@@ -211,9 +214,9 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
         </div>
       );
       setSuccess(false);
-      setShowModal(true);
     } finally {
       setIsSubmitting(false);
+      setShowModal(true);
     }
   };
 
@@ -256,7 +259,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
                 </strong>{" "}
                 {senderInfo.ownerData}
               </li>
-              <Button
+              {/* <Button
                 className="text-success px-0 py-0"
                 variant="link"
                 onClick={() =>
@@ -266,7 +269,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
                 {senderInfo.ownerData.includes("@")
                   ? "ดูไฟล์สำเนาพาสปอร์ต"
                   : "ดูไฟล์สำเนาเลขบัตรประชาชน"}
-              </Button>
+              </Button> */}
               <li className="my-3">
                 <strong>บ้านเลขที่:</strong> {senderInfo.houseNo}
               </li>
@@ -347,7 +350,12 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
                   <strong>ราคาการส่งรถ:</strong>{" "}
                   {`${deliveryCost?.toLocaleString()} บาท`}
                 </li>
-                <li>
+                <li className="my-3">
+                  <strong>
+                    *(ทั้งนี้ยังไม่รวมค่าประกันความเสียหาย,จัดส่งให้ถึงที่บ้านและค่าหุ้มห่อเพิ่มเติมอีกตามแต่ขนาดของรถแต่ละประเภทชนิด)*
+                  </strong>
+                </li>
+                {/* <li>
                   <strong>ไฟล์สำเนาภาพเล่มทะเบียน:</strong>{" "}
                   <Button
                     className="text-success px-0 py-0"
@@ -372,7 +380,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
                   >
                     ดูไฟล์ตัวอย่าง
                   </Button>
-                </li>
+                </li> */}
               </ul>
             </Col>
           </Row>

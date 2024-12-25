@@ -1,16 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { db } from "../../../firebaseConfig"; // ตั้งค่า Firestore ที่ config ไว้
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
-import { Col, Row, Form, Button, Modal } from "react-bootstrap";
+import {
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
+import { Col, Row, Form, Button, Modal, ToggleButton } from "react-bootstrap";
 import useAuth from "../useAuth";
 import TextInput from "../textFillComponent/textInput";
 import ScrollToTopAndBottomButton from "../ScrollToTopAndBottomButton";
 import PaginationControls from "./pageAdminComponent/paginationControls";
 import SidebarAdmin from "./pageAdminComponent/sidebarAdmin";
+import AllInfo from "./pageAdminComponent/allInfo";
 import { IoMdMore } from "react-icons/io";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/th";
 import isBetween from "dayjs/plugin/isBetween";
+import {
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaSpinner,
+} from "react-icons/fa";
 
 dayjs.locale("th");
 
@@ -30,6 +42,7 @@ interface UploadData {
   docId: string;
   storedFileName: string;
   printSlipQRcodeFilePath: string;
+  status: "อยู่ระหว่างดำเนินการ" | "สำเร็จแล้ว" | "รอเอกสารเพิ่มเติม";
 }
 
 //printAdmin.tsx
@@ -37,6 +50,8 @@ const PrintAdmin: React.FC = () => {
   const [uploads, setUploads] = useState<UploadData[]>([]);
   const [filteredUploads, setFilteredUploads] = useState<UploadData[]>([]);
   const [filterType, setFilterType] = useState<string>("");
+  const [filterStatus, setFilterStatus] = useState<string>("");
+  const [filterColorType, setFilterColorType] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedUpload, setSelectedUpload] = useState<UploadData | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -46,6 +61,7 @@ const PrintAdmin: React.FC = () => {
   const [modalImage, setModalImage] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 6;
+
   const [sortField, setSortField] = useState<string>("uploadTime");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
@@ -53,25 +69,12 @@ const PrintAdmin: React.FC = () => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const [totalUploads, setTotalUploads] = useState(0);
+  const [completedUploads, setCompletedUploads] = useState(0);
+  const [inProgressUploads, setInProgressUploads] = useState(0);
+  const [additionalDocsUploads, setAdditionalDocsUploads] = useState(0);
+
   const { logout } = useAuth();
-
-  useEffect(() => {
-    const fetchUploads = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "uploads"));
-        const uploadData = querySnapshot.docs.map((doc) => ({
-          ...doc.data(),
-          docId: doc.id,
-        })) as UploadData[];
-        setUploads(uploadData);
-        setFilteredUploads(uploadData);
-      } catch (error) {
-        console.error("Error fetching uploads:", error);
-      }
-    };
-
-    fetchUploads();
-  }, []);
 
   // const handleViewFile = (filePath: string) => {
   //   if (!filePath) {
@@ -83,6 +86,33 @@ const PrintAdmin: React.FC = () => {
   //   console.log("Opening file at:", filePath);
   //   window.open(filePath, "_blank");
   // };
+
+  const updateStatus = async (
+    uploadId: string,
+    newStatus: "อยู่ระหว่างดำเนินการ" | "สำเร็จแล้ว" | "รอเอกสารเพิ่มเติม"
+  ) => {
+    try {
+      const docRef = doc(db, "uploads", uploadId);
+      await updateDoc(docRef, { status: newStatus });
+
+      // อัปเดต Uploads ใน State
+      setUploads((prevUploads) =>
+        prevUploads.map((upload) =>
+          upload.docId === uploadId ? { ...upload, status: newStatus } : upload
+        )
+      );
+
+      // อัปเดต selectedUpload ด้วยสถานะใหม่
+      setSelectedUpload((prevSelectedUpload) =>
+        prevSelectedUpload?.docId === uploadId
+          ? { ...prevSelectedUpload, status: newStatus }
+          : prevSelectedUpload
+      );
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert("เกิดข้อผิดพลาดในการเปลี่ยนสถานะ");
+    }
+  };
 
   const handleDownload = async (filePath: string | null, fileName: string) => {
     if (!filePath) {
@@ -123,29 +153,101 @@ const PrintAdmin: React.FC = () => {
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    setCurrentPage(1);
-
     const filtered = uploads.filter((upload) =>
       upload.fileName.toLowerCase().includes(term.toLowerCase())
     );
-
     setFilteredUploads(filtered);
   };
 
-  const handleFilter = (type: string) => {
-    // const types = type.split(",");
-    // console.log("Filtered types:", types);
-    setFilterType(type);
-    setCurrentPage(1); // รีเซ็ตหน้าปัจจุบัน
-    if (type) {
-      // กรองตาม vehicleType
-      const filtered = uploads.filter((upload) => upload.fileType === type);
-      setFilteredUploads(filtered);
-    } else {
-      // ถ้าไม่เลือกค่าใดๆ ให้แสดงข้อมูลทั้งหมด
-      setFilteredUploads(uploads);
+  const handleFilterUpdate = useCallback(() => {
+    let data = [...uploads];
+
+    if (filterType) {
+      data = data.filter((upload) => upload.fileType === filterType);
     }
+
+    if (filterStatus) {
+      data = data.filter((upload) => upload.status === filterStatus);
+    }
+
+    if (filterColorType) {
+      data = data.filter((upload) => upload.colorType === filterColorType);
+    }
+
+    if (startDate && endDate) {
+      data = data.filter((upload) => {
+        const uploadDate = dayjs(upload.uploadTime);
+        return uploadDate.isBetween(startDate, endDate, "day", "[]");
+      });
+    }
+
+    if (searchTerm) {
+      data = data.filter((upload) =>
+        upload.fileName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    setFilteredUploads(data);
+  }, [
+    uploads,
+    filterType,
+    filterStatus,
+    filterColorType,
+    startDate,
+    endDate,
+    searchTerm,
+  ]);
+
+  // ฟังก์ชันกรองเมื่อค่า filterType เปลี่ยน
+  const handleFilter = (type: string) => {
+    setFilterType(type);
   };
+
+  // ฟังก์ชันกรองเมื่อค่า filterStatus เปลี่ยน
+  const handleStatusFilter = (status: string) => {
+    setFilterStatus(status);
+  };
+
+  // ฟังก์ชันกรองเมื่อค่า filterProvince เปลี่ยน
+  const handleColorTypeFilter = (colortype: string) => {
+    setFilterColorType(colortype);
+  };
+
+  // ดึงข้อมูลจาก Firestore
+  useEffect(() => {
+    const fetchUploads = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "uploads"));
+        const uploadData = querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          docId: doc.id,
+        })) as UploadData[];
+        setUploads(uploadData);
+        setFilteredUploads(uploadData);
+      } catch (error) {
+        console.error("Error fetching uploads:", error);
+      }
+    };
+
+    fetchUploads();
+  }, []);
+
+  useEffect(() => {
+    handleFilterUpdate();
+  }, [handleFilterUpdate]);
+
+  useEffect(() => {
+    setTotalUploads(uploads.length);
+    setCompletedUploads(
+      uploads.filter((v) => v.status === "สำเร็จแล้ว").length
+    );
+    setInProgressUploads(
+      uploads.filter((v) => v.status === "อยู่ระหว่างดำเนินการ").length
+    );
+    setAdditionalDocsUploads(
+      uploads.filter((v) => v.status === "รอเอกสารเพิ่มเติม").length
+    );
+  }, [uploads]);
 
   const handleSort = (field: string) => {
     const newOrder =
@@ -256,7 +358,7 @@ const PrintAdmin: React.FC = () => {
   };
 
   // ฟังก์ชันลบข้อมูล
-  const handleDelete = async (
+  const handleDelete = async (  
     fileName: string,
     filePath: string,
     docId: string
@@ -338,6 +440,14 @@ const PrintAdmin: React.FC = () => {
       <h1 className="text-success text-center">
         แดชบอร์ดแอดมินสำหรับปริ้นเอกสาร
       </h1>
+
+      <AllInfo
+        total={totalUploads}
+        completed={completedUploads}
+        inProgress={inProgressUploads}
+        additionalDocs={additionalDocsUploads}
+      />
+
       <Form>
         <Row>
           <Col
@@ -394,10 +504,12 @@ const PrintAdmin: React.FC = () => {
 
             {/* Sidebar */}
             <SidebarAdmin
+              formType="other"
               isOpen={isSidebarOpen}
               onClose={toggleSidebar}
-              onFilter={handleFilter}
               onSort={handleSort}
+              onFilterStatus={handleStatusFilter}
+              filterStatus={filterStatus}
               sortField={sortField}
               sortOrder={sortOrder}
               onMultiSelect={handleMultiSelectToggle}
@@ -409,18 +521,28 @@ const PrintAdmin: React.FC = () => {
                   logout();
                 }
               }}
+              filterLabel="แสดงประเภทไฟล์"
               filterType={filterType}
               filterOptions={[
                 { value: "", label: "แสดงทั้งหมด" },
                 { label: "PDF", value: "application/pdf" },
                 { label: "PNG", value: "image/png" },
                 { label: "JPEG", value: "image/jpeg" },
-                // {
-                //   label: "รูปภาพ",
-                //   value: ["image/jpeg", "image/png"].join(","),
-                // },
               ]}
-              filterLabel="แสดงประเภทไฟล์"
+              onFilter={handleFilter}
+              filterExtraLabel=""
+              filterExtra={filterType}
+              filterExtraOptions={[{ label: "", value: "" }]}
+              onFilterExtra={handleFilter}
+              filterProvinceLabel="ประเภทการปริ้น"
+              filterProvince={filterColorType}
+              filterProvinceOptions={[
+                { value: "", label: "แสดงทั้งหมด" },
+                { label: "สี", value: "สี" },
+                { label: "ขาวดำ", value: "ขาวดำ" },
+                { label: "JPEG", value: "image/jpeg" },
+              ]}
+              onFilterProvince={handleColorTypeFilter}
               onStartDateChange={setStartDate}
               onEndDateChange={setEndDate}
               startDate={startDate}
@@ -507,6 +629,19 @@ const PrintAdmin: React.FC = () => {
                     เวลาที่อัปโหลด:{" "}
                     {dayjs(upload.uploadTime).format(
                       "D MMMM YYYY เวลา HH:mm น."
+                    )}
+                  </p>
+                  <p className="card-text">
+                    สถานะ: {upload.status}{" "}
+                    {upload.status === "สำเร็จแล้ว" ? (
+                      <FaCheckCircle className="text-success my-3" size={20} />
+                    ) : upload.status === "อยู่ระหว่างดำเนินการ" ? (
+                      <FaSpinner className="text-info my-3" size={20} />
+                    ) : (
+                      <FaExclamationTriangle
+                        className="text-warning my-3"
+                        size={20}
+                      />
                     )}
                   </p>
                   <div className="d-flex justify-content-end">
@@ -597,8 +732,16 @@ const PrintAdmin: React.FC = () => {
               เวลาที่อัปโหลด:{" "}
               {dayjs(selectedUpload.uploadTime).format("D MMMM YYYY HH:mm")}
             </p>
-          </Modal.Body>
-          <Modal.Footer className=" text-center align-items-end">
+            <p>
+              สถานะ: {selectedUpload.status}{" "}
+              {selectedUpload.status === "สำเร็จแล้ว" ? (
+                <FaCheckCircle className="text-success" size={20} />
+              ) : selectedUpload.status === "อยู่ระหว่างดำเนินการ" ? (
+                <FaSpinner className="text-info" size={20} />
+              ) : (
+                <FaExclamationTriangle className="text-warning" size={20} />
+              )}
+            </p>
             {/* Preview ไฟล์ PDF หรือรูปภาพ */}
             <div className="image-container-print text-center">
               {selectedUpload.fileType === "application/pdf" ? (
@@ -608,7 +751,7 @@ const PrintAdmin: React.FC = () => {
                     window.open(selectedUpload.printFilePath, "_blank")
                   }
                 >
-                  <p>PDF ตัวอย่าง</p>
+                  <p className="my-3">PDF ตัวอย่าง</p>
                 </div>
               ) : selectedUpload.fileType.startsWith("image/") ? (
                 <img
@@ -620,21 +763,62 @@ const PrintAdmin: React.FC = () => {
               ) : (
                 <p className="text-muted">ไม่สามารถแสดงตัวอย่างไฟล์ได้</p>
               )}
-            {/* ปุ่มสำหรับดาวน์โหลด */}
-            <Button
-            className="my-2"
+              {/* ปุ่มสำหรับดาวน์โหลด */}
+              <Button
+                className="my-2"
+                variant="outline-success"
+                onClick={() =>
+                  handleDownload(
+                    selectedUpload.printFilePath,
+                    selectedUpload.fileName
+                  )
+                }
+              >
+                ดาวน์โหลดไฟล์
+              </Button>
+            </div>
+          </Modal.Body>
+          <Modal.Footer className=" text-center align-items-end">
+            <ToggleButton
+              type="radio"
+              name="update-status"
+              id="update-success"
               variant="outline-success"
+              value="สำเร็จแล้ว"
+              className="responsive-label mb-3 mx-2"
+              checked={selectedUpload?.status === "สำเร็จแล้ว"}
+              onClick={() => updateStatus(selectedUpload!.docId, "สำเร็จแล้ว")}
+            >
+              สำเร็จแล้ว
+            </ToggleButton>
+            <ToggleButton
+              type="radio"
+              name="update-status"
+              id="update-ongoing"
+              variant="outline-info"
+              value="อยู่ระหว่างดำเนินการ"
+              className="responsive-label mb-3 mx-2"
               onClick={() =>
-                handleDownload(
-                  selectedUpload.printFilePath,
-                  selectedUpload.fileName
-                )
+                updateStatus(selectedUpload!.docId, "อยู่ระหว่างดำเนินการ")
+              }
+              checked={selectedUpload?.status === "อยู่ระหว่างดำเนินการ"}
+            >
+              อยู่ระหว่างดำเนินการ
+            </ToggleButton>
+            <ToggleButton
+              type="radio"
+              name="update-status"
+              id="update-moreDoc"
+              variant="outline-warning"
+              value="รอเอกสารเพิ่มเติม"
+              className="responsive-label mb-3 mx-2 "
+              checked={selectedUpload?.status === "รอเอกสารเพิ่มเติม"}
+              onClick={() =>
+                updateStatus(selectedUpload!.docId, "รอเอกสารเพิ่มเติม")
               }
             >
-              ดาวน์โหลดไฟล์
-            </Button>
-            </div>
-
+              รอเอกสารเพิ่มเติม
+            </ToggleButton>
           </Modal.Footer>
           {/* Modal สำหรับดูภาพขยาย */}
           <Modal

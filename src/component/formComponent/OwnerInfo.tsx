@@ -92,7 +92,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
         invalid = idArray[12] !== checkDigit;
       }
     } else if (selectedRadio === "หมายเลขพาสปอร์ตเจ้าของรถล่าสุด") {
-      const passportPattern = /^[A-Za-z0-9]{8,9}$/; // Passport pattern
+      const passportPattern = /^[A-Za-z0-9]{6,12}$/; 
       invalid = value.length > 0 && !passportPattern.test(value);
     }
 
@@ -153,7 +153,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
                     ? ownerData.length < 13
                       ? "กรอกหมายเลขบัตรประชาชนให้ครบถ้วน"
                       : "หมายเลขบัตรประชาชนไม่ถูกต้อง"
-                    : ownerData.length < 8
+                    : ownerData.length < 12
                     ? "กรอกหมายเลขพาสปอร์ตให้ครบถ้วน"
                     : "กรอกหมายเลขพาสปอร์ตให้ถูกต้อง"
                   : ""

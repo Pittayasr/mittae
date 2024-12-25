@@ -20,7 +20,7 @@ const InsuranceInfo: React.FC<InsuranceInfoProps> = ({
   setInsuranceCompany,
   insuranceCategory,
   setInsuranceCategory,
-  isInvalid,
+  // isInvalid,
   setIsInvalid,
 }) => {
   useEffect(() => {
@@ -48,7 +48,7 @@ const InsuranceInfo: React.FC<InsuranceInfoProps> = ({
           value={insuranceType}
           onChange={setInsuranceType}
           placeholder="เลือกประเภทประกัน"
-          isInvalid={isInvalid && !insuranceType}
+          // isInvalid={isInvalid && !insuranceType}
           required
           alertText="กรุณาเลือกประเภทประกัน"
         />
@@ -68,7 +68,7 @@ const InsuranceInfo: React.FC<InsuranceInfoProps> = ({
           value={insuranceCompany}
           onChange={setInsuranceCompany}
           placeholder="เลือกบริษัทประกัน"
-          isInvalid={isInvalid && !insuranceCompany}
+          // isInvalid={isInvalid && !insuranceCompany}
           required
           alertText="กรุณาเลือกบริษัทประกัน"
         />
@@ -92,7 +92,7 @@ const InsuranceInfo: React.FC<InsuranceInfoProps> = ({
           value={insuranceCategory}
           onChange={setInsuranceCategory}
           placeholder="เลือกประเภท"
-          isInvalid={isInvalid && !insuranceCategory}
+          // isInvalid={isInvalid && !insuranceCategory}
           required
           alertText="กรุณาเลือกประเภท"
         />

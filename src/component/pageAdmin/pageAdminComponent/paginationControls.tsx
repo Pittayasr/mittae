@@ -42,6 +42,10 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
 
   return (
     <Pagination className="custom-pagination justify-content-center">
+      <Pagination.First
+        onClick={() => onPageChange(1)} // ไปหน้าสุด
+        disabled={currentPage === 1}
+      />
       <Pagination.Prev
         onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
         disabled={currentPage === 1}
@@ -58,6 +62,10 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
       ))}
       <Pagination.Next
         onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
+        disabled={currentPage === totalPages}
+      />
+      <Pagination.Last
+        onClick={() => onPageChange(totalPages)} // ไปหน้าหลังสุด
         disabled={currentPage === totalPages}
       />
     </Pagination>

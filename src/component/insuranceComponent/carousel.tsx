@@ -33,62 +33,62 @@ const CarouselComponent: React.FC<CarouselProps> = ({
         insuranceCategory === "ประกันภัยเบ็ดเตล็ด"
       ) {
         return [
-          "../../../public/data/etc/1.jpg",
-          "../../../public/data/etc/2.jpg",
-          "../../../public/data/etc/3.jpg",
+          "data/etc/1.jpg",
+          "data/etc/2.jpg",
+          "data/etc/3.jpg",
         ];
       }
       return [
-        "../../../public/data/mittare/p1.jpg",
-        "../../../public/data/mittare/p1All.jpg",
-        "../../../public/data/mittare/p2+.jpg",
-        "../../../public/data/mittare/p2+All.jpg",
-        "../../../public/data/mittare/p3.jpg",
-        "../../../public/data/mittare/p3+.jpg",
-        "../../../public/data/mittare/p3+All.jpg",
-        "../../../public/data/mittare/คอนโด.jpg",
-        "../../../public/data/mittare/ชดเชยรายได้.jpg",
-        "../../../public/data/mittare/บาดเจ็บ.jpg",
-        "../../../public/data/mittare/บ้านค้าขาย.jpg",
-        "../../../public/data/mittare/ผู้พักในหอพัก.jpg",
-        "../../../public/data/mittare/ร้านอาหารคาเฟ่.jpg",
+        "data/mittare/p1.jpg",
+        "data/mittare/p1All.jpg",
+        "data/mittare/p2+.jpg",
+        "data/mittare/p2+All.jpg",
+        "data/mittare/p3.jpg",
+        "data/mittare/p3+.jpg",
+        "data/mittare/p3+All.jpg",
+        "data/mittare/คอนโด.jpg",
+        "data/mittare/ชดเชยรายได้.jpg",
+        "data/mittare/บาดเจ็บ.jpg",
+        "data/mittare/บ้านค้าขาย.jpg",
+        "data/mittare/ผู้พักในหอพัก.jpg",
+        "data/mittare/ร้านอาหารคาเฟ่.jpg",
       ];
     }
     if (insuranceCompany === "เทเวศ ประกันภัย") {
       return [
-        "../../../public/data/deves/p1.png",
-        "../../../public/data/deves/p2.jpeg",
-        "../../../public/data/deves/p2+.jpeg",
-        "../../../public/data/deves/p3.jpeg",
-        "../../../public/data/deves/p3+.jpeg",
-        "../../../public/data/deves/p3All.jpeg",
-        "../../../public/data/deves/บ้าน.png",
-        "../../../public/data/deves/อุบัติเหตุ.png",
+        "data/deves/p1.png",
+        "data/deves/p2.jpeg",
+        "data/deves/p2+.jpeg",
+        "data/deves/p3.jpeg",
+        "data/deves/p3+.jpeg",
+        "data/deves/p3All.jpeg",
+        "data/deves/บ้าน.png",
+        "data/deves/อุบัติเหตุ.png",
       ];
     }
     if (insuranceCompany === "เออร์โกประกันภัย") {
       return [
-        "../../../public/data/ERGO/p1.png",
-        "../../../public/data/ERGO/p2.png",
-        "../../../public/data/ERGO/p2+.png",
-        "../../../public/data/ERGO/p3.jpeg",
-        "../../../public/data/ERGO/p3.1.jpeg",
-        "../../../public/data/ERGO/p3.2.jpeg",
-        "../../../public/data/ERGO/p3+.webp",
-        "../../../public/data/ERGO/บ้าน.jpeg",
+        "data/ERGO/p1.png",
+        "data/ERGO/p2.png",
+        "data/ERGO/p2+.png",
+        "data/ERGO/p3.jpeg",
+        "data/ERGO/p3.1.jpeg",
+        "data/ERGO/p3.2.jpeg",
+        "data/ERGO/p3+.webp",
+        "data/ERGO/บ้าน.jpeg",
       ];
     }
     if (insuranceCompany === "ทิพยประกันภัย") {
       return [
-        "../../../public/data/dhipaya/p1.jpeg",
-        "../../../public/data/dhipaya/p1.1.png",
-        "../../../public/data/dhipaya/p2+.jpeg",
-        "../../../public/data/dhipaya/p3.jpeg",
-        "../../../public/data/dhipaya/p3+.jpeg",
-        "../../../public/data/dhipaya/p3+.1.png",
-        "../../../public/data/dhipaya/บ้าน.jpg",
-        "../../../public/data/dhipaya/อุบัติเหตุ.jpg",
-        "../../../public/data/dhipaya/อุบัติเหตุ2.jpeg    ",
+        "data/dhipaya/p1.jpeg",
+        "data/dhipaya/p1.1.png",
+        "data/dhipaya/p2+.jpeg",
+        "data/dhipaya/p3.jpeg",
+        "data/dhipaya/p3+.jpeg",
+        "data/dhipaya/p3+.1.png",
+        "data/dhipaya/บ้าน.jpg",
+        "data/dhipaya/อุบัติเหตุ.jpg",
+        "data/dhipaya/อุบัติเหตุ2.jpeg    ",
       ];
     }
     return [];
@@ -104,6 +104,7 @@ const CarouselComponent: React.FC<CarouselProps> = ({
         marginTop: "20px",
         width: "100%",
       }}
+      
     >
       {images.length > 0 && (
         <Carousel
@@ -124,7 +125,7 @@ const CarouselComponent: React.FC<CarouselProps> = ({
                 src={image}
                 alt={`Slide ${index}`}
                 style={{
-                  objectFit: "contain",
+                  objectFit: "cover",
                   width: "100%",
                   height: "400px", // Adjust height for consistency
                   cursor: "pointer",
@@ -136,6 +137,7 @@ const CarouselComponent: React.FC<CarouselProps> = ({
               />
             </Carousel.Item>
           ))}
+         
         </Carousel>
       )}
 
@@ -163,6 +165,7 @@ const CarouselComponent: React.FC<CarouselProps> = ({
           </Button>
         </Modal.Footer>
       </Modal>
+      
     </div>
   );
 };

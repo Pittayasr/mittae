@@ -45,7 +45,7 @@ interface SummaryProps {
   carAge: { years: number; months: number; days: number };
   selectedRegistrationBookFile: File | null;
   selectedLicenseFile: File | null;
-  status: string;
+ 
 
   onBack: () => void; // ฟังก์ชันสำหรับย้อนกลับ
   onConfirm: () => void; // ฟังก์ชันสำหรับส่งข้อมูล
@@ -153,7 +153,7 @@ const Summary: React.FC<SummaryProps> = ({
       }
       // console.log("FormData content:", Array.from(formData.entries()));
 
-      const response = await fetch("http://localhost:3000/upload-multiple", {
+      const response = await fetch("https://api.mittaemaefahlung88.com/upload-multiple", {
         method: "POST",
         body: formData,
       });

@@ -9,6 +9,8 @@ interface SelectAdminFormModalProps {
   onClose: () => void;
   onNavigateToFormAdmin: () => void;
   onNavigateToPrintAdmin: () => void;
+  onNavigateToDeliveryAdmin: () => void;
+  onNavigateToInsuranceAdmin: () => void;
 }
 
 const SelectAdminFormModal: React.FC<SelectAdminFormModalProps> = ({
@@ -29,6 +31,11 @@ const SelectAdminFormModal: React.FC<SelectAdminFormModalProps> = ({
 
   const handleNavigateToDeliveryAdmin = () => {
     navigate("/delivery_admin_2[sru)x3X[SD");
+    onClose();
+  };
+
+  const handleNavigateToInsuranceAdmin = () => {
+    navigate("/insurance_admin_yKLwO~{WoOL(");
     onClose();
   };
 
@@ -55,7 +62,7 @@ const SelectAdminFormModal: React.FC<SelectAdminFormModalProps> = ({
               className="mt-3 mb-3 w-75"
               onClick={handleNavigateToFormAdmin}
             >
-              ไปยังหน้าแดชบอร์ดแอดมินสำหรับฟอร์มพรบ.ต่อภาษีรถ
+              แดชบอร์ดแอดมินพรบ. ต่อภาษีรถ
             </Button>
           </Col>
 
@@ -65,7 +72,7 @@ const SelectAdminFormModal: React.FC<SelectAdminFormModalProps> = ({
               className="mb-3 w-75"
               onClick={handleNavigateToPrintAdmin}
             >
-              ไปยังหน้าแดชบอร์ดแอดมินสำหรับปริ้นเอกสาร
+              แดชบอร์ดแอดมินปริ้นเอกสาร
             </Button>
           </Col>
           <Col className="mb-2" xs={12}>
@@ -74,7 +81,16 @@ const SelectAdminFormModal: React.FC<SelectAdminFormModalProps> = ({
               className="mb-3 w-75"
               onClick={handleNavigateToDeliveryAdmin}
             >
-              ไปยังหน้าแดชบอร์ดแอดมินสำหรับข้อมูลการจัดส่ง
+              แดชบอร์ดแอดมินส่งรถส่งของกลับบ้าน แฟลชและไปรษณีย์
+            </Button>
+          </Col>
+          <Col className="mb-2" xs={12}>
+            <Button
+              variant="success"
+              className="mb-3 w-75"
+              onClick={handleNavigateToInsuranceAdmin}
+            >
+              แดชบอร์ดแอดมินประกันภัย ป1 ป2 ป3 ป4 ป5
             </Button>
           </Col>
         </Row>
