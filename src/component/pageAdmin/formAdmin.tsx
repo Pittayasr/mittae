@@ -1,6 +1,7 @@
 //formAdmin.tsx
 import React, { useEffect, useState, useCallback } from "react";
 import TextInput from "../textFillComponent/textInput";
+import TextSelect from "../textFillComponent/textSelect";
 import AllInfo from "./pageAdminComponent/allInfo";
 import { db } from "../../../firebaseConfig";
 import {
@@ -10,21 +11,16 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import { Col, Row, Form, Button, Modal, ToggleButton } from "react-bootstrap";
+import { Col, Row, Form, Button, Modal } from "react-bootstrap";
 import useAuth from "../useAuth";
 import ScrollToTopAndBottomButton from "../ScrollToTopAndBottomButton";
 import PaginationControls from "./pageAdminComponent/paginationControls";
 import SidebarAdmin from "./pageAdminComponent/sidebarAdmin";
-import { IoMdMore } from "react-icons/io";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/th";
 import isBetween from "dayjs/plugin/isBetween";
 import provinces from "../../data/provinces.json";
-import {
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaSpinner,
-} from "react-icons/fa";
+import { FaCheckCircle, FaExclamationTriangle, FaClock } from "react-icons/fa";
 
 dayjs.locale("th");
 
@@ -495,8 +491,72 @@ const FormAdmin: React.FC = () => {
   };
 
   return (
-    <div className="form-container page-container mx-auto mt-1">
-      <h1 className="text-success text-center">
+    <div className="form-container page-container  mx-auto mt-1">
+      <div
+        // xs={2}
+        // sm={1}
+        // md={1}
+        // lg={1}
+        // xl={1}
+        className="d-flex justify-content-start align-items-end px-0"
+      >
+        {/* Sidebar formAdmin */}
+        <SidebarAdmin
+          formType="other"
+          isOpen={isSidebarOpen}
+          onClose={toggleSidebar}
+          onFilterStatus={handleStatusFilter}
+          filterStatus={filterStatus}
+          onSort={handleSort}
+          sortField={sortField}
+          sortOrder={sortOrder}
+          onMultiSelect={handleMultiSelectToggle}
+          onSelectAll={handleSelectAll}
+          isMultiSelectMode={isMultiSelectMode}
+          isAllSelected={isAllSelected}
+          onLogout={() => {
+            if (window.confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+              logout();
+            }
+          }}
+          filterLabel="แสดงประเภทรถ"
+          filterType={filterType}
+          filterOptions={[
+            { value: "", label: "แสดงทั้งหมด" },
+            { label: "รถยนต์", value: "รถยนต์" },
+            { label: "รถจักรยานยนต์", value: "รถจักรยานยนต์" },
+            { label: "รถบรรทุก", value: "รถบรรทุก" },
+            {
+              label: "รถบรรทุก(เกิน7ที่นั่ง)",
+              value: "รถบรรทุก(เกิน7ที่นั่ง)",
+            },
+            { label: "รถไฮบริด", value: "รถไฮบริด" },
+            { label: "รถไฟฟ้า", value: "รถไฟฟ้า" },
+            { label: "รถบดถนน", value: "รถบดถนน" },
+            { label: "รถพ่วง", value: "รถพ่วง" },
+            { label: "รถแทรกเตอร์", value: "รถแทรกเตอร์" },
+            { label: "รถแก๊ส", value: "รถแก๊ส" },
+          ]}
+          onFilter={handleFilter}
+          filterExtraLabel=""
+          filterExtra={filterType}
+          filterExtraOptions={[{ label: "", value: "" }]}
+          onFilterExtra={handleFilter}
+          filterProvinceLabel="จังหวัด"
+          filterProvince={filterProvince}
+          filterProvinceOptions={provinceList.map((p) => ({
+            value: p.provinceNameTh,
+            label: p.provinceNameTh,
+          }))}
+          onFilterProvince={handleProvinceFilter}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+          startDate={startDate}
+          endDate={endDate}
+          onDateRangeFilter={handleDateRangeFilter}
+        />
+      </div>
+      <h1 className="text-success text-center mb-3">
         แดชบอร์ดแอดมินสำหรับฟอร์มพรบ.ต่อภาษีรถ
       </h1>
 
@@ -509,14 +569,14 @@ const FormAdmin: React.FC = () => {
 
       <Form>
         <Row>
-          <Col
-            xs={10}
-            sm={11}
-            md={11}
-            lg={11}
-            xl={11}
-            className="mb-3"
-            style={{ padding: "0px 0px 0px 12px" }}
+          <div
+            // xs={10}
+            // sm={11}
+            // md={11}
+            // lg={11}
+            // xl={11}
+            className="mb-3 "
+            // style={{ padding: "0px 15px 0px 15px" }}
           >
             <TextInput
               label="ค้นหา"
@@ -525,86 +585,7 @@ const FormAdmin: React.FC = () => {
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
             />
-          </Col>
-
-          <Col
-            xs={2}
-            sm={1}
-            md={1}
-            lg={1}
-            xl={1}
-            className="d-flex justify-content-center align-items-end px-0"
-          >
-            {/* ปุ่มเปิด Sidebar */}
-            <IoMdMore
-              size={40}
-              onClick={toggleSidebar}
-              className="menuIcon"
-              style={{
-                cursor: "pointer",
-                padding: "5px",
-                margin: "10px 5px 15px 0px",
-                borderBlockColor: "black",
-                borderRadius: "10px",
-              }}
-            />
-
-            {/* Sidebar formAdmin */}
-            <SidebarAdmin
-              formType="other"
-              isOpen={isSidebarOpen}
-              onClose={toggleSidebar}
-              onFilterStatus={handleStatusFilter}
-              filterStatus={filterStatus}
-              onSort={handleSort}
-              sortField={sortField}
-              sortOrder={sortOrder}
-              onMultiSelect={handleMultiSelectToggle}
-              onSelectAll={handleSelectAll}
-              isMultiSelectMode={isMultiSelectMode}
-              isAllSelected={isAllSelected}
-              onLogout={() => {
-                if (window.confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-                  logout();
-                }
-              }}
-              filterLabel="แสดงประเภทรถ"
-              filterType={filterType}
-              filterOptions={[
-                { value: "", label: "แสดงทั้งหมด" },
-                { label: "รถยนต์", value: "รถยนต์" },
-                { label: "รถจักรยานยนต์", value: "รถจักรยานยนต์" },
-                { label: "รถบรรทุก", value: "รถบรรทุก" },
-                {
-                  label: "รถบรรทุก(เกิน7ที่นั่ง)",
-                  value: "รถบรรทุก(เกิน7ที่นั่ง)",
-                },
-                { label: "รถไฮบริด", value: "รถไฮบริด" },
-                { label: "รถไฟฟ้า", value: "รถไฟฟ้า" },
-                { label: "รถบดถนน", value: "รถบดถนน" },
-                { label: "รถพ่วง", value: "รถพ่วง" },
-                { label: "รถแทรกเตอร์", value: "รถแทรกเตอร์" },
-                { label: "รถแก๊ส", value: "รถแก๊ส" },
-              ]}
-              onFilter={handleFilter}
-              filterExtraLabel=""
-              filterExtra={filterType}
-              filterExtraOptions={[{ label: "", value: "" }]}
-              onFilterExtra={handleFilter}
-              filterProvinceLabel="จังหวัด"
-              filterProvince={filterProvince}
-              filterProvinceOptions={provinceList.map((p) => ({
-                value: p.provinceNameTh,
-                label: p.provinceNameTh,
-              }))}
-              onFilterProvince={handleProvinceFilter}
-              onStartDateChange={setStartDate}
-              onEndDateChange={setEndDate}
-              startDate={startDate}
-              endDate={endDate}
-              onDateRangeFilter={handleDateRangeFilter}
-            />
-          </Col>
+          </div>
         </Row>
         <Row className="responsive-container mb-3">
           {vehicles.length === 0 ? (
@@ -698,7 +679,7 @@ const FormAdmin: React.FC = () => {
                           size={20}
                         />
                       ) : vehicle.status === "อยู่ระหว่างดำเนินการ" ? (
-                        <FaSpinner className="text-info my-3" size={20} />
+                        <FaClock className="text-info my-3" size={20} />
                       ) : (
                         <FaExclamationTriangle
                           className="text-warning my-3"
@@ -771,7 +752,7 @@ const FormAdmin: React.FC = () => {
         <Modal
           show={showModal}
           onHide={() => setShowModal(false)}
-          size="lg"
+          size="xl"
           centered
         >
           <Modal.Header closeButton>
@@ -822,9 +803,49 @@ const FormAdmin: React.FC = () => {
                 <p>รวมค่าใช้จ่ายทั้งหมด: {selectedVehicle.totalCost} บาท</p>
               </Col>
             </Row>
+            <Row className="d-flex text-center justify-content-center align-items-center mb-3">
+              <div className="w-75">
+                <p className=" mb-0">
+                  สถานะปัจจุบัน: {selectedVehicle?.status}{" "}
+                  {selectedVehicle?.status === "สำเร็จแล้ว" ? (
+                    <FaCheckCircle size={20} className="text-success mb-2" />
+                  ) : selectedVehicle?.status === "อยู่ระหว่างดำเนินการ" ? (
+                    <FaClock size={20} className="text-info mb-2" />
+                  ) : (
+                    <FaExclamationTriangle
+                      size={20}
+                      className="text-warning mb-2"
+                    />
+                  )}{" "}
+                </p>
+                <TextSelect
+                  label=""
+                  id="status-select"
+                  options={[
+                    { value: "สำเร็จแล้ว", label: "สำเร็จแล้ว" },
+                    {
+                      value: "อยู่ระหว่างดำเนินการ",
+                      label: "อยู่ระหว่างดำเนินการ",
+                    },
+                    { value: "รอเอกสารเพิ่มเติม", label: "รอเอกสารเพิ่มเติม" },
+                  ]}
+                  value={selectedVehicle?.status || ""}
+                  onChange={(newStatus) => {
+                    if (selectedVehicle && newStatus) {
+                      updateStatus(
+                        selectedVehicle.docId,
+                        newStatus as VehicleData["status"]
+                      );
+                    }
+                  }}
+                  placeholder="เลือกสถานะ"
+                  isInvalid={false}
+                />
+              </div>
+            </Row>
             <Row>
               {/* ภาพเล่มทะเบียนรถ */}
-              <div className="image-container text-center col mx-2">
+              <Col xs={12} sm={4} className="image-container text-center ">
                 {selectedVehicle?.registrationBookFilePath ? (
                   <>
                     <img
@@ -853,10 +874,10 @@ const FormAdmin: React.FC = () => {
                 ) : (
                   <p className="text-muted">ไม่พบภาพเล่มทะเบียนรถ</p>
                 )}
-              </div>
+              </Col>
 
               {/* ภาพแผ่นป้ายทะเบียน */}
-              <div className="image-container text-center col mx-2">
+              <Col xs={12} sm={4} className="image-container text-center ">
                 {selectedVehicle?.licensePlateFilePath ? (
                   <>
                     <img
@@ -872,7 +893,7 @@ const FormAdmin: React.FC = () => {
                 ) : (
                   <p className="text-muted">ไม่พบภาพแผ่นป้ายทะเบียน</p>
                 )}
-              </div>
+              </Col>
 
               {/* ภาพสลิปชำระเงิน */}
               <div className="image-container text-center col mx-2">
@@ -904,52 +925,7 @@ const FormAdmin: React.FC = () => {
               ค่าบริการและดำเนินการ: {selectedVehicle.processingCost} บาท
             </p> */}
           </Modal.Body>
-          <Modal.Footer className="text-center align-items-end">
-            <div>
-              <ToggleButton
-                type="radio"
-                name="update-status"
-                id="update-success"
-                variant="outline-success"
-                value="สำเร็จแล้ว"
-                className="responsive-label mb-3 mx-2"
-                checked={selectedVehicle?.status === "สำเร็จแล้ว"}
-                onClick={() =>
-                  updateStatus(selectedVehicle!.docId, "สำเร็จแล้ว")
-                }
-              >
-                สำเร็จแล้ว
-              </ToggleButton>
-              <ToggleButton
-                type="radio"
-                name="update-status"
-                id="update-ongoing"
-                variant="outline-info"
-                value="อยู่ระหว่างดำเนินการ"
-                className="responsive-label mb-3 mx-2"
-                onClick={() =>
-                  updateStatus(selectedVehicle!.docId, "อยู่ระหว่างดำเนินการ")
-                }
-                checked={selectedVehicle?.status === "อยู่ระหว่างดำเนินการ"}
-              >
-                อยู่ระหว่างดำเนินการ
-              </ToggleButton>
-              <ToggleButton
-                type="radio"
-                name="update-status"
-                id="update-moreDoc"
-                variant="outline-warning"
-                value="รอเอกสารเพิ่มเติม"
-                className="responsive-label mb-3 mx-2 "
-                checked={selectedVehicle?.status === "รอเอกสารเพิ่มเติม"}
-                onClick={() =>
-                  updateStatus(selectedVehicle!.docId, "รอเอกสารเพิ่มเติม")
-                }
-              >
-                รอเอกสารเพิ่มเติม
-              </ToggleButton>
-            </div>
-          </Modal.Footer>
+          <Modal.Footer className=""></Modal.Footer>
 
           {/* Modal สำหรับดูภาพขยาย */}
           <Modal

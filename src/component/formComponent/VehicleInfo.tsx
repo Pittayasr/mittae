@@ -142,7 +142,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
       {/* หมายเลขโทรศัพท์ผู้กรอกข้อมูล */}
       <Col className="register-and-contract-number mb-4" md={4} xs={6}>
         <TextInput
-          label="หมายเลขโทรศัพท์ผู้กรอกข้อมูล"
+          label="หมายเลขโทรศัพท์ผู้กรอก"
           id="contactNumber"
           value={contactNumber}
           type="numeric"

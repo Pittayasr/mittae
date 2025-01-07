@@ -21,7 +21,7 @@ import isBetween from "dayjs/plugin/isBetween";
 import {
   FaCheckCircle,
   FaExclamationTriangle,
-  FaSpinner,
+  FaClock,
 } from "react-icons/fa";
 
 dayjs.locale("th");
@@ -636,7 +636,7 @@ const PrintAdmin: React.FC = () => {
                     {upload.status === "สำเร็จแล้ว" ? (
                       <FaCheckCircle className="text-success my-3" size={20} />
                     ) : upload.status === "อยู่ระหว่างดำเนินการ" ? (
-                      <FaSpinner className="text-info my-3" size={20} />
+                      <FaClock className="text-info my-3" size={20} />
                     ) : (
                       <FaExclamationTriangle
                         className="text-warning my-3"
@@ -737,7 +737,7 @@ const PrintAdmin: React.FC = () => {
               {selectedUpload.status === "สำเร็จแล้ว" ? (
                 <FaCheckCircle className="text-success" size={20} />
               ) : selectedUpload.status === "อยู่ระหว่างดำเนินการ" ? (
-                <FaSpinner className="text-info" size={20} />
+                <FaClock className="text-info" size={20} />
               ) : (
                 <FaExclamationTriangle className="text-warning" size={20} />
               )}

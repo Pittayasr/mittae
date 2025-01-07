@@ -13,6 +13,7 @@ import Summary from "./formComponent/summary";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import FileInput from "./textFillComponent/fileInput";
 import ScrollToTopAndBottomButton from "./ScrollToTopAndBottomButton";
+import SidebarUser from "./textFillComponent/sidebarUser";
 
 const FormComponent: React.FC = () => {
   const [usernameData, setUsernameData] = useState<string>("");
@@ -25,6 +26,7 @@ const FormComponent: React.FC = () => {
   const [expirationDate, setExpirationDate] = useState<Dayjs | null>(null);
   const [latestTaxPaymentDate, setLatestTaxPaymentDate] =
     useState<Dayjs | null>(null);
+  const [missedTaxPayment, setMissedTaxPayment] = useState<string | null>(null);
   const [selectedRadio, setSelectedRadio] = useState<string | null>(null);
   const [ownerData, setOwnerData] = useState<string>("");
   const [registrationNumber, setRegistrationNumber] = useState<string>("");
@@ -60,6 +62,8 @@ const FormComponent: React.FC = () => {
 
   useEffect(() => {
     // setBikeTypeOrDoorCount(null); // รีเซ็ตเมื่อ selectedCarType เปลี่ยน
+    console.log("registrationDate:", registrationDate);
+
     if (registrationDate) {
       const age = calculateCarAge(registrationDate);
       setCarAge(age);
@@ -130,12 +134,11 @@ const FormComponent: React.FC = () => {
     if (!registerDate) return { years: 0, months: 0, days: 0 };
 
     const now = dayjs();
-    const yearsDiff = now.diff(registerDate, "year");
-    const monthsDiff = now.diff(registerDate.add(yearsDiff, "year"), "month");
-    const daysDiff = now.diff(
-      registerDate.add(yearsDiff, "year").add(monthsDiff, "month"),
-      "day"
-    );
+    const totalDays = now.diff(registerDate, "day");
+    const yearsDiff = Math.floor(totalDays / 365);
+    const remainingDays = totalDays % 365;
+    const monthsDiff = Math.floor(remainingDays / 30);
+    const daysDiff = remainingDays % 30;
 
     return {
       years: yearsDiff,
@@ -227,12 +230,10 @@ const FormComponent: React.FC = () => {
           bikeTypeOrDoorCount === "รถพ่วง",
         weight: parseFloat(engineSize) || 0,
         cc: parseFloat(engineSize) || 0,
-        age: calculateCarAge(registrationDate),
-        registrationDate: registrationDate ? registrationDate.toDate() : null,
-        expiryDate: expirationDate ? expirationDate.toDate() : null, // ส่ง expirationDate
-        lastTaxDate: latestTaxPaymentDate
-          ? latestTaxPaymentDate.toDate()
-          : null, // ส่ง lastTaxDate
+        age: calculateCarAge(registrationDate), // ใช้เฉพาะปีจากฟังก์ชัน calculateCarAge
+        registerDate: registrationDate!, // เปลี่ยนชื่อเป็น registerDate และใช้ `!` เพื่อยืนยันว่ามีค่า
+        expiryDate: expirationDate,
+        lastTaxDate: latestTaxPaymentDate,
         isInChiangRai: selectedProvinceName === "เชียงราย",
         isMotorcycle: selectedCarType === "รถจักรยานยนต์",
         isCarTruck: selectedCarType == "รถบรรทุก",
@@ -247,6 +248,7 @@ const FormComponent: React.FC = () => {
           latestTaxPaymentDate,
           expirationDate
         ),
+        missedTaxPayment: missedTaxPayment,
         finalTotal: 0, // Placeholder until the calculation is made
         finalPrb: 0, // Placeholder until the calculation is made
         finalTax: 0, // Placeholder until the calculation is made
@@ -317,177 +319,198 @@ const FormComponent: React.FC = () => {
   };
 
   return (
-    <div className="form-container mx-auto ">
-      {showReadME ? (
-        <ReadMe onAgree={handleNextPage} />
-      ) : showForm ? (
-        <Form
-          className="form"
-          noValidate
-          validated={validated}
-          onSubmit={handleSubmit}
-        >
-          {/* UserInfo */}
-          <UserInfo
-            isInvalid={validated && !usernameData}
-            usernameData={usernameData}
-            setUsernameData={setUsernameData}
-            selectedProvince={selectedProvince}
-            setSelectedProvince={setSelectedProvince}
-            selectedProvinceName={selectedProvinceName}
-            setSelectedProvinceName={setSelectedProvinceName}
-            selectedCarType={selectedCarType}
-            setSelectedCarType={(value) => {
-              handleCarTypeChange(value); // เรียกใช้ฟังก์ชัน handleCarTypeChange เมื่อมีการเปลี่ยนค่า
-            }}
-            setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
-            onValidateUserInfo={handleUserInfoValidation}
-          />
-
-          {/* DateSection with callback for different dates */}
-          <DateSection
-            isInvalid={
-              validated &&
-              (!registrationDate || !expirationDate || !latestTaxPaymentDate)
-            }
-            handleDateChange={handleDateChange} // Callback to handle date changes
-            registrationDate={registrationDate} // ส่งค่า registrationDate
-            expirationDate={expirationDate} // ส่งค่า expirationDate
-            latestTaxPaymentDate={latestTaxPaymentDate} // ส่งค่า latestTaxPaymentDate
-            setIsFormValid={setIsFormValid}
-          />
-
-          {/* Integrate OwnerInfo */}
-          <OwnerInfo
-            isInvalid={validated && (!ownerData || !selectedRadio)}
-            selectedRadio={selectedRadio}
-            setSelectedRadio={handleRadioChange}
-            ownerData={ownerData}
-            setOwnerData={setOwnerData}
-            selectedCarType={selectedCarType}
-            setBikeTypeOrDoorCount={setBikeTypeOrDoorCount}
-            bikeTypeOrDoorCount={bikeTypeOrDoorCount}
-            setIsFormValid={setIsFormValid}
-            carOrMotorcycleLabel={ownerLabel} // ส่ง ownerLabel
-            setCarOrMotorcycleLabel={setOwnerLabel} // ใช้ setOwnerLabel สำหรับ OwnerInfo
-            onValidateOwnerInfo={handleOwnerInfoValidation}
-          />
-
-          {/* Integrate VehicleInfo */}
-          <VehicleInfo
-            isInvalid={
-              validated &&
-              (!registrationNumber || !contactNumber || !engineSize)
-            }
-            registrationNumber={registrationNumber}
-            setRegistrationNumber={setRegistrationNumber}
-            contactNumber={contactNumber}
-            setContactNumber={setContactNumber}
-            engineSize={engineSize}
-            setEngineSize={setEngineSize}
-            selectedCarType={selectedCarType}
-            CCorWeight={CCorWeightLabel} // ส่ง vehicleLabel
-            setCCorWeight={setCCorWeightLabel}
-            setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
-            onValidateVehicleInfo={handleVehicleInfoValidation}
-          />
-          <Row>
-            <Col className="mb-4" xs={12} sm={6} md={6} lg={6} xl={6}>
-              <FileInput
-                label="ภาพสำเนาภาพเล่มทะเบียนรถ (รองรับ .png, .jpg)"
-                onFileSelect={(file) => setSelectedRegistrationBookFile(file)}
-                accept=".jpg, .png"
-                alertText="กรุณาเลือกภาพสำเนาภาพเล่มทะเบียนรถ"
-                initialFile={selectedRegistrationBookFile}
-              />
-            </Col>
-            <Col className="mb-4" xs={12} sm={6} md={6} lg={6} xl={6}>
-              <FileInput
-                label="ภาพแผ่นป้ายทะเบียนรถ (รองรับ .png, .jpg)"
-                onFileSelect={(file) => setSelectedLicenseFile(file)}
-                accept=".jpg, .png"
-                alertText="กรุณาเลือกภาพแผ่นป้ายทะเบียนรถ"
-                initialFile={selectedLicenseFile}
-              />
-            </Col>
-          </Row>
-
-          <hr className="my-4" />
-
-          <footer>
-            {/* Alert */}
-            {!isFormValid && (
-              <Alert
-                variant="success"
-                className="d-flex align-items-center mb-4"
+    <body>
+      <Row>
+        <Col lg={1} md={2} xl={1}>
+          <aside className="d-flex justify-content-center">
+            <SidebarUser />
+          </aside>
+        </Col>
+        <Col  lg={11} md={10}  xl={11}>
+          <div className="form-container mx-auto ">
+            {showReadME ? (
+              <ReadMe onAgree={handleNextPage} />
+            ) : showForm ? (
+              <Form
+                className="form"
+                noValidate
+                validated={validated}
+                onSubmit={handleSubmit}
               >
-                <i className="fas fa-exclamation-triangle me-2"></i>
-                <span>กรุณากรอกข้อมูลให้ครบถ้วน</span>
-              </Alert>
-            )}
+                <h2 className="text-success text-center mb-4">
+                  พรบ. ต่อภาษีรถ
+                </h2>
+                {/* UserInfo */}
+                <UserInfo
+                  isInvalid={validated && !usernameData}
+                  usernameData={usernameData}
+                  setUsernameData={setUsernameData}
+                  selectedProvince={selectedProvince}
+                  setSelectedProvince={setSelectedProvince}
+                  selectedProvinceName={selectedProvinceName}
+                  setSelectedProvinceName={setSelectedProvinceName}
+                  selectedCarType={selectedCarType}
+                  setSelectedCarType={(value) => {
+                    handleCarTypeChange(value); // เรียกใช้ฟังก์ชัน handleCarTypeChange เมื่อมีการเปลี่ยนค่า
+                  }}
+                  setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
+                  onValidateUserInfo={handleUserInfoValidation}
+                />
 
-            <Row className="mb-2 ">
-              <Col className="mb-2 form-button-container">
-                <Button
-                  // label="ย้อนกลับ"
-                  className="form-button mx-3"
-                  type="button"
-                  variant="outline-success"
-                  onClick={handleBackToReadMe}
-                >
-                  ย้อนกลับ
-                </Button>
-                <Button
-                  // label="ถัดไป"
-                  className="form-button"
-                  type="submit"
-                  variant="success"
-                  disabled={!isFormValid}
-                >
-                  ถัดไป
-                </Button>
-              </Col>
-            </Row>
-          </footer>
-        </Form>
-      ) : (
-        showResult && (
-          <Summary
-            carOrMotorcycleLabel={ownerLabel}
-            CCorWeight={CCorWeightLabel}
-            ownerData={ownerData}
-            usernameData={usernameData}
-            selectedProvince={selectedProvinceName}
-            engineSize={engineSize}
-            contactNumber={contactNumber}
-            registrationNumber={registrationNumber}
-            registrationDate={
-              registrationDate ? registrationDate.toDate() : null
-            }
-            expirationDate={expirationDate ? expirationDate.toDate() : null}
-            latestTaxPaymentDate={
-              latestTaxPaymentDate ? latestTaxPaymentDate.toDate() : null
-            }
-            selectedRadio={selectedRadio}
-            bikeTypeOrDoorCount={bikeTypeOrDoorCount}
-            selectedCarType={selectedCarType}
-            totalCost={totalCost}
-            prbCost={finalPrb} // ส่งค่าพรบ.สุทธิ
-            taxCost={finalTax} // ส่งค่าภาษีสุทธิ
-            lateFee={lateFee}
-            inspectionCost={inspectionFee} // ส่งค่าตรวจสภาพ
-            processingCost={processingFee} // ส่งค่าดำเนินการ
-            carAge={carAge}
-            selectedRegistrationBookFile={selectedRegistrationBookFile}
-            selectedLicenseFile={selectedLicenseFile}
-            onBack={handleBack} // ส่งฟังก์ชันย้อนกลับ
-            onConfirm={handleConfirm} // ส่งฟังก์ชันตกลง
-        
-          />
-        )
-      )}
-      <ScrollToTopAndBottomButton />
-    </div>
+                {/* DateSection with callback for different dates */}
+                <DateSection
+                  isInvalid={
+                    validated &&
+                    (!registrationDate ||
+                      !expirationDate ||
+                      !latestTaxPaymentDate)
+                  }
+                  handleDateChange={handleDateChange} // Callback to handle date changes
+                  registrationDate={registrationDate} // ส่งค่า registrationDate
+                  expirationDate={expirationDate} // ส่งค่า expirationDate
+                  latestTaxPaymentDate={latestTaxPaymentDate} // ส่งค่า latestTaxPaymentDate
+                  missedTaxPayment={missedTaxPayment}
+                  setMissedTaxPayment={setMissedTaxPayment}
+                  setIsFormValid={setIsFormValid}
+                />
+
+                {/* Integrate OwnerInfo */}
+                <OwnerInfo
+                  isInvalid={validated && (!ownerData || !selectedRadio)}
+                  selectedRadio={selectedRadio}
+                  setSelectedRadio={handleRadioChange}
+                  ownerData={ownerData}
+                  setOwnerData={setOwnerData}
+                  selectedCarType={selectedCarType}
+                  setBikeTypeOrDoorCount={setBikeTypeOrDoorCount}
+                  bikeTypeOrDoorCount={bikeTypeOrDoorCount}
+                  setIsFormValid={setIsFormValid}
+                  carOrMotorcycleLabel={ownerLabel} // ส่ง ownerLabel
+                  setCarOrMotorcycleLabel={setOwnerLabel} // ใช้ setOwnerLabel สำหรับ OwnerInfo
+                  onValidateOwnerInfo={handleOwnerInfoValidation}
+                />
+
+                {/* Integrate VehicleInfo */}
+                <VehicleInfo
+                  isInvalid={
+                    validated &&
+                    (!registrationNumber || !contactNumber || !engineSize)
+                  }
+                  registrationNumber={registrationNumber}
+                  setRegistrationNumber={setRegistrationNumber}
+                  contactNumber={contactNumber}
+                  setContactNumber={setContactNumber}
+                  engineSize={engineSize}
+                  setEngineSize={setEngineSize}
+                  selectedCarType={selectedCarType}
+                  CCorWeight={CCorWeightLabel} // ส่ง vehicleLabel
+                  setCCorWeight={setCCorWeightLabel}
+                  setIsFormValid={setIsFormValid} // ส่ง prop นี้ไปที่ VehicleInfo
+                  onValidateVehicleInfo={handleVehicleInfoValidation}
+                />
+                <Row>
+                  <Col className="mb-4" xs={12} sm={6} md={6} lg={6} xl={6}>
+                    <FileInput
+                      label="สำเนาภาพเล่มทะเบียนรถ (รองรับ .png, .jpg)"
+                      onFileSelect={(file) =>
+                        setSelectedRegistrationBookFile(file)
+                      }
+                      accept=".jpg, .png"
+                      alertText="กรุณาเลือกภาพสำเนาภาพเล่มทะเบียนรถ"
+                      initialFile={selectedRegistrationBookFile}
+                    />
+                  </Col>
+                  <Col className="mb-4" xs={12} sm={6} md={6} lg={6} xl={6}>
+                    <FileInput
+                      label="ภาพแผ่นป้ายทะเบียนรถ (รองรับ .png, .jpg)"
+                      onFileSelect={(file) => setSelectedLicenseFile(file)}
+                      accept=".jpg, .png"
+                      alertText="กรุณาเลือกภาพแผ่นป้ายทะเบียนรถ"
+                      initialFile={selectedLicenseFile}
+                    />
+                  </Col>
+                </Row>
+
+                <hr className="my-4" />
+
+                <footer>
+                  {/* Alert */}
+                  {!isFormValid && (
+                    <Alert
+                      variant="success"
+                      className="d-flex align-items-center mb-4"
+                    >
+                      <i className="fas fa-exclamation-triangle me-2"></i>
+                      <span>กรุณากรอกข้อมูลให้ครบถ้วน</span>
+                    </Alert>
+                  )}
+
+                  <Row className="mb-2 ">
+                    <Col className="mb-2 form-button-container">
+                      <Button
+                        // label="ย้อนกลับ"
+                        className="form-button mx-3"
+                        type="button"
+                        variant="outline-success"
+                        onClick={handleBackToReadMe}
+                      >
+                        ย้อนกลับ
+                      </Button>
+                      <Button
+                        // label="ถัดไป"
+                        className="form-button"
+                        type="submit"
+                        variant="success"
+                        disabled={!isFormValid}
+                      >
+                        ถัดไป
+                      </Button>
+                    </Col>
+                  </Row>
+                </footer>
+              </Form>
+            ) : (
+              showResult && (
+                <Summary
+                  carOrMotorcycleLabel={ownerLabel}
+                  CCorWeight={CCorWeightLabel}
+                  ownerData={ownerData}
+                  usernameData={usernameData}
+                  selectedProvince={selectedProvinceName}
+                  engineSize={engineSize}
+                  contactNumber={contactNumber}
+                  registrationNumber={registrationNumber}
+                  registrationDate={
+                    registrationDate ? registrationDate.toDate() : null
+                  }
+                  expirationDate={
+                    expirationDate ? expirationDate.toDate() : null
+                  }
+                  latestTaxPaymentDate={
+                    latestTaxPaymentDate ? latestTaxPaymentDate.toDate() : null
+                  }
+                  selectedRadio={selectedRadio}
+                  bikeTypeOrDoorCount={bikeTypeOrDoorCount}
+                  selectedCarType={selectedCarType}
+                  totalCost={totalCost}
+                  prbCost={finalPrb} // ส่งค่าพรบ.สุทธิ
+                  taxCost={finalTax} // ส่งค่าภาษีสุทธิ
+                  lateFee={lateFee}
+                  inspectionCost={inspectionFee} // ส่งค่าตรวจสภาพ
+                  processingCost={processingFee} // ส่งค่าดำเนินการ
+                  carAge={carAge}
+                  selectedRegistrationBookFile={selectedRegistrationBookFile}
+                  selectedLicenseFile={selectedLicenseFile}
+                  onBack={handleBack} // ส่งฟังก์ชันย้อนกลับ
+                  onConfirm={handleConfirm} // ส่งฟังก์ชันตกลง
+                />
+              )
+            )}
+            <ScrollToTopAndBottomButton />
+          </div>
+        </Col>
+      </Row>
+    </body>
   );
 };
 

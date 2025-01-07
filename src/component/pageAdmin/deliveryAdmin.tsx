@@ -14,16 +14,11 @@ import useAuth from "../useAuth";
 import ScrollToTopAndBottomButton from "../ScrollToTopAndBottomButton";
 import PaginationControls from "./pageAdminComponent/paginationControls";
 import SidebarAdmin from "./pageAdminComponent/sidebarAdmin";
-import { IoMdMore } from "react-icons/io";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/th";
 import isBetween from "dayjs/plugin/isBetween";
 import provinces from "../../data/provinces.json";
-import {
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaSpinner,
-} from "react-icons/fa";
+import { FaCheckCircle, FaExclamationTriangle, FaClock } from "react-icons/fa";
 
 dayjs.locale("th");
 
@@ -519,58 +514,15 @@ const DeliveryAdmin: React.FC = () => {
 
   return (
     <div className="form-container mx-auto mt-1">
-      <h1 className="text-success text-center">
-        แดชบอร์ดแอดมินสำหรับข้อมูลการจัดส่ง
-      </h1>
-
-      <AllInfo
-        total={totalDeliveries}
-        completed={completedDeliveries}
-        inProgress={inProgressDeliveries}
-        additionalDocs={additionalDocsDeliveries}
-      />
-
-      <Form>
-        <Row>
-          <Col
-            xs={10}
-            sm={11}
-            md={11}
-            lg={11}
-            xl={11}
-            className="mb-3"
-            style={{ padding: "0px 0px 0px 12px" }}
+      <div
+            // xs={2}
+            // sm={1}
+            // md={1}
+            // lg={1}
+            // xl={1}
+            className="d-flex justify-content-start align-items-end px-0"
           >
-            <TextInput
-              label="ค้นหา"
-              id="searchInput"
-              placeholder="ค้นหาหมายเลขทะเบียน, หมายเลขบัตรประชาชน, หมายเลขพาสปอร์ต..."
-              value={searchTerm}
-              onChange={(e) => handleSearch(e.target.value)}
-            />
-          </Col>
-
-          <Col
-            xs={2}
-            sm={1}
-            md={1}
-            lg={1}
-            xl={1}
-            className="d-flex justify-content-center align-items-end px-0"
-          >
-            {/* ปุ่มเปิด Sidebar */}
-            <IoMdMore
-              size={40}
-              onClick={toggleSidebar}
-              className="menuIcon"
-              style={{
-                cursor: "pointer",
-                padding: "5px",
-                margin: "10px 5px 15px 0px",
-                borderBlockColor: "black",
-                borderRadius: "10px",
-              }}
-            />
+            
 
             {/* Sidebar formAdmin */}
             <SidebarAdmin
@@ -618,7 +570,38 @@ const DeliveryAdmin: React.FC = () => {
               endDate={endDate}
               onDateRangeFilter={handleDateRangeFilter}
             />
-          </Col>
+          </div>
+      <h1 className="text-success text-center mb-3">
+        แดชบอร์ดแอดมินสำหรับข้อมูลการจัดส่ง
+      </h1>
+
+      <AllInfo
+        total={totalDeliveries}
+        completed={completedDeliveries}
+        inProgress={inProgressDeliveries}
+        additionalDocs={additionalDocsDeliveries}
+      />
+
+      <Form>
+        <Row>
+          
+          <div
+            // xs={10}
+            // sm={11}
+            // md={11}
+            // lg={11}
+            // xl={11}
+            className="mb-3"
+            // style={{ padding: "0px 0px 0px 12px" }}
+          >
+            <TextInput
+              label="ค้นหา"
+              id="searchInput"
+              placeholder="ค้นหาหมายเลขทะเบียน, หมายเลขบัตรประชาชน, หมายเลขพาสปอร์ต..."
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
+          </div>
         </Row>
 
         <Row className="responsive-container mb-3">
@@ -724,7 +707,7 @@ const DeliveryAdmin: React.FC = () => {
                           size={20}
                         />
                       ) : delivery.status === "อยู่ระหว่างดำเนินการ" ? (
-                        <FaSpinner className="text-info my-3" size={20} />
+                        <FaClock className="text-info my-3" size={20} />
                       ) : (
                         <FaExclamationTriangle
                           className="text-warning my-3"
@@ -789,7 +772,7 @@ const DeliveryAdmin: React.FC = () => {
         <Modal
           show={showModal}
           onHide={() => setShowModal(false)}
-          size="lg"
+          size="xl"
           centered
         >
           <Modal.Header closeButton>
@@ -852,7 +835,7 @@ const DeliveryAdmin: React.FC = () => {
                 {selectedDelivery.status === "สำเร็จแล้ว" ? (
                   <FaCheckCircle className="text-success" size={20} />
                 ) : selectedDelivery.status === "อยู่ระหว่างดำเนินการ" ? (
-                  <FaSpinner className="text-info" size={20} />
+                  <FaClock className="text-info" size={20} />
                 ) : (
                   <FaExclamationTriangle className="text-warning" size={20} />
                 )}
@@ -1031,7 +1014,7 @@ const DeliveryAdmin: React.FC = () => {
           <Modal
             show={!!modalImage}
             onHide={() => setModalImage(null)}
-            size="lg"
+            size="xl"
             centered
           >
             <Modal.Header closeButton>

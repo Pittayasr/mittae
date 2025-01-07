@@ -54,7 +54,7 @@ const ScrollToTopAndBottomButton: React.FC = () => {
       {showButton && (
         <Button
           variant="success"
-          className="scroll-to-top"
+          className="scroll-to-top "
           onClick={scrollToPosition}
           style={{
             position: "fixed",

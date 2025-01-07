@@ -110,7 +110,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
   setVoluntaryInsuranceHouseFile,
   noIDcardFile,
   setNoIDcardFile,
-  isInvalid,
+  // isInvalid,
   // onValidateInsuranceVehicleInfo,
 }) => {
   const [provinceList] = useState(provinces);
@@ -230,7 +230,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               }))}
               placeholder="ค้นหา..."
               onChange={(value) => setSelectedProvinceRegistered(value || null)}
-              isInvalid={isInvalid && !selectedProvinceRegistered}
+              // isInvalid={isInvalid && !selectedProvinceRegistered}
               alertText="กรุณาเลือกจังหวัดที่จดทะเบียนรถ"
             />
           </Col>
@@ -254,7 +254,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               onChange={(value) => {
                 if (value !== null) setVehiclePurpose(value);
               }}
-              isInvalid={isInvalid && !vehiclePurpose}
+              // isInvalid={isInvalid && !vehiclePurpose}
               alertText="กรุณาระบุจุดประสงค์การใช้รถ"
             />
           </Col>
@@ -278,7 +278,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               placeholder="เลือก..."
               value={licenseAge}
               onChange={(value) => setLicenseAge(value || "")}
-              isInvalid={isInvalid && !licenseAge}
+              // isInvalid={isInvalid && !licenseAge}
               alertText="กรุณาเลือกอายุใบขับขี่"
             />
           </Col>
@@ -290,7 +290,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                 options={["มี", "ไม่มี"]}
                 selectedValue={hasDashCam}
                 onChange={(value) => setHasDashCam(value)}
-                isInvalid={isInvalid && !hasDashCam}
+                // isInvalid={isInvalid && !hasDashCam}
                 alertText="กรุณาระบุข้อมูล"
               />
             </Col>
@@ -310,7 +310,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               options={["ชาย", "หญิง", "อื่นๆ"]}
               selectedValue={gender}
               onChange={setGender}
-              isInvalid={isInvalid && !gender}
+              // isInvalid={isInvalid && !gender}
               alertText="กรุณาเลือกเพศ"
             />
           </Col>
@@ -345,7 +345,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               onChange={(value) => {
                 setSelectedProvinceDriver(value || ""); // จัดการค่า null เป็น ""
               }}
-              isInvalid={isInvalid && !selectedProvinceDriver}
+              // isInvalid={isInvalid && !selectedProvinceDriver}
               alertText="กรุณาเลือกจังหวัด"
             />
           </Col>
@@ -366,7 +366,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                 setMaritalStatus(value || "");
               }}
               placeholder="เลือกสถานะสมรส"
-              isInvalid={isInvalid && !maritalStatus}
+              // isInvalid={isInvalid && !maritalStatus}
               required
               alertText="กรุณาเลือกสถานะสมรส"
             />
@@ -416,7 +416,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               placeholder="เลือก..."
               value={propertyType}
               onChange={(value) => setPropertyType(value || "")}
-              isInvalid={isInvalid && !propertyType}
+              // isInvalid={isInvalid && !propertyType}
               alertText="กรุณาเลือกประเภททรัพย์สิน"
             />
           </Col>
@@ -464,7 +464,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               options={["เคยทำ", "ยังไม่เคยทำ", "ยังมีประกันภัยภาคสมัครใจ"]}
               selectedValue={hasVoluntaryInsurance}
               onChange={setHasVoluntaryInsurance}
-              isInvalid={isInvalid && !hasVoluntaryInsurance}
+              // isInvalid={isInvalid && !hasVoluntaryInsurance}
               alertText="กรุณาเลือกข้อมูล"
             />
             {/* <p className="my-3">
@@ -482,7 +482,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                     if (file) setRegistrationBookInsuranceCarFile(file);
                   }}
                   accept=".jpg, .png"
-                  isInvalid={isInvalid && !registrationBookInsuranceCarFile}
+                  // isInvalid={isInvalid && !registrationBookInsuranceCarFile}
                   alertText="กรุณาอัปโหลดสำเนาหน้าเล่มทะเบียน"
                   initialFile={registrationBookInsuranceCarFile}
                 />
@@ -495,7 +495,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                       if (file) setVoluntaryInsuranceCarFile(file);
                     }}
                     accept=".jpg, .png"
-                    isInvalid={isInvalid && !voluntaryInsuranceCarFile}
+                    // isInvalid={isInvalid && !voluntaryInsuranceCarFile}
                     alertText="กรุณาอัปโหลดสำเนากรมธรรม์เดิม"
                     initialFile={voluntaryInsuranceCarFile}
                   />
@@ -512,9 +512,9 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                     if (file) setRegistrationBookInsuranceMotorcycleFile(file);
                   }}
                   accept=".jpg, .png"
-                  isInvalid={
-                    isInvalid && !registrationBookInsuranceMotorcycleFile
-                  }
+                  // isInvalid={
+                  //   isInvalid && !registrationBookInsuranceMotorcycleFile
+                  // }
                   alertText="กรุณาอัปโหลดสำเนาหน้าเล่มทะเบียน"
                   initialFile={registrationBookInsuranceMotorcycleFile}
                 />
@@ -527,7 +527,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                       if (file) setVoluntaryInsuranceMotorcycleFile(file);
                     }}
                     accept=".jpg, .png"
-                    isInvalid={isInvalid && !voluntaryInsuranceMotorcycleFile}
+                    // isInvalid={isInvalid && !voluntaryInsuranceMotorcycleFile}
                     alertText="กรุณาอัปโหลดสำเนากรมธรรม์เดิม"
                     initialFile={voluntaryInsuranceMotorcycleFile}
                   />
@@ -545,7 +545,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                     if (file) setTitleDeedFile(file);
                   }}
                   accept=".jpg, .png"
-                  isInvalid={isInvalid && !titleDeedFile}
+                  // isInvalid={isInvalid && !titleDeedFile}
                   alertText="กรุณาอัปโหลดสำเนาโฉนดที่ดิน"
                   initialFile={titleDeedFile}
                 />
@@ -557,7 +557,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                     if (file) setNoIDcardFile(file);
                   }}
                   accept=".jpg, .png"
-                  isInvalid={isInvalid && !noIDcardFile}
+                  // isInvalid={isInvalid && !noIDcardFile}
                   alertText="กรุณาอัปโหลดสำเนาบัตรประชาชน"
                   initialFile={noIDcardFile}
                 />
@@ -570,7 +570,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                       if (file) setVoluntaryInsuranceHouseFile(file);
                     }}
                     accept=".jpg, .png"
-                    isInvalid={isInvalid && !voluntaryInsuranceHouseFile}
+                    // isInvalid={isInvalid && !voluntaryInsuranceHouseFile}
                     alertText="กรุณาอัปโหลดสำเนากรมธรรม์เดิม"
                     initialFile={voluntaryInsuranceHouseFile}
                   />

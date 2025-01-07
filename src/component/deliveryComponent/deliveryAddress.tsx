@@ -53,6 +53,7 @@ interface DeliveryAddressProps {
   setSelectedDistrictName: (value: string | null) => void;
   setSelectedSubDistrictName: (value: string | null) => void;
   showSender: boolean;
+  transport: boolean;
   setIsFormValid: (isValid: boolean) => void;
   onValidateAddress: (validations: {
     isInvalidHouseNo: boolean;
@@ -90,6 +91,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
   setSelectedDistrictName,
   setSelectedSubDistrictName,
   showSender,
+  transport,
   setIsFormValid,
   onValidateAddress,
 }) => {
@@ -410,7 +412,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
         />
       </Col>
 
-      {!showSender && (
+      {(!showSender && !transport) &&  (
         <Col className="register-and-contract-number mb-4" md={4} xs={12}>
           <TextSelect
             value={selectDeliveryType || ""}
@@ -419,6 +421,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
             options={[
               { label: "ส่งของปกติ", value: "ส่งของปกติ" },
               { label: "ส่งรถกลับบ้าน", value: "ส่งรถกลับบ้าน" },
+              { label: "ส่งสัตว์เลี้ยง", value: "ส่งสัตว์เลี้ยง" },
             ]}
             placeholder="เลือกประเภทของที่ส่ง"
             onChange={(value) => {

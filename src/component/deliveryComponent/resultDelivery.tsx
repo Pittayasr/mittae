@@ -39,6 +39,7 @@ interface ResultDeliveryProps {
     district: string;
     province: string;
     postalCode: string;
+    packageDetail: string;
   };
   vehicleInfo?: {
     carType: string;
@@ -110,10 +111,13 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
       formData.append("type", "Delivery");
       formData.append("selectDeliveryType", deliveryType);
 
-      const response = await fetch("https://api.mittaemaefahlung88.com/upload-multiple", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://api.mittaemaefahlung88.com/upload-multiple",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -174,6 +178,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
           district: receiverInfo.district,
           province: receiverInfo.province,
           postalCode: receiverInfo.postalCode,
+          packageDetail: receiverInfo.packageDetail,
         },
         vehicleInfo:
           deliveryType === "ส่งรถกลับบ้าน" && vehicleInfo
@@ -333,6 +338,12 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
               </li>
             </ul>
           </Col>
+
+          <p className="my-3">
+            <strong>รายละเอียดสิ่งของที่ส่ง:</strong>
+            {" "}
+            {receiverInfo.packageDetail}
+          </p>
         </Row>
 
         {deliveryType === "ส่งรถกลับบ้าน" && vehicleInfo && (
@@ -346,7 +357,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
                 <li className="my-3">
                   <strong>ขนาดความจุ CC:</strong> {vehicleInfo.ccSize}
                 </li>
-                <li className="my-3">
+                {/* <li className="my-3">
                   <strong>ราคาการส่งรถ:</strong>{" "}
                   {`${deliveryCost?.toLocaleString()} บาท`}
                 </li>
@@ -354,7 +365,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
                   <strong>
                     *(ทั้งนี้ยังไม่รวมค่าประกันความเสียหาย,จัดส่งให้ถึงที่บ้านและค่าหุ้มห่อเพิ่มเติมอีกตามแต่ขนาดของรถแต่ละประเภทชนิด)*
                   </strong>
-                </li>
+                </li> */}
                 {/* <li>
                   <strong>ไฟล์สำเนาภาพเล่มทะเบียน:</strong>{" "}
                   <Button

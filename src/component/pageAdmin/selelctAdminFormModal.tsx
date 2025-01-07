@@ -52,7 +52,9 @@ const SelectAdminFormModal: React.FC<SelectAdminFormModalProps> = ({
       centered
     >
       <Modal.Header>
-        <Modal.Title>บริการสำหรับผู้ดูแลระบบ</Modal.Title>
+        <Modal.Title>
+          <h3>บริการสำหรับผู้ดูแลระบบ</h3>
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body className="text-center">
         <Row>

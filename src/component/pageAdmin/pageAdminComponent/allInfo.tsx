@@ -2,7 +2,7 @@ import React from "react";
 import { Card, Row, Col } from "react-bootstrap";
 import {
   FaCheckCircle,
-  FaSpinner,
+  FaClock,
   FaExclamationTriangle,
   FaList,
 } from "react-icons/fa";
@@ -45,7 +45,7 @@ const AllInfo: React.FC<AllInfoProps> = ({
       <Col xs={6} sm={6} md={3} lg={3}>
         <Card className="text-center compact-card">
           <Card.Body className="d-flex flex-column align-items-center">
-            <FaSpinner size={20} className="text-info mb-2" />
+            <FaClock size={20} className="text-info mb-2" />
             <Card.Title className="small-text">กำลังดำเนินการ</Card.Title>
             <Card.Text className="responsive-label">
               {inProgress} รายการ

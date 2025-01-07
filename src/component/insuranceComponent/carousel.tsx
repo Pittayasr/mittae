@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Carousel, Modal, Button } from "react-bootstrap";
+import { Carousel, Modal} from "react-bootstrap";
 
 interface CarouselProps {
   insuranceCompany: string | null;
@@ -159,11 +159,11 @@ const CarouselComponent: React.FC<CarouselProps> = ({
             />
           )}
         </Modal.Body>
-        <Modal.Footer>
+        {/* <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseModal}>
             ปิด
           </Button>
-        </Modal.Footer>
+        </Modal.Footer> */}
       </Modal>
       
     </div>

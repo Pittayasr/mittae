@@ -9,8 +9,9 @@ interface CarDetails {
   weight: number; // น้ำหนักรถ
   cc: number; // ขนาด CC
   age: number; // อายุรถ (ปี)
-  expiryDate: Date | null; // วันที่หมดอายุภาษี
-  lastTaxDate: Date | null; // วันที่จ่ายภาษีครั้งล่าสุด
+  registerDate: Dayjs;
+  expiryDate: Dayjs | null; // วันที่หมดอายุภาษี
+  lastTaxDate: Dayjs | null; // วันที่จ่ายภาษีครั้งล่าสุด
   isInChiangRai: boolean; // ถ้าอยู่ในจังหวัดเชียงราย
   isMotorcycle: boolean; // เพิ่มเพื่อระบุว่ารถเป็นจักรยานยนต์หรือไม่
   isCarTruck: boolean; // เพิ่มเพื่อระบุว่ารถเป็นรถบรรทุกหรือไม่
@@ -21,6 +22,7 @@ interface CarDetails {
   isTractor: boolean; // เพิ่มเพื่อระบุว่ารถเป็นรถบรรทุกเกิน7ที่นั่งหรือไม่
   isCarTrailer: boolean; // ถ้าเป็นจักรยานยนต์พ่วง
   isGasCar: boolean;
+  missedTaxPayment: string | null;
 
   finalTotal: number;
   finalPrb: number;
@@ -29,6 +31,26 @@ interface CarDetails {
   inspectionFee: number;
   processingFee: number;
 }
+
+// ฟังก์ชันคำนวณอายุรถแบบละเอียด
+const calculateCarAge = (
+  registerDate: Dayjs
+): { years: number; months: number; days: number } => {
+  const now = dayjs();
+  const totalDays = now.diff(registerDate, "day");
+  const years = Math.floor(totalDays / 365);
+  const remainingDays = totalDays % 365;
+  const months = Math.floor(remainingDays / 30);
+  const days = remainingDays % 30;
+  return { years, months, days };
+};
+
+// ฟังก์ชันสำหรับเช็คว่าอยู่ในช่วง 5 ปีแรกหรือไม่
+// const isWithinFiveYears = (registerDate: Dayjs): boolean => {
+//   const now = dayjs();
+//   const fiveYearsAgo = now.subtract(5, "year");
+//   return registerDate.isAfter(fiveYearsAgo);
+// };
 
 // ฟังก์ชันสำหรับเช็คว่าเกิน 3 ปีไหม
 const isMoreThanThreeYears = (
@@ -53,6 +75,9 @@ export const calculateTax = (
   inspectionFee: number;
   processingFee: number;
 } => {
+  const carAge = calculateCarAge(car.registerDate);
+  // const withinFiveYears = isWithinFiveYears(car.registerDate);
+
   // คำนวณค่าภาษีพื้นฐาน
   const basePrbCar =
     // ตรวจสอบว่าประเภทรถเป็นรถยนต์, รถบรรทุก, รถบรรทุก (เกิน 7 ที่นั่ง), รถไฟฟ้า, รถไฮบริด
@@ -155,11 +180,30 @@ export const calculateTax = (
 
   // console.log("ค่าภาษีสุทธิ =", finalTax);
 
-  const inspectionFee = car.isMotorcycle
-    ? 100
-    : car.isGasCar
-    ? 900 // 400 (ตรวจสภาพ) + 500 (ค่าตรวจแก๊ส)
-    : 400; // ค่าตรวจสภาพ
+  // ปรับฟังก์ชันคำนวณค่าตรวจสภาพ
+  let inspectionFee = 0;
+
+  if (car.missedTaxPayment === "ไม่เคย" || car.missedTaxPayment === null) {
+    if (
+      car.expiryDate &&
+      dayjs(car.expiryDate).isBefore(dayjs(), "day") // หมดอายุเมื่อเทียบกับปัจจุบัน
+    ) {
+      inspectionFee = car.isMotorcycle ? 100 : car.isGasCar ? 900 : 400; // กรณีรถยนต์ทั่วไป
+    }
+  } else if (["1 ครั้ง", "3 ครั้ง", "5 ครั้ง"].includes(car.missedTaxPayment)) {
+    // ไม่ต้องคิด inspectionFee ยกเว้นเป็นรถแก๊ส
+    inspectionFee = car.isGasCar ? 500 : 0;
+  } else if (["2 ครั้ง", "4 ครั้ง"].includes(car.missedTaxPayment)) {
+    // เงื่อนไขสำหรับครั้งที่ 2 และ 4
+    if (car.isMotorcycle) {
+      inspectionFee = 100;
+    } else if (car.isGasCar) {
+      inspectionFee = 900;
+    } else {
+      inspectionFee = 400; // รถยนต์ทั่วไป
+    }
+  }
+
   const processingFee = car.isMotorcycle ? 300 : 400; // ค่าบริการ
   // console.log("ค่าตรวจสภาพ =", inspectionFee);
   // console.log("ค่าดำเนินการ =", processingFee);
@@ -168,19 +212,16 @@ export const calculateTax = (
 
   // ค่าปรับสำหรับการล่าช้า
   let lateFee = 0;
-  if (car.age > 3) {
-    const monthsLate =
-      car.expiryDate && car.lastTaxDate
-        ? dayjs(car.lastTaxDate).diff(dayjs(car.expiryDate), "month")
-        : 0; // คำนวณเดือนที่ล่าช้า
+  if (carAge.years > 3 || (carAge.years === 3 && carAge.months > 0)) {
+    const monthsLate = dayjs().diff(car.expiryDate, "month");
     lateFee += monthsLate; // ค่าปรับ 1 บาทต่อเดือน
-    // console.log("ค่าปรับคิดตามเดือน =", lateFee);
+     console.log("ค่าปรับคิดตามเดือน =", lateFee);
 
     if (monthsLate >= 12 && monthsLate <= 23) {
       lateFee += finalTax * 0.2;
-      // console.log("ค่าปรับคิดตามเดือนแรก =", lateFee); // ปีแรกเพิ่ม 20%
+      console.log("ค่าปรับคิดตามเดือนแรก =", lateFee); // ปีแรกเพิ่ม 20%
     } else if (monthsLate >= 24 && monthsLate <= 36) {
-      // console.log("ค่าปรับคิดตามสอง =", lateFee);
+      console.log("ค่าปรับคิดตามสอง =", lateFee);
       lateFee += finalTax * 0.4; // ปีที่สองเพิ่ม 40%
     } else if (monthsLate > 36) {
       lateFee = lateFee + finalTax * 0.4 + 300; // ค่าปรับส่งมอบแผ่นป้ายล่าช้า
@@ -189,12 +230,12 @@ export const calculateTax = (
       const registrationFeeRates = car.isMotorcycle
         ? { chiangRai: 1500, other: 2500 }
         : { chiangRai: 2500, other: 3500 };
-      // console.log("ค้าจดทะเบียนใหม่ = ", registrationFeeRates);
+      console.log("ค้าจดทะเบียนใหม่ = ", registrationFeeRates);
 
       lateFee += car.isInChiangRai
         ? registrationFeeRates.chiangRai
         : registrationFeeRates.other;
-      // console.log("ค้าปรับล่าช้าเมื่อคิดตามจังหวัด = ", lateFee);
+      console.log("ค้าปรับล่าช้าเมื่อคิดตามจังหวัด = ", lateFee);
     }
   }
 
@@ -209,18 +250,18 @@ export const calculateTax = (
   const discount = car.age >= 10 ? 0.5 : car.age >= 6 ? (car.age - 5) * 0.1 : 0;
 
   // คำนวณผลรวม
-  // console.log(
-  //   "ค่าพรบ.สุทธิ: ",
-  //   finalPrb,
-  //   "+ ค่าภาษีสุทธิ: ",
-  //   finalTax,
-  //   "+ ค่าปรับล่าช้า: ",
-  //   lateFee,
-  //   "+ ค่าตรวจสภาพ: ",
-  //   inspectionFee,
-  //   "+ ค่าดำเนินการ: ",
-  //   processingFee
-  // );
+  console.log(
+    "ค่าพรบ.สุทธิ: ",
+    finalPrb,
+    "+ ค่าภาษีสุทธิ: ",
+    finalTax,
+    "+ ค่าปรับล่าช้า: ",
+    lateFee,
+    "+ ค่าตรวจสภาพ: ",
+    inspectionFee,
+    "+ ค่าดำเนินการ: ",
+    processingFee
+  );
   const total = finalPrb + finalTax + lateFee + inspectionFee + processingFee;
 
   // Return ค่าที่คำนวณ

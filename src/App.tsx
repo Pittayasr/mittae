@@ -13,8 +13,10 @@ import {
 } from "react-router-dom";
 import PDPA_modal from "./component/PDPAmodal";
 import FormComponent from "./component/form";
-import Print from "./component/print";
+// import Print from "./component/print";
 import Delivery from "./component/delivery";
+import TransportForm from "./component/transport";
+import InsuranceForm from "./component/insurance";
 import PrintAdmin from "./component/pageAdmin/printAdmin";
 import FormAdmin from "./component/pageAdmin/formAdmin";
 import DeliveryAdmin from "./component/pageAdmin/deliveryAdmin";
@@ -23,7 +25,6 @@ import "./App.css";
 import SelectFormModal from "./component/selectFromModal";
 import SelectAdminFormModal from "./component/pageAdmin/selelctAdminFormModal";
 import LoginAdmin from "./component/pageAdmin/loginAdmin";
-import InsuranceForm from "./component/insurance";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isLoggedIn } = useAuth();
@@ -57,7 +58,9 @@ function App() {
 
     // แสดง PDPA_modal เมื่อเข้าหน้าใหม่
     if (
-      ["/form", "/print", "/delivery", "/insurance"].includes(location.pathname)
+      ["/form", "/print", "/delivery", "/transport", "/insurance"].includes(
+        location.pathname
+      )
     ) {
       setShowPDPA(true); // เปิด Modal PDPA เสมอเมื่อเปลี่ยนหน้า
     } else {
@@ -76,21 +79,21 @@ function App() {
     setShowPDPA(false);
   };
 
-  const handleNavigateToForm = () => {
-    navigate("/form");
-  };
+  // const handleNavigateToForm = () => {
+  //   navigate("/form");
+  // };
 
-  const handleNavigateToPrint = () => {
-    navigate("/print");
-  };
+  // const handleNavigateToPrint = () => {
+  //   navigate("/print");
+  // };
 
-  const handleNavigateToDelivery = () => {
-    navigate("/delivery");
-  };
+  // const handleNavigateToDelivery = () => {
+  //   navigate("/delivery");
+  // };
 
-  const handleNavigateToInsurance = () => {
-    navigate("/insurance");
-  };
+  // const handleNavigateToInsurance = () => {
+  //   navigate("/insurance");
+  // };
 
   const handleNavigateToFormAdmin = () => {
     navigate("/form_admin_hc{SlU(.'rhA");
@@ -118,7 +121,9 @@ function App() {
   // }
 
   return (
-    <div className="container my-3">
+    
+    <div className="app-container">
+      
       {/* แสดง Modal แจ้งเตือน */}
       {showBrowserWarning && (
         <div className="browser-warning-modal">
@@ -182,16 +187,17 @@ function App() {
             <SelectFormModal
               isVisible={showSelectFormModal}
               onClose={() => setShowSelectFormModal(false)}
-              onNavigateToReadMe={handleNavigateToForm}
-              onNavigateToPrint={handleNavigateToPrint}
-              onNavigateToDelivery={handleNavigateToDeliveryAdmin}
-              onNavigateToInsurance={handleNavigateToInsurance}
+              // onNavigateToReadMe={handleNavigateToForm}
+              // onNavigateToPrint={handleNavigateToPrint}
+              // onNavigateToDelivery={handleNavigateToDeliveryAdmin}
+              // onNavigateToInsurance={handleNavigateToInsurance}
             />
           }
         />
         <Route path="/form" element={<FormComponent />} />
-        <Route path="/print" element={<Print />} />
+        {/* <Route path="/print" element={<Print />} /> */}
         <Route path="/delivery" element={<Delivery />} />
+        <Route path="/transport" element={<TransportForm />} />
         <Route path="/insurance" element={<InsuranceForm />} />
 
         {/* เส้นทางเข้าสู่ระบบสำหรับแอดมิน */}
@@ -207,7 +213,7 @@ function App() {
                 onClose={() => {}}
                 onNavigateToFormAdmin={handleNavigateToFormAdmin}
                 onNavigateToPrintAdmin={handleNavigateToPrintAdmin}
-                onNavigateToDeliveryAdmin={handleNavigateToDelivery}
+                onNavigateToDeliveryAdmin={handleNavigateToDeliveryAdmin}
                 onNavigateToInsuranceAdmin={handleNavigateToInsuranceAdmin}
               />
             </ProtectedRoute>

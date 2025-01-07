@@ -15,15 +15,10 @@ import useAuth from "../useAuth";
 import ScrollToTopAndBottomButton from "../ScrollToTopAndBottomButton";
 import PaginationControls from "./pageAdminComponent/paginationControls";
 import SidebarAdmin from "./pageAdminComponent/sidebarAdmin";
-import { IoMdMore } from "react-icons/io";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/th";
 import isBetween from "dayjs/plugin/isBetween";
-import {
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaSpinner,
-} from "react-icons/fa";
+import { FaCheckCircle, FaExclamationTriangle, FaClock } from "react-icons/fa";
 
 dayjs.locale("th");
 
@@ -242,7 +237,7 @@ const InsuranceAdmin: React.FC = () => {
       const link = document.createElement("a");
       const url = window.URL.createObjectURL(blob);
       link.href = url;
-      link.download = fileName; // ใช้ชื่อไฟล์ที่ระบุ
+      link.download = fileName || "image_download"; // ใช้ชื่อไฟล์ที่ระบุ
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -540,8 +535,76 @@ const InsuranceAdmin: React.FC = () => {
 
   return (
     <div className="form-container page-container mx-auto mt-1">
-      <h1 className="text-success text-center">
-        แดชบอร์ดแอดมินสำหรับฟอร์มพรบ.ต่อภาษีรถ
+      <div
+        // xs={2}
+        // sm={1}
+        // md={1}
+        // lg={1}
+        // xl={1}
+        className="d-flex justify-content-start align-items-end px-0"
+      >
+        {/* Sidebar insurance */}
+        <SidebarAdmin
+          formType="insuranceAdmin"
+          isOpen={isSidebarOpen}
+          onClose={toggleSidebar}
+          onFilterStatus={handleStatusFilter}
+          filterStatus={filterStatus}
+          onSort={handleSort}
+          sortField={sortField}
+          sortOrder={sortOrder}
+          onMultiSelect={handleMultiSelectToggle}
+          onSelectAll={handleSelectAll}
+          isMultiSelectMode={isMultiSelectMode}
+          isAllSelected={isAllSelected}
+          onLogout={() => {
+            if (window.confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+              logout();
+            }
+          }}
+          filterLabel="แสดงประเภทประกัน "
+          filterType={filterType}
+          filterOptions={[
+            { label: "ประเภท 1", value: "ประเภท 1" },
+            { label: "ประเภท 2", value: "ประเภท 2" },
+            { label: "ประเภท 2+", value: "ประเภท 2+" },
+            { label: "ประเภท 3+", value: "ประเภท 3+" },
+            { label: "ประเภท 3", value: "ประเภท 3" },
+            { label: "ประกันบ้าน หอพัก", value: "ประกันบ้าน หอพัก" },
+            { label: "อุบัติเหตุ", value: "อุบัติเหตุ" },
+          ]}
+          onFilter={handleFilter}
+          filterExtraLabel="แสดงบริษัทประกัน"
+          filterExtra={filterExtra}
+          filterExtraOptions={[
+            { label: "มิตรแท้ประกันภัย", value: "มิตรแท้ประกันภัย" },
+            { label: "เทเวศ ประกันภัย", value: "เทเวศ ประกันภัย" },
+            { label: "เออร์โกประกันภัย", value: "เออร์โกประกันภัย" },
+            { label: "ทิพยประกันภัย", value: "ทิพยประกันภัย" },
+          ]}
+          onFilterExtra={handleCompanyFilter}
+          filterProvinceLabel="แสดงประเภท"
+          filterProvince={filterCompany}
+          filterProvinceOptions={[
+            { label: "รถยนต์", value: "รถยนต์" },
+            { label: "รถจักรยานยนต์", value: "รถจักรยานยนต์" },
+            { label: "หอพัก บ้าน", value: "หอพัก บ้าน" },
+            {
+              label: "ประกันภัยทางทะเลและขนส่ง",
+              value: "ประกันภัยทางทะเลและขนส่ง",
+            },
+            { label: "ประกันภัยเบ็ดเตล็ด", value: "ประกันภัยเบ็ดเตล็ด" },
+          ]}
+          onFilterProvince={handleExtraFilter}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+          startDate={startDate}
+          endDate={endDate}
+          onDateRangeFilter={handleDateRangeFilter}
+        />
+      </div>
+      <h1 className="text-success text-center mb-3">
+        แดชบอร์ดแอดมินสำหรับประกัน ป1 ป2 ป3 ป4 ป5
       </h1>
 
       <AllInfo
@@ -553,14 +616,14 @@ const InsuranceAdmin: React.FC = () => {
 
       <Form>
         <Row>
-          <Col
-            xs={10}
-            sm={11}
-            md={11}
-            lg={11}
-            xl={11}
+          <div
+            // xs={10}
+            // sm={11}
+            // md={11}
+            // lg={11}
+            // xl={11}
             className="mb-3"
-            style={{ padding: "0px 0px 0px 12px" }}
+            // style={{ padding: "0px 0px 0px 12px" }}
           >
             <TextInput
               label="ค้นหา"
@@ -569,90 +632,7 @@ const InsuranceAdmin: React.FC = () => {
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
             />
-          </Col>
-
-          <Col
-            xs={2}
-            sm={1}
-            md={1}
-            lg={1}
-            xl={1}
-            className="d-flex justify-content-center align-items-end px-0"
-          >
-            {/* ปุ่มเปิด Sidebar */}
-            <IoMdMore
-              size={40}
-              onClick={toggleSidebar}
-              className="menuIcon"
-              style={{
-                cursor: "pointer",
-                padding: "5px",
-                margin: "10px 5px 15px 0px",
-                borderBlockColor: "black",
-                borderRadius: "10px",
-              }}
-            />
-
-            {/* Sidebar insurance */}
-            <SidebarAdmin
-              formType="insuranceAdmin"
-              isOpen={isSidebarOpen}
-              onClose={toggleSidebar}
-              onFilterStatus={handleStatusFilter}
-              filterStatus={filterStatus}
-              onSort={handleSort}
-              sortField={sortField}
-              sortOrder={sortOrder}
-              onMultiSelect={handleMultiSelectToggle}
-              onSelectAll={handleSelectAll}
-              isMultiSelectMode={isMultiSelectMode}
-              isAllSelected={isAllSelected}
-              onLogout={() => {
-                if (window.confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-                  logout();
-                }
-              }}
-              filterLabel="แสดงประเภทประกัน "
-              filterType={filterType}
-              filterOptions={[
-                { label: "ประเภท 1", value: "ประเภท 1" },
-                { label: "ประเภท 2", value: "ประเภท 2" },
-                { label: "ประเภท 2+", value: "ประเภท 2+" },
-                { label: "ประเภท 3+", value: "ประเภท 3+" },
-                { label: "ประเภท 3", value: "ประเภท 3" },
-                { label: "ประกันบ้าน หอพัก", value: "ประกันบ้าน หอพัก" },
-                { label: "อุบัติเหตุ", value: "อุบัติเหตุ" },
-              ]}
-              onFilter={handleFilter}
-              filterExtraLabel="แสดงบริษัทประกัน"
-              filterExtra={filterExtra}
-              filterExtraOptions={[
-                { label: "มิตรแท้ประกันภัย", value: "มิตรแท้ประกันภัย" },
-                { label: "เทเวศ ประกันภัย", value: "เทเวศ ประกันภัย" },
-                { label: "เออร์โกประกันภัย", value: "เออร์โกประกันภัย" },
-                { label: "ทิพยประกันภัย", value: "ทิพยประกันภัย" },
-              ]}
-              onFilterExtra={handleCompanyFilter}
-              filterProvinceLabel="แสดงประเภท"
-              filterProvince={filterCompany}
-              filterProvinceOptions={[
-                { label: "รถยนต์", value: "รถยนต์" },
-                { label: "รถจักรยานยนต์", value: "รถจักรยานยนต์" },
-                { label: "หอพัก บ้าน", value: "หอพัก บ้าน" },
-                {
-                  label: "ประกันภัยทางทะเลและขนส่ง",
-                  value: "ประกันภัยทางทะเลและขนส่ง",
-                },
-                { label: "ประกันภัยเบ็ดเตล็ด", value: "ประกันภัยเบ็ดเตล็ด" },
-              ]}
-              onFilterProvince={handleExtraFilter}
-              onStartDateChange={setStartDate}
-              onEndDateChange={setEndDate}
-              startDate={startDate}
-              endDate={endDate}
-              onDateRangeFilter={handleDateRangeFilter}
-            />
-          </Col>
+          </div>
         </Row>
         <Row className="responsive-container mb-3">
           {insurances.length === 0 ? (
@@ -746,7 +726,7 @@ const InsuranceAdmin: React.FC = () => {
                           size={20}
                         />
                       ) : insurance.status === "อยู่ระหว่างดำเนินการ" ? (
-                        <FaSpinner className="text-info my-3" size={20} />
+                        <FaClock className="text-info my-3" size={20} />
                       ) : (
                         <FaExclamationTriangle
                           className="text-warning my-3"
@@ -819,7 +799,7 @@ const InsuranceAdmin: React.FC = () => {
         <Modal
           show={showModal}
           onHide={() => setShowModal(false)}
-          size="lg"
+          size="xl"
           centered
         >
           <Modal.Header closeButton>
@@ -1179,11 +1159,11 @@ const InsuranceAdmin: React.FC = () => {
                   if (modalImage && selectedInsurance) {
                     const matchingFile = Object.values(selectedInsurance).find(
                       (file) => {
-                        // ตรวจสอบว่า file เป็นอ็อบเจ็กต์และมีโครงสร้างที่ตรงตามที่เราต้องการ
                         if (
                           typeof file === "object" &&
                           file !== null &&
                           "filePath" in file &&
+                          "storeFileName" in file &&
                           (file as { filePath: string }).filePath === modalImage
                         ) {
                           return true;
@@ -1195,10 +1175,13 @@ const InsuranceAdmin: React.FC = () => {
                     const fileName =
                       matchingFile && "storeFileName" in matchingFile
                         ? (matchingFile as { storeFileName: string })
-                            .storeFileName
+                            .storeFileName || "image_download"
                         : "image_download";
 
                     handleDownload(modalImage, fileName);
+                    console.log("modalImage:", modalImage);
+                    console.log("matchingFile:", matchingFile);
+                    console.log("selectedInsurance:", selectedInsurance);
                   } else {
                     alert("ไม่พบภาพสำหรับดาวน์โหลด");
                   }

@@ -126,7 +126,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
       <Row>
         {/* ช่องกรอกตามประเภทข้อมูลของเจ้าของรถล่าสุด */}
         {selectedRadio && (
-          <Col className="date-idNo-carType-Input mb-4 " md={6} xs={6}>
+          <Col className="date-idNo-carType-Input mb-4 " sm={6} md={6} xs={12}>
             <TextInput
               label={
                 selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
@@ -166,7 +166,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
 
         {/* จำนวนประตูหรือประเภทของรถจักรยารยนต์ */}
         {selectedCarType && (
-          <Col className="date-idNo-carType-Input mb-4" md={6} xs={6}>
+          <Col className="date-idNo-carType-Input mb-4" sm={6} md={6} xs={12}>
             <TextSelect
               value={bikeTypeOrDoorCount ?? null}
               label={

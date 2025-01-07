@@ -11,8 +11,8 @@ import { Form, Row, Col, Button, Alert } from "react-bootstrap";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import ScrollToTopAndBottomButton from "./ScrollToTopAndBottomButton";
 
-//delivery.tsx
-const Delivery: React.FC = () => {
+//transport.tsx
+const TransportForm: React.FC = () => {
   const [usernameSender, setUsernameSender] = useState<string>("");
   const [contactNumSender, setContactNumSender] = useState<string>("");
   const [selectedRadio, setSelectedRadio] = useState<string | null>(null);
@@ -89,32 +89,32 @@ const Delivery: React.FC = () => {
     useState<File | null>(null);
 
   useEffect(() => {
-    if (selectDeliveryType === "ส่งของปกติ") {
+    if (
+      selectDeliveryType &&
+      ["ส่งของปกติ", "ส่งสัตว์เลี้ยง"].includes(selectDeliveryType)
+    ) {
       if (
         selectCarType !== "-" ||
         CCsizeCar !== "-" ||
         !selectedRegistrationBookFile ||
         !selectedIDcardVehicleFile
       ) {
-        setSelectedCarType("-");
-        setCCsizeCar("-");
-        setSelectedRegistrationBookFile(
-          new File(["dummy content"], "default_registration_book.png", {
-            type: "image/png",
-          })
-        );
-        setSelectedIDcardVehicleFile(
-          new File(["dummy content"], "default_id_card.png", {
-            type: "image/png",
-          })
-        );
+        setSelectedCarType("");
+        setCCsizeCar("");
+        setSelectedRegistrationBookFile(null);
+        setSelectedIDcardVehicleFile(null);
       }
-    } else if (selectDeliveryType !== "ส่งของปกติ" && CCsizeCar === "-") {
-      setSelectedCarType("");
-      setCCsizeCar("");
-      setSelectedRegistrationBookFile(null);
-      setSelectedIDcardVehicleFile(null);
     }
+    // } else if (
+    //   selectDeliveryType &&
+    //   !["ส่งของปกติ", "ส่งสัตว์เลี้ยง"].includes(selectDeliveryType) &&
+    //   CCsizeCar === "-"
+    // ) {
+    //   setSelectedCarType("");
+    //   setCCsizeCar("");
+    //   setSelectedRegistrationBookFile(null);
+    //   setSelectedIDcardVehicleFile(null);
+    // }
 
     // if (selectDeliveryType === "ส่งรถกลับบ้าน" && selectedProvinceNameReceiver && CCsizeCar) {
     //   const cost = calculateDelivery(selectedProvinceNameReceiver, parseInt(CCsizeCar));
@@ -142,26 +142,27 @@ const Delivery: React.FC = () => {
       isInvalidUserInfo &&
       !isInvalidOwnerInfo;
 
+    const isCarDeliveryValid =
+      selectDeliveryType === "ส่งรถกลับบ้าน" &&
+      !!selectCarType &&
+      !!CCsizeCar &&
+      !!selectedRegistrationBookFile;
+
     const formReceiverIsValid =
       !!(
-        (
-          usernameReceiver &&
-          contactNumReceiver &&
-          houseNoReceiver &&
-          // soiReceiver &&
-          // villageNoReceiver &&
-          // dormitoryReceiver &&
-          subDistrictReceiver &&
-          districtReceiver &&
-          postalCodeReceiver &&
-          selectedProvinceReceiver
-        )
+        usernameReceiver &&
+        contactNumReceiver &&
+        houseNoReceiver &&
+        // soiReceiver &&
+        // villageNoReceiver &&
+        // dormitoryReceiver &&
+        subDistrictReceiver &&
+        districtReceiver &&
+        postalCodeReceiver &&
+        selectedProvinceReceiver &&
         // packageDetail
-        // selectDeliveryType &&
-        // selectCarType &&
-        // CCsizeCar &&
-        // selectedRegistrationBookFile
-        // selectedIDcardVehicleFile
+        selectDeliveryType &&
+        (selectDeliveryType !== "ส่งรถกลับบ้าน" || isCarDeliveryValid)
       ) &&
       isInvalidUserInfo &&
       !isInvalidPackageDetail &&
@@ -278,7 +279,7 @@ const Delivery: React.FC = () => {
 
   const handleGoToReceiver = () => {
     setShowSender(false);
-    setTransport(true);
+    setTransport(false);
     setShowReceiver(true);
     setValidated(false);
     setIsFormSenderValid(true);
@@ -286,7 +287,7 @@ const Delivery: React.FC = () => {
 
   const handleBackToReceiver = () => {
     setShowSender(false);
-    setTransport(true);
+    setTransport(false);
     setShowReceiver(true);
     setValidated(false);
     setIsFormReceiverValid(false);
@@ -294,7 +295,7 @@ const Delivery: React.FC = () => {
 
   const handleGoToResult = () => {
     setShowSender(false);
-    setTransport(true);
+    setTransport(false);
     setShowReceiver(false);
     setValidated(false);
     setIsFormSenderValid(true);
@@ -365,7 +366,7 @@ const Delivery: React.FC = () => {
               {showSender ? (
                 <>
                   <h2 className="text-center mb-4 text-success">
-                    Drop off Flash + SPX ไปรษณีย์ไทย
+                    ส่งรถส่งของกลับบ้าน หมา แมว กระต่าย ฯลฯ
                   </h2>
                   <h4 className="mb-4 text-success">ข้อมูลผู้ส่ง:</h4>
                   <Row>
@@ -536,7 +537,7 @@ const Delivery: React.FC = () => {
               ) : showReceiver ? (
                 <>
                   <h2 className="text-center mb-4 text-success">
-                    Drop off Flash + SPX ไปรษณีย์ไทย
+                    ส่งรถส่งของกลับบ้าน หมา แมว กระต่าย ฯลฯ
                   </h2>
                   <h4 className=" mb-4 text-success">ข้อมูลผู้รับ:</h4>
                   <DeliveryUserInfo
@@ -666,7 +667,7 @@ const Delivery: React.FC = () => {
                         xl={6}
                       >
                         <FileInput
-                          label="สำเนาบัตรประชาชนผู้มีชื่อในสำเนารถ (กรณีเจ้าของไม่ได้ดำเนินการเอง)"
+                          label="สำเนาบัตรประชาชนผู้มีชื่อในสำเนารถ"
                           onFileSelect={(file) =>
                             setSelectedIDcardVehicleFile(file)
                           }
@@ -678,7 +679,7 @@ const Delivery: React.FC = () => {
                       </Col>
                     </Row>
                   )}
-                  <Form>
+                  <Form className="responsive-label">
                     <Form.Label>รายละเอียดสิ่งของที่ส่ง</Form.Label>
                     <Form.Control
                       as="textarea"
@@ -690,6 +691,7 @@ const Delivery: React.FC = () => {
                       isInvalid={isInvalidPackageDetail}
                       required
                       style={{ height: "100px" }}
+                      className="responsive-label"
                     ></Form.Control>
                     <Form.Control.Feedback type="invalid">
                       โปรดกรอกรายละเอียดสิ่งของให้ถูกต้อง
@@ -790,4 +792,4 @@ const Delivery: React.FC = () => {
   );
 };
 
-export default Delivery;
+export default TransportForm;

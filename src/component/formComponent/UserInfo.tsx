@@ -64,7 +64,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
   return (
     <Row className="mt-3">
       {/* ชื่อเจ้าของรถ */}
-      <Col className="mb-4" md={4} xs={12}>
+      <Col className="mb-4" sm={12} md={4} xs={12}>
         <TextInput
           label="ชื่อเจ้าของรถ"
           id="userName"
@@ -78,7 +78,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
       </Col>
 
       {/* จังหวัด */}
-      <Col className="mb-4" md={4} xs={12}>
+      <Col className="mb-4" sm={6} md={4} xs={12}>
         <TextSelect
           value={selectedProvince || ""}
           label="จังหวัด"
@@ -98,7 +98,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
       </Col>
 
       {/* ประเภทรถ */}
-      <Col className="mb-4" md={4} xs={12}>
+      <Col className="mb-4" sm={6} md={4} xs={12}>
         <TextSelect
           value={selectedCarType || ""}
           label="ประเภทรถ"
@@ -123,7 +123,6 @@ const UserInfo: React.FC<UserInfoProps> = ({
           required
           isInvalid={isInvalid}
           alertText="กรุณาเลือกจังหวัด"
-          
         />
       </Col>
     </Row>

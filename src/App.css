@@ -15,15 +15,15 @@
   font-weight: bold;
 }
 
-/* ปรับขนาดตัวอักษรเมื่อเลือกวันที่ */
-.custom-date-picker .ant-picker-input > input {
-  font-size: 16px; /* ขนาดตัวอักษรเมื่อเลือก */
+/* ปรับขอบเขตปฏิทิน */
+.react-calendar {
+  border-radius: 10px;
+  font-family: "Noto Sans Thai", sans-serif;
+  font-size: 16px;
 }
 
-/* ขนาดตัวอักษรเริ่มต้น */
-.custom-date-picker .ant-picker-input-placeholder {
-  font-size: 16px;
-  color: #878787; /* สีตัวอักษร placeholder */
+.scroll-to-top:active {
+  background-color: #dc3545;
 }
 
 .radioButton input[type="radio"] {
@@ -52,6 +52,68 @@
   margin-bottom: 4px;
 }
 
+.responsive-label-menu {
+  font-size: 16px;
+  text-align: start;
+  min-height: 40px; /* ความสูงขั้นต่ำของข้อความ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0px;
+}
+
+.responsive-label-menu-form {
+  font-size: 16px;
+  text-align: center;
+  min-height: 40px; /* ความสูงขั้นต่ำของข้อความ */
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  margin-bottom: 0px;
+  padding: 0px 10px;
+}
+
+.popover-calendar {
+  max-width: 70%; /* ให้ขนาด Popover ไม่เกินหน้าจอ */
+  width: auto;
+  padding: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+/* จัดการขนาดรูปภาพ */
+.popover-calendar img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+/* ปรับปฏิทินให้รองรับทุกหน้าจอ */
+.calendar-content {
+  width: fit-content;
+}
+
+.dropdown-dateInput {
+  max-width: fit-content;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
+  z-index: 1050;
+}
+
+.sidebar-container {
+  padding: 10px;
+  position: fixed;
+  top: 0;
+  left: -145px;
+  width: 250px;
+  height: 100%;
+  background-color: #ffffff;
+  z-index: 1000;
+  transition: left 0.3s ease-in-out;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+}
 
 /* สำหรับหน้าจอขนาดกลาง (Tablet) */
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -84,18 +146,15 @@
     font-size: 0.95rem;
   }
 
-  /* ปรับขนาดตัวอักษรเมื่อเลือกวันที่ */
-  .custom-date-picker .ant-picker-input > input {
-    font-size: 15px; /* ขนาดตัวอักษรเมื่อเลือก */
-  }
-
-  /* ขนาดตัวอักษรเริ่มต้น */
-  .custom-date-picker .ant-picker-input-placeholder {
+  .react-calendar {
     font-size: 15px;
-    color: #878787; /* สีตัวอักษร placeholder */
   }
 
   .responsive-label {
+    font-size: 15px;
+  }
+
+  .responsive-label-menu .responsive-label-menu-form {
     font-size: 15px;
   }
 
@@ -166,6 +225,10 @@
     max-height: 50vh;
   }
 
+  /* .modal-body-scroll-menu {
+    height: 80vh;
+  } */
+
   .form-button {
     width: 100%; /* ขยายความกว้างปุ่มเต็มหน้าจอบนมือถือ */
     font-size: 14px; /* ลดขนาดตัวอักษร */
@@ -177,13 +240,15 @@
     font-size: 14px; /* ขนาดตัวอักษรเมื่อเลือก */
   }
 
-  /* ขนาดตัวอักษรเริ่มต้น */
-  .custom-date-picker .ant-picker-input-placeholder {
-    font-size: 14px;
-    color: #878787; /* สีตัวอักษร placeholder */
+  .react-calendar {
+    font-size: 15px;
   }
 
   .responsive-label {
+    font-size: 14px;
+  }
+
+  .responsive-label-menu .responsive-label-menu-form {
     font-size: 14px;
   }
 
@@ -202,6 +267,43 @@
     font-size: 14px; /* ฟอนต์ของ input และ select */
     padding: 8px 10px; /* ปรับ padding ให้น้อยลง */
   }
+
+  .popover-calendar {
+    max-width: 90%; /* ให้ขนาด Popover ไม่เกินหน้าจอ */
+    max-height: 90%;
+  }
+
+  .sidebar-container {
+    left: -250px;
+  }
+
+  .menu-icon-container {
+    position: fixed;
+    left: -17px;
+    top: 10px;
+  }
+  
+  .menu-image-form {
+   
+    width: 90px;
+    
+  }
+}
+
+@media (max-width: 575px) {
+  .responsive-label-menu .responsive-label-menu-form {
+    font-size: 12px;
+  }
+
+  .popover-calendar img {
+    max-width: 50%;
+    height: auto;
+    margin-bottom: 10px;
+  }
+
+  /* .calendar-content {
+    width: 230px;
+  } */
 }
 
 .modal-body-scroll {
@@ -212,12 +314,19 @@
 
 .form-container {
   width: 100%; /* ความกว้างเต็ม */
-
+  overflow-y: auto;
+  overflow-x: hidden;
   margin: 20px auto; /* จัดให้อยู่กึ่งกลาง */
   padding: 20px;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.app-container {
+  width: 100%; /* ความกว้างเต็ม */
+  margin: 0 auto; /* จัดให้อยู่กึ่งกลาง */
+  padding: 0px 10px 10px 10px;
 }
 
 .form {
@@ -265,6 +374,11 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เพิ่มเงาเล็กน้อย */
   border-radius: 7px; /* ให้ขอบมน */
   cursor: pointer; /* เปลี่ยนเมาส์เป็นรูปมือ */
+}
+
+.card:active {
+  background-color: #f1f1f1;
+  transition: background 0.5s;
 }
 
 .radioButton {
@@ -319,6 +433,18 @@
   font-size: 16px;
 }
 
+.menu-image-form {
+  max-width: 100%;
+  height: 100px;
+  padding: 5px 5px;
+  align-items: center;
+  justify-content: center;
+  margin: 0px auto;
+  /* กำหนดความสูงรูปภาพให้คงที่ */
+  object-fit: contain;
+  border-radius: 4px; /* เพิ่มความโค้งมนของรูปภาพ */
+}
+
 @media (max-width: 768px) {
   .radioButton {
     margin-left: 15px;
@@ -344,12 +470,7 @@
     display: flex;
     flex-direction: column;
     margin-left: 0px;
-    width: 100%;
-  }
-
-  .sidebar-admin {
-    width: 100%; /* ปรับ Sidebar ให้เต็มหน้าจอบนมือถือ */
-    right: -100%; /* เริ่มต้นนอกจอ */
+    /* width: 100%; */
   }
 }
 
@@ -432,11 +553,6 @@ select {
   outline: none; /* ลบ outline เดิมออก */
 }
 
-/* สำหรับ hover */
-.custom-date-picker:hover {
-  border-color: #e0e0e0 !important; /* สีเขียวเข้มเมื่อ hover */
-}
-
 /* สำหรับ TextSelect, DateInput, และ TextFile */
 .react-select__control--is-focused {
   border-color: #28a745 !important; /* กรอบสีเขียวเมื่อ focus */
@@ -454,22 +570,23 @@ input[type="file"]:focus {
   border-color: #28a745 !important; /* กรอบสีเขียวเมื่อเปิด */
   box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important; /* เพิ่มเงาสีเขียว */
 }
-
-/* สำหรับวันที่ที่เลือก */
-.ant-picker-cell-selected .ant-picker-cell-inner {
-  background-color: #28a745 !important; /* สีเขียวเข้ม */
-  color: white !important; /* สีตัวอักษร */
-}
-
-/* สำหรับ hover */
-.ant-picker-cell-inner:hover {
-  background-color: #d4edda !important; /* สีเขียวอ่อนเมื่อ hover */
-}
-
-/* ปรับสีพื้นหลังของวันที่ที่เลือกเมื่อ focus ผ่านคีย์บอร์ด */
-.ant-picker-cell-selected .ant-picker-cell-inner:focus {
-  background-color: #218838 !important; /* สีเขียวเข้ม */
+/* ปรับให้วันที่เลือกมีสีเขียว */
+.react-calendar__tile--active {
+  background: #28a745 !important;
   color: white !important;
+  border-radius: 10%;
+}
+
+/* Hover ของวันที่ */
+.react-calendar__tile:hover {
+  background: #d4edda !important;
+  border-radius: 15%;
+}
+
+/* ลบสีเหลืองของวันปัจจุบัน */
+.react-calendar__tile--now {
+  background: transparent !important;
+  color: inherit !important;
 }
 
 .react-select-container.is-invalid .react-select__control {
@@ -509,19 +626,19 @@ input[type="file"]:focus {
 .sidebar-admin {
   position: fixed;
   top: 0;
-  right: -300px;
-  width: 300px;
+  left: -320px; /* เปลี่ยนจาก right เป็น left */
+  width: 320px;
   height: 100%;
   background-color: #f8f9fa;
   border-radius: 8px;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-  transition: right 0.3s ease-in-out;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* เปลี่ยนเงาให้เหมาะกับตำแหน่งซ้าย */
+  transition: left 0.3s ease-in-out; /* เปลี่ยน transition จาก right เป็น left */
   z-index: 999;
   overflow-y: auto;
 }
 
 .sidebar-admin.open {
-  right: 0;
+  left: 0; /* เปลี่ยนจาก right: 0 เป็น left: 0 */
 }
 
 .nav-link {
@@ -529,7 +646,7 @@ input[type="file"]:focus {
 }
 
 .image-container {
-  width: 100%; /* ปรับขนาดให้เต็ม */
+  /* width: 100%;  */
   aspect-ratio: 1/1; /* กำหนดให้อยู่ในกรอบสี่เหลี่ยมจัตุรัส */
   overflow: hidden;
   border-radius: 10px; /* ความโค้งของมุม */
@@ -636,3 +753,129 @@ input[type="file"]:focus {
   min-height: 100px; /* ลดความสูงลง */
 }
 
+.compact-card-menu {
+  padding: 0 auto;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  min-height: 70px; /* กำหนดความสูงขั้นต่ำให้เท่ากัน */
+  max-width: 300px;
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  align-items: center;
+  cursor: pointer;
+}
+
+.compact-card-menu-form {
+  padding: 0 auto;
+  border-radius: 6px;
+  min-height: 0px; /* กำหนดความสูงขั้นต่ำให้เท่ากัน */
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  cursor: pointer;
+  
+}
+
+.menu-image {
+  max-width: 50%;
+  height: 70px;
+  padding: 5px 0px;
+  align-items: end;
+  justify-content: end;
+  /* กำหนดความสูงรูปภาพให้คงที่ */
+  object-fit: contain;
+  border-radius: 4px; /* เพิ่มความโค้งมนของรูปภาพ */
+}
+
+
+
+.sidebar-menu-image {
+  max-width: 100%;
+  min-height: 50px;
+  max-height: 60px;
+  align-items: center;
+  /* กำหนดความสูงรูปภาพให้คงที่ */
+  object-fit: contain;
+  border-radius: 4px; /* เพิ่มความโค้งมนของรูปภาพ */
+  margin-bottom: 5px;
+}
+
+/* .sidebar-admin-popover-container {
+  position: fixed;
+  top: -15px;
+  right: 10px;
+  z-index: 1000;
+} */
+
+.popover-sidebar {
+  max-width: 300px; /* กำหนดความกว้างของ Popover */
+  max-height: 500px; /* เพิ่มความสูงสูงสุด */
+  overflow-y: auto; /* เพิ่ม Scroll เมื่อเนื้อหามีมากเกิน */
+  padding: 10px; /* เพิ่ม Padding เพื่อความสวยงาม */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+  border-radius: 8px; /* เพิ่มความโค้งมน */
+  font-family: "Noto Sans Thai", sans-serif;
+}
+
+.popover-sidebar-user {
+  max-width: 450px; /* กำหนดความกว้างของ Popover */
+  max-height: 560px; /* เพิ่มความสูงสูงสุด */
+  overflow-y: auto; /* เพิ่ม Scroll เมื่อเนื้อหามีมากเกิน */
+  padding: 10px; /* เพิ่ม Padding เพื่อความสวยงาม */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+  border-radius: 8px; /* เพิ่มความโค้งมน */
+  font-family: "Noto Sans Thai", sans-serif;
+}
+
+.menu-icon-container {
+  background-color: #ffffff;
+  border-radius: 10%;
+  padding: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s ease-in-out;
+  z-index: 1000;
+}
+
+.menu-icon-container:hover {
+  background-color: #e9ecef;
+}
+
+.menu-icon-container:active {
+  background-color: #a9a9a9;
+}
+
+.dashboard-list-dashboards,
+.dashboard-list-functions {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
+  opacity: 0;
+}
+
+.dashboard-list-dashboards.show,
+.dashboard-list-functions.show {
+  max-height: fit-content !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+}
+
+.dashboard-list-dashboards.hide,
+.dashboard-list-functions.hide {
+  height: 0 !important;
+  opacity: 0 !important;
+  overflow-y: hidden !important;
+}
+
+.sidebar-container.open {
+  left: 0;
+}
+
+.sidebar-header {
+  padding: 0px 10px;
+}

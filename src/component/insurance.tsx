@@ -4,6 +4,7 @@ import InsuranceInfo from "../component/insuranceComponent/insuranceInfo";
 import InsuranceVehicleInfo from "../component/insuranceComponent/insuranceVehicleInfo";
 import CarouselComponent from "../component/insuranceComponent/carousel";
 import ScrollToTopAndBottomButton from "./ScrollToTopAndBottomButton";
+import SidebarUser from "./textFillComponent/sidebarUser";
 import AlertModal from "./textFillComponent/alertModal";
 import { Form, Button, Row, Col, Alert, Modal, Spinner } from "react-bootstrap";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -498,171 +499,193 @@ const InsuranceForm: React.FC = () => {
   };
 
   return (
-    <div className="form-container page-container mx-auto mt-1">
-      <h1 className="text-success text-center">ประกันภัย ป1 ป2 ป3 ป4 ป5</h1>
-      <Form onSubmit={handleSubmit}>
-        <InsuranceInfo
-          insuranceType={insuranceType}
-          setInsuranceType={setInsuranceType}
-          insuranceCompany={insuranceCompany}
-          setInsuranceCompany={setInsuranceCompany}
-          insuranceCategory={insuranceCategory}
-          setInsuranceCategory={setInsuranceCategory}
-          isInvalid={isInvalid}
-          setIsInvalid={setIsInvalid}
-        />
-        <InsuranceUserInfo
-          label={
-            insuranceCategory === "รถยนต์" ||
-            insuranceCategory === "รถจักรยานยนต์"
-              ? "หมายเลขทะเบียนรถ"
-              : insuranceCategory === "หอพัก บ้าน"
-              ? "หมายเลขที่โฉนด"
-              : insuranceCategory === "ประกันภัยทางทะเลและขนส่ง" ||
-                insuranceCategory === "ประกันภัยเบ็ดเตล็ด"
-              ? "หมายเลขบัตรประชาชน"
-              : "โปรดเลือกประเภท"
-          }
-          isShowRegistrationNumber={
-            insuranceCategory === null ||
-            ["ประกันภัยทางทะเลและขนส่ง", "ประกันภัยเบ็ดเตล็ด"].includes(
-              insuranceCategory
-            )
-              ? false
-              : true
-          }
-          registrationNumber={registrationNumber}
-          setRegistrationNumber={setRegistrationNumber}
-          contactNumber={contactNumber}
-          setContactNumber={setContactNumber}
-          isShowHouseNumber={insuranceCategory === "หอพัก บ้าน" ? true : false}
-          houseNumber={houseNumber}
-          setHouseNumber={setHouseNumber}
-          isInvalid={isInvalid}
-          setIsInvalid={setIsInvalid}
-        />
-        {/* Add Vehicle Info and Carousel */}
-        <InsuranceVehicleInfo
-          vehicleType={insuranceCategory || ""}
-          selectedProvinceRegistered={selectedProvinceRegistered}
-          setSelectedProvinceRegistered={setSelectedProvinceRegistered}
-          selectedProvinceDriver={selectedProvinceDriver}
-          setSelectedProvinceDriver={setSelectedProvinceDriver}
-          selectedProvinceLocation={selectedProvinceLocation}
-          setSelectedProvinceLocation={setSelectedProvinceLocation}
-          propertyType={propertyType}
-          setPropertyType={setPropertyType}
-          gender={gender}
-          setGender={setGender}
-          customGender={customGender}
-          setCustomGender={setCustomGender}
-          maritalStatus={maritalStatus}
-          setMaritalStatus={setMaritalStatus}
-          occupation={occupation}
-          setOccupation={setOccupation}
-          licenseAge={licenseAge}
-          setLicenseAge={setLicenseAge}
-          vehicleBrand={vehicleBrand}
-          setVehicleBrand={setVehicleBrand}
-          vehicleModel={vehicleModel}
-          setVehicleModel={setVehicleModel}
-          engineSize={engineSize}
-          setEngineSize={setEngineSize}
-          vehicleYear={vehicleYear}
-          setVehicleYear={setVehicleYear}
-          vehiclePurpose={vehiclePurpose}
-          setVehiclePurpose={setVehiclePurpose}
-          hasDashCam={hasDashCam}
-          setHasDashCam={setHasDashCam}
-          hasVoluntaryInsurance={hasVoluntaryInsurance}
-          setHasVoluntaryInsurance={setHasVoluntaryInsurance}
-          propertyValue={propertyValue}
-          setPropertyValue={setPropertyValue}
-          registrationBookInsuranceCarFile={registrationBookInsuranceCarFile}
-          setRegistrationBookInsuranceCarFile={
-            setRegistrationBookInsuranceCarFile
-          }
-          registrationBookInsuranceMotorcycleFile={
-            registrationBookInsuranceMotorcycleFile
-          }
-          setRegistrationBookInsuranceMotorcycleFile={
-            setRegistrationBookInsuranceMotorcycleFile
-          }
-          titleDeedFile={titleDeedFile}
-          setTitleDeedFile={setTitleDeedFile}
-          voluntaryInsuranceCarFile={voluntaryInsuranceCarFile}
-          setVoluntaryInsuranceCarFile={setVoluntaryInsuranceCarFile}
-          voluntaryInsuranceMotorcycleFile={voluntaryInsuranceMotorcycleFile}
-          setVoluntaryInsuranceMotorcycleFile={
-            setVoluntaryInsuranceMotorcycleFile
-          }
-          voluntaryInsuranceHouseFile={voluntaryInsuranceHouseFile}
-          setVoluntaryInsuranceHouseFile={setVoluntaryInsuranceHouseFile}
-          noIDcardFile={noIDcardFile}
-          setNoIDcardFile={setNoIDcardFile}
-          isInvalid={isInvalid}
-        />
+    <body>
+      <Row>
+        <Col lg={1} md={2} xl={1}>
+          <aside className="d-flex justify-content-center">
+            <SidebarUser />
+          </aside>
+        </Col>
+        <Col lg={11} md={10} xl={11}>
+          <div className="form-container mx-auto ">
+            <Form onSubmit={handleSubmit}>
+              <h2 className="text-success text-center mb-4">
+                ประกันภัย ป1 ป2 ป3 ป4 ป5
+              </h2>
+              <InsuranceInfo
+                insuranceType={insuranceType}
+                setInsuranceType={setInsuranceType}
+                insuranceCompany={insuranceCompany}
+                setInsuranceCompany={setInsuranceCompany}
+                insuranceCategory={insuranceCategory}
+                setInsuranceCategory={setInsuranceCategory}
+                isInvalid={isInvalid}
+                setIsInvalid={setIsInvalid}
+              />
+              <InsuranceUserInfo
+                label={
+                  insuranceCategory === "รถยนต์" ||
+                  insuranceCategory === "รถจักรยานยนต์"
+                    ? "หมายเลขทะเบียนรถ"
+                    : insuranceCategory === "หอพัก บ้าน"
+                    ? "หมายเลขที่โฉนด"
+                    : insuranceCategory === "ประกันภัยทางทะเลและขนส่ง" ||
+                      insuranceCategory === "ประกันภัยเบ็ดเตล็ด"
+                    ? "หมายเลขบัตรประชาชน"
+                    : "โปรดเลือกประเภท"
+                }
+                isShowRegistrationNumber={
+                  insuranceCategory === null ||
+                  ["ประกันภัยทางทะเลและขนส่ง", "ประกันภัยเบ็ดเตล็ด"].includes(
+                    insuranceCategory
+                  )
+                    ? false
+                    : true
+                }
+                registrationNumber={registrationNumber}
+                setRegistrationNumber={setRegistrationNumber}
+                contactNumber={contactNumber}
+                setContactNumber={setContactNumber}
+                isShowHouseNumber={
+                  insuranceCategory === "หอพัก บ้าน" ? true : false
+                }
+                houseNumber={houseNumber}
+                setHouseNumber={setHouseNumber}
+                isInvalid={isInvalid}
+                setIsInvalid={setIsInvalid}
+              />
+              {/* Add Vehicle Info and Carousel */}
+              <InsuranceVehicleInfo
+                vehicleType={insuranceCategory || ""}
+                selectedProvinceRegistered={selectedProvinceRegistered}
+                setSelectedProvinceRegistered={setSelectedProvinceRegistered}
+                selectedProvinceDriver={selectedProvinceDriver}
+                setSelectedProvinceDriver={setSelectedProvinceDriver}
+                selectedProvinceLocation={selectedProvinceLocation}
+                setSelectedProvinceLocation={setSelectedProvinceLocation}
+                propertyType={propertyType}
+                setPropertyType={setPropertyType}
+                gender={gender}
+                setGender={setGender}
+                customGender={customGender}
+                setCustomGender={setCustomGender}
+                maritalStatus={maritalStatus}
+                setMaritalStatus={setMaritalStatus}
+                occupation={occupation}
+                setOccupation={setOccupation}
+                licenseAge={licenseAge}
+                setLicenseAge={setLicenseAge}
+                vehicleBrand={vehicleBrand}
+                setVehicleBrand={setVehicleBrand}
+                vehicleModel={vehicleModel}
+                setVehicleModel={setVehicleModel}
+                engineSize={engineSize}
+                setEngineSize={setEngineSize}
+                vehicleYear={vehicleYear}
+                setVehicleYear={setVehicleYear}
+                vehiclePurpose={vehiclePurpose}
+                setVehiclePurpose={setVehiclePurpose}
+                hasDashCam={hasDashCam}
+                setHasDashCam={setHasDashCam}
+                hasVoluntaryInsurance={hasVoluntaryInsurance}
+                setHasVoluntaryInsurance={setHasVoluntaryInsurance}
+                propertyValue={propertyValue}
+                setPropertyValue={setPropertyValue}
+                registrationBookInsuranceCarFile={
+                  registrationBookInsuranceCarFile
+                }
+                setRegistrationBookInsuranceCarFile={
+                  setRegistrationBookInsuranceCarFile
+                }
+                registrationBookInsuranceMotorcycleFile={
+                  registrationBookInsuranceMotorcycleFile
+                }
+                setRegistrationBookInsuranceMotorcycleFile={
+                  setRegistrationBookInsuranceMotorcycleFile
+                }
+                titleDeedFile={titleDeedFile}
+                setTitleDeedFile={setTitleDeedFile}
+                voluntaryInsuranceCarFile={voluntaryInsuranceCarFile}
+                setVoluntaryInsuranceCarFile={setVoluntaryInsuranceCarFile}
+                voluntaryInsuranceMotorcycleFile={
+                  voluntaryInsuranceMotorcycleFile
+                }
+                setVoluntaryInsuranceMotorcycleFile={
+                  setVoluntaryInsuranceMotorcycleFile
+                }
+                voluntaryInsuranceHouseFile={voluntaryInsuranceHouseFile}
+                setVoluntaryInsuranceHouseFile={setVoluntaryInsuranceHouseFile}
+                noIDcardFile={noIDcardFile}
+                setNoIDcardFile={setNoIDcardFile}
+                isInvalid={isInvalid}
+              />
 
-        <CarouselComponent
-          insuranceCompany={insuranceCompany}
-          insuranceCategory={insuranceCategory}
-        />
+              <CarouselComponent
+                insuranceCompany={insuranceCompany}
+                insuranceCategory={insuranceCategory}
+              />
 
-        <hr className="my-3"></hr>
-        {/* Alert */}
-        {isSubmitDisabled && (
-          <Alert variant="success" className="d-flex align-items-center mb-4">
-            <i className="fas fa-exclamation-triangle me-2"></i>
-            <span>กรุณากรอกข้อมูลให้ครบถ้วน</span>
-          </Alert>
-        )}
-        <Row>
-          <Col className="text-center">
-            <Button
-              type="submit"
-              variant="success"
-              onClick={handleSubmit}
-              className="w-50 my-3"
-              disabled={isSubmitDisabled}
-            >
-              ส่ง
-            </Button>
-          </Col>
-        </Row>
-      </Form>
-      <Modal show={isSubmitting} centered>
-        <Modal.Body className="text-center">
-          <Spinner
-            animation="border"
-            variant="success"
-            role="status"
-            className="my-3"
-          />
-          <p>กำลังส่งข้อมูล...</p>
-        </Modal.Body>
-      </Modal>
-      <AlertModal
-        show={showModal}
-        onBack={() => {
-          // console.log("Cancel clicked, closing modal...");
-          setShowModal(false);
-          setIsError(false);
-          // onBack();
-        }}
-        onSuccess={() => {
-          // console.log("Cancel clicked, closing modal...");
-          // window.location.reload();
+              <hr className="my-3"></hr>
+              {/* Alert */}
+              {isSubmitDisabled && (
+                <Alert
+                  variant="success"
+                  className="d-flex align-items-center mb-4"
+                >
+                  <i className="fas fa-exclamation-triangle me-2"></i>
+                  <span>กรุณากรอกข้อมูลให้ครบถ้วน</span>
+                </Alert>
+              )}
+              <Row>
+                <Col className="text-center">
+                  <Button
+                    type="submit"
+                    variant="success"
+                    onClick={handleSubmit}
+                    className="w-50 my-3"
+                    disabled={isSubmitDisabled}
+                  >
+                    ส่ง
+                  </Button>
+                </Col>
+              </Row>
+            </Form>
+            <Modal show={isSubmitting} centered>
+              <Modal.Body className="text-center">
+                <Spinner
+                  animation="border"
+                  variant="success"
+                  role="status"
+                  className="my-3"
+                />
+                <p>กำลังส่งข้อมูล...</p>
+              </Modal.Body>
+            </Modal>
+            <AlertModal
+              show={showModal}
+              onBack={() => {
+                // console.log("Cancel clicked, closing modal...");
+                setShowModal(false);
+                setIsError(false);
+                // onBack();
+              }}
+              onSuccess={() => {
+                // console.log("Cancel clicked, closing modal...");
+                // window.location.reload();
 
-          setSuccess(false);
-          setShowModal(false);
-        }}
-        onConfirm={handleSubmitData}
-        message={modalMessage}
-        success={success}
-        isError={isError}
-      />
-      <ScrollToTopAndBottomButton />
-    </div>
+                setSuccess(false);
+                setShowModal(false);
+              }}
+              onConfirm={handleSubmitData}
+              message={modalMessage}
+              success={success}
+              isError={isError}
+            />
+            <ScrollToTopAndBottomButton />
+          </div>
+        </Col>
+      </Row>
+    </body>
   );
 };
 
