@@ -17,7 +17,7 @@ import FormComponent from "./component/form";
 import Delivery from "./component/delivery";
 import TransportForm from "./component/transport";
 import InsuranceForm from "./component/insurance";
-import PrintAdmin from "./component/pageAdmin/printAdmin";
+import TransportAdmin from "./component/pageAdmin/transportAdmin";
 import FormAdmin from "./component/pageAdmin/formAdmin";
 import DeliveryAdmin from "./component/pageAdmin/deliveryAdmin";
 import InsuranceAdmin from "./component/pageAdmin/insuranceAdmin";
@@ -99,8 +99,8 @@ function App() {
     navigate("/form_admin_hc{SlU(.'rhA");
   };
 
-  const handleNavigateToPrintAdmin = () => {
-    navigate("/print_admin_XTc}KPf]=Z@J");
+  const handleNavigateToTransportAdmin = () => {
+    navigate("/transport_admin_XTc}KPf]=Z@J_admin_XTc}KPf]=Z@J");
   };
 
   const handleNavigateToDeliveryAdmin = () => {
@@ -121,9 +121,7 @@ function App() {
   // }
 
   return (
-    
     <div className="app-container">
-      
       {/* แสดง Modal แจ้งเตือน */}
       {showBrowserWarning && (
         <div className="browser-warning-modal">
@@ -201,7 +199,7 @@ function App() {
         <Route path="/insurance" element={<InsuranceForm />} />
 
         {/* เส้นทางเข้าสู่ระบบสำหรับแอดมิน */}
-        <Route path="/login" element={<LoginAdmin />} />
+        <Route path="/login_admin" element={<LoginAdmin />} />
 
         {/* เส้นทางแอดมินที่ต้องการการล็อกอิน */}
         <Route
@@ -212,7 +210,7 @@ function App() {
                 isVisible={true}
                 onClose={() => {}}
                 onNavigateToFormAdmin={handleNavigateToFormAdmin}
-                onNavigateToPrintAdmin={handleNavigateToPrintAdmin}
+                onNavigateToTransportAdmin={handleNavigateToTransportAdmin}
                 onNavigateToDeliveryAdmin={handleNavigateToDeliveryAdmin}
                 onNavigateToInsuranceAdmin={handleNavigateToInsuranceAdmin}
               />
@@ -229,10 +227,10 @@ function App() {
           }
         />
         <Route
-          path="/print_admin_XTc}KPf]=Z@J"
+          path="/transport_admin_XTc}KPf]=Z@J"
           element={
             <ProtectedRoute>
-              <PrintAdmin />
+              <TransportAdmin />
             </ProtectedRoute>
           }
         />
@@ -263,7 +261,7 @@ function App() {
 function AppWrapper() {
   return (
     <AuthProvider>
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <Router>
         <App />
       </Router>
     </AuthProvider>

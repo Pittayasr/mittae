@@ -93,13 +93,87 @@
   width: fit-content;
 }
 
-.dropdown-dateInput {
-  max-width: fit-content;
-  padding: 15px;
+/* ปุ่มลูกศร */
+.custom-prev-btn,
+.custom-next-btn {
+  background-color: #28a745; /* สีเขียว */
+  border-radius: 10px; /* โค้งมน */
+  height: 30px; /* เพิ่มขนาด */
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px; /* ขนาดไอคอน */
+  cursor: pointer;
+  font-family: "Noto Sans Thai", sans-serif;
+}
+
+.custom-month-btn,
+.custom-year-btn {
+  text-align: center;
+  border-radius: 5px;
+  font-family: "Noto Sans Thai", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-month-btn option,
+.custom-year-btn option {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-calender{
+  text-align: center;
+  border-radius: 5px;
+  font-family: "Noto Sans Thai", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* เปลี่ยนสีปุ่มลูกศรเมื่อ hover */
+.custom-prev-btn:hover,
+.custom-next-btn:hover {
+  background-color: #218838; /* สีเขียวเข้ม */
+}
+
+/* วันที่ที่เลือก */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #28a745 !important; /* สีเขียว */
+  color: #fff !important; /* ตัวอักษรสีขาว */
+  border-radius: 50%; /* โค้งมน */
+}
+
+/* วันที่ที่เลือกเมื่อ hover */
+.react-datepicker__day--selected:hover {
+  background-color: #218838 !important; /* สีเขียวเข้ม */
+}
+
+/* เพิ่มไฮไลท์วันที่ */
+.react-datepicker__day--highlight-green {
+  background-color: #d4edda !important; /* สีเขียวอ่อน */
+  color: #28a745 !important; /* ตัวอักษรสีเขียว */
+  border-radius: 50%;
+}
+
+/* การตั้งค่ารูปแบบ Input */
+.react-datepicker__input-container input {
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
-  z-index: 1050;
+  border: 1px solid #28a745;
+  padding: 10px;
+}
+
+.dropdown-dateInput {
+  
+  padding: 5px;
+  border-radius: 8px;
+  
+  z-index: 1150;
 }
 
 .sidebar-container {
@@ -282,11 +356,9 @@
     left: -17px;
     top: 10px;
   }
-  
+
   .menu-image-form {
-   
     width: 90px;
-    
   }
 }
 
@@ -327,6 +399,7 @@
   width: 100%; /* ความกว้างเต็ม */
   margin: 0 auto; /* จัดให้อยู่กึ่งกลาง */
   padding: 0px 10px 10px 10px;
+  overflow-x: hidden;
 }
 
 .form {
@@ -776,7 +849,6 @@ input[type="file"]:focus {
   justify-content: start;
   align-items: center;
   cursor: pointer;
-  
 }
 
 .menu-image {
@@ -789,8 +861,6 @@ input[type="file"]:focus {
   object-fit: contain;
   border-radius: 4px; /* เพิ่มความโค้งมนของรูปภาพ */
 }
-
-
 
 .sidebar-menu-image {
   max-width: 100%;

@@ -52,7 +52,7 @@ interface SidebarProps {
   startDate: Dayjs | null;
   endDate: Dayjs | null;
   onDateRangeFilter: () => void;
-  formType: "insuranceAdmin" | "deliveryAdmin" | "other"; // เพิ่ม prop นี้
+  formType: "insuranceAdmin" | "deliveryAdmin" | "transportAdmin" | "other"; // เพิ่ม prop นี้
 }
 
 const SidebarAdmin: React.FC<SidebarProps> = ({
@@ -231,7 +231,8 @@ const SidebarAdmin: React.FC<SidebarProps> = ({
                   </div>
                   {/* ช่อง textSelect เฉพาะ insuranceAdmin และ deliveryAdmin */}
                   {(formType === "insuranceAdmin" ||
-                    formType === "deliveryAdmin") && (
+                    formType === "deliveryAdmin" ||
+                    formType === "transportAdmin") && (
                     <div className="mb-3">
                       <TextSelect
                         label={filterExtraLabel}
@@ -345,7 +346,7 @@ const SidebarAdmin: React.FC<SidebarProps> = ({
                               onClick={() => onSort("totalCost")}
                               checked={sortField === "totalCost"}
                             >
-                              เรียงตามยอดชำระทั้งหมด{" "}
+                              เรียงตามยอดชำระ{" "}
                               {sortField === "totalCost" &&
                                 (sortOrder === "asc" ? (
                                   <FaSortAmountDownAlt />

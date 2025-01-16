@@ -113,7 +113,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
             },
             { label: "รถไฮบริด", value: "รถไฮบริด" },
             { label: "รถไฟฟ้า", value: "รถไฟฟ้า" },
-            { label: "รถบดถนน", value: "รถบดถนน" },
+            // { label: "รถบดถนน", value: "รถบดถนน" },
             { label: "รถพ่วง", value: "รถพ่วง" },
             { label: "รถแทรกเตอร์", value: "รถแทรกเตอร์" },
             { label: "รถแก๊ส", value: "รถแก๊ส" },

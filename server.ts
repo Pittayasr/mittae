@@ -18,6 +18,9 @@ console.log(process.env.VITE_API_BASE_URL);
 const PORT = process.env.PORT || 3000; // ใช้ PORT จากไฟล์ .env หรือค่าดีฟอลต์ 3000
 const UPLOADS_DIR = process.env.UPLOADS_DIRECTORY || "uploads";
 
+const LINE_API_URL = "https://api.line.me/v2/bot/message/push";
+const LINE_CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+
 // เปิดใช้งาน CORS
 app.use(
   cors({
@@ -31,6 +34,7 @@ app.use(
     allowedHeaders: ["Content-Type"],
   })
 );
+app.use(express.json());
 
 // server.ts
 const storage = multer.diskStorage({
@@ -56,6 +60,22 @@ const storage = multer.diskStorage({
       );
     } else if (file.fieldname === "licenseFileDelivery") {
       folderPath = path.join(UPLOADS_DIR, "deliveries", "licenseDelivery");
+
+      //transport
+    } else if (file.fieldname === "passportOrIDnumberFileTransport") {
+      folderPath = path.join(
+        UPLOADS_DIR,
+        "transports",
+        "passportOrIDnumberTransport"
+      );
+    } else if (file.fieldname === "registrationBookFileTransport") {
+      folderPath = path.join(
+        UPLOADS_DIR,
+        "transports",
+        "registrationBookTransport"
+      );
+    } else if (file.fieldname === "licenseFileTransport") {
+      folderPath = path.join(UPLOADS_DIR, "transports", "licenseTransport");
 
       //insurance
     } else if (file.fieldname === "registrationBookInsuranceCarFile") {
@@ -107,6 +127,7 @@ const storage = multer.diskStorage({
     } else if (file.fieldname === "printSlipQRcode") {
       folderPath = path.join(UPLOADS_DIR, "prints", "printSlipQRcode");
     }
+
     // ตรวจสอบและสร้างโฟลเดอร์หากยังไม่มี
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
@@ -146,6 +167,9 @@ const ensureDirectoriesExist = () => {
     path.join(UPLOADS_DIR, "deliveries", "passportOrIDnumber"),
     path.join(UPLOADS_DIR, "deliveries", "registrationBookDelivery"),
     path.join(UPLOADS_DIR, "deliveries", "licenseDelivery"),
+    path.join(UPLOADS_DIR, "transports", "passportOrIDnumberTransport"),
+    path.join(UPLOADS_DIR, "transports", "registrationBookTransport"),
+    path.join(UPLOADS_DIR, "transports", "licenseTransport"),
     path.join(UPLOADS_DIR, "insurances"),
     path.join(UPLOADS_DIR, "insurances", "registrationBookInsuranceCarFile"),
     path.join(
@@ -209,6 +233,9 @@ app.post(
     { name: "passportOrIDnumberFile", maxCount: 1 },
     { name: "registrationBookFileDelivery", maxCount: 1 },
     { name: "licenseFileDelivery", maxCount: 1 },
+    { name: "passportOrIDnumberFileTransport", maxCount: 1 },
+    { name: "registrationBookFileTransport", maxCount: 1 },
+    { name: "licenseFileTransport", maxCount: 1 },
     { name: "registrationBookFile", maxCount: 1 },
     { name: "licensePlateFile", maxCount: 1 },
     { name: "formSlipQRcode", maxCount: 1 },
@@ -243,6 +270,13 @@ app.post(
         files["registrationBookFileDelivery"]?.[0];
       const licenseFileDelivery = files["licenseFileDelivery"]?.[0];
 
+      // Group: Transport
+      const passportOrIDnumberFileTransport =
+        files["passportOrIDnumberFileTransport"]?.[0];
+      const registrationBookFileTransport =
+        files["registrationBookFileTransport"]?.[0];
+      const licenseFileTransport = files["licenseFileTransport"]?.[0];
+
       // Group: Insurance
       const registrationBookInsuranceCarFile =
         files["registrationBookInsuranceCarFile"]?.[0];
@@ -270,6 +304,24 @@ app.post(
           return res.status(400).json({
             error:
               "registrationBookFileDelivery is required for 'ส่งรถกลับบ้าน'.",
+          });
+        }
+      }
+
+      // Transport Validation
+      if (body.type === "Transport") {
+        if (!passportOrIDnumberFileTransport) {
+          return res.status(400).json({
+            error: "passportOrIDnumberFileTransport is required for Transport.",
+          });
+        }
+        if (
+          body.selectTransportType === "ส่งรถกลับบ้าน" &&
+          !registrationBookFileTransport
+        ) {
+          return res.status(400).json({
+            error:
+              "registrationBookFileTransport is required for 'ส่งรถกลับบ้าน'.",
           });
         }
       }
@@ -360,7 +412,7 @@ app.post(
             formSlipQRcode.filename
           }`
         : null;
-      
+
       // Generate delivery file paths
       const passportOrIDnumberFilePath = passportOrIDnumberFile
         ? `${req.protocol}://${req.get(
@@ -386,7 +438,33 @@ app.post(
           }`
         : null;
 
-      // Generate insurance file paths  
+      // Generate transport file paths
+      const passportOrIDnumberFileTransportPath =
+        passportOrIDnumberFileTransport
+          ? `${req.protocol}://${req.get(
+              "host"
+            )}/uploads/transports/passportOrIDnumberTransport/${
+              passportOrIDnumberFileTransport.filename
+            }`
+          : null;
+
+      const registrationBookFileTransportPath = registrationBookFileTransport
+        ? `${req.protocol}://${req.get(
+            "host"
+          )}/uploads/transports/registrationBookTransport/${
+            registrationBookFileTransport.filename
+          }`
+        : null;
+
+      const licenseFileTransportPath = licenseFileTransport
+        ? `${req.protocol}://${req.get(
+            "host"
+          )}/uploads/transports/licenseFileTransport/${
+            licenseFileTransport.filename
+          }`
+        : null;
+
+      // Generate insurance file paths
       const registrationBookInsuranceCarFilePath =
         registrationBookInsuranceCarFile
           ? `${req.protocol}://${req.get(
@@ -495,6 +573,26 @@ app.post(
               }
             : null,
         },
+        transport: {
+          passportOrIDnumberFileTransport: passportOrIDnumberFileTransport
+            ? {
+                filePath: passportOrIDnumberFileTransportPath,
+                storedFileName: passportOrIDnumberFileTransport.filename,
+              }
+            : null,
+          registrationBookFileTransport: registrationBookFileTransport
+            ? {
+                filePath: registrationBookFileTransportPath,
+                storedFileName: registrationBookFileTransport.filename,
+              }
+            : null,
+          licenseFileTransport: licenseFileTransport
+            ? {
+                filePath: licenseFileTransportPath,
+                storedFileName: licenseFileTransport.filename,
+              }
+            : null,
+        },
         insurances: {
           registrationBookInsuranceCarFile: registrationBookInsuranceCarFile
             ? {
@@ -552,11 +650,99 @@ app.post(
   }
 );
 
+app.post("/webhook", async (req, res) => {
+  try {
+    const { type, message, userId, destination, events } = req.body;
+
+    // Handle Push Message
+    if (type && message && userId) {
+      // ส่งข้อความ Push Message
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`,
+      };
+
+      const body = {
+        to: userId,
+        messages: message,
+      };
+
+      const response = await fetch("https://api.line.me/v2/bot/message/push", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("LINE Push Message Error:", errorText);
+        return res.status(500).json({ error: "Failed to send message." });
+      }
+
+      console.log("Push message sent successfully.");
+      return res.status(200).json({ success: true });
+    }
+
+    // Handle Reply Message
+    for (const event of events) {
+      if (event.type === "message" && event.message.type === "text") {
+        const replyToken = event.replyToken;
+        const userMessage = event.message.text;
+
+        await replyToUser(replyToken, `คุณส่งข้อความ: ${userMessage}`);
+      }
+    }
+
+    // Handle LINE Verify request
+    if (!events || events.length === 0) {
+      console.log("Webhook verified successfully.");
+      return res
+        .status(200)
+        .json({ message: "Webhook verified successfully." });
+    }
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Error processing webhook:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+async function replyToUser(replyToken: string, message: string) {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`,
+  };
+
+  const body = {
+    replyToken,
+    messages: [{ type: "text", text: message }],
+  };
+
+  await fetch("https://api.line.me/v2/bot/message/reply", {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
+}
+
 // ตัวอย่าง route
 app.get("/", (req, res) => {
   res.send("API is working!");
 });
 
+app.post("/", (req, res) => {
+  res.status(200).json({ message: "POST request received!" });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+});
+
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "script-src 'self' https://maps.googleapis.com; object-src 'none';"
+  );
+  next();
 });

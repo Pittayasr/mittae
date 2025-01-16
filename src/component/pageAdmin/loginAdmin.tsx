@@ -14,7 +14,7 @@ import {
 import { app } from "../../../firebaseConfig";
 
 const LoginAdmin: React.FC = () => {
-  const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -29,7 +29,7 @@ const LoginAdmin: React.FC = () => {
     try {
       const db = getFirestore(app);
       const adminCollection = collection(db, "admin");
-      const q = query(adminCollection, where("username", "==", email.trim()));
+      const q = query(adminCollection, where("username", "==", username.trim()));
       const querySnapshot = await getDocs(q);
 
       let loginSuccess = false;
@@ -69,12 +69,12 @@ const LoginAdmin: React.FC = () => {
             )}
             <Col className="mb-3">
               <TextInput
-                id="email"
+                id="username"
                 label="ชื่อผู้ใช้หรืออีเมล"
-                type="email"
+                type="username"
                 placeholder="กรอกอีเมลของคุณ"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </Col>
 

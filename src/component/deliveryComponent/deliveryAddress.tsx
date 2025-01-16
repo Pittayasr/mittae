@@ -176,7 +176,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
 
     if (selectedProvinceObj) {
       setSelectedProvince(value); // เก็บ provinceCode
-      setSelectedProvinceName(selectedProvinceObj.provinceNameTh); // เก็บชื่อจังหวัด
+      setSelectedProvinceName(selectedProvinceObj.provinceNameTh); 
     } else {
       setSelectedProvince(null);
       setSelectedProvinceName(null);

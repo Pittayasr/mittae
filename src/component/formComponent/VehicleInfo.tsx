@@ -173,7 +173,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
               selectedCarType === "รถไฟฟ้า"
                 ? "กรอกน้ำหนักรถ(กิโลกรัม)"
                 : selectedCarType === "รถพ่วง" ||
-                  selectedCarType === "รถบดถนน" ||
+                  // selectedCarType === "รถบดถนน" ||
                   selectedCarType === "รถแทรกเตอร์"
                 ? "ไม่ต้องใส่"
                 : "กรอกความจุของรถ(CC)"
@@ -188,7 +188,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
             inputMode="numeric"
             disabled={
               selectedCarType === "รถพ่วง" ||
-              selectedCarType === "รถบดถนน" ||
+              // selectedCarType === "รถบดถนน" ||
               selectedCarType === "รถแทรกเตอร์"
             } // เพิ่มเงื่อนไขล็อค
           />

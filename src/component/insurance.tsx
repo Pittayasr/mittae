@@ -13,6 +13,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
 import { VscError } from "react-icons/vsc";
 import dayjs from "dayjs";
+import useNavigationBlocker from "./useNavigationBlocker";
 
 const InsuranceForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -81,6 +82,8 @@ const InsuranceForm: React.FC = () => {
   // const [isSubmitted, setIsSubmitted] = useState(false);
   // const [invalidFields, setInvalidFields] = useState<boolean[]>([]);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState<boolean>(true);
+
+  const { NavigationBlockerModal } = useNavigationBlocker(true);
 
   // const [isShowRegistrationNumber, setIsShowRegistrationNumber] =
   //   useState<boolean>(false);
@@ -256,19 +259,11 @@ const InsuranceForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // setIsSubmitted(true);
 
-    // ตรวจสอบ newInvalidFields อีกครั้งเมื่อกดปุ่มส่ง
-    // const isAnyFieldInvalid = invalidFields.some((field) => field);
-    // if (isAnyFieldInvalid) {
-    //   setIsInvalid(true);
-    //   return;
-    // }
-
-    // setIsInvalid(false);
     handleOpenModal();
   };
 
+  //insurance.tsx
   const handleSubmitData = async () => {
     setIsSubmitting(true);
     try {
@@ -480,6 +475,165 @@ const InsuranceForm: React.FC = () => {
           </p>
         </div>
       );
+
+      const registrationBookInsuranceCarFileData = getFileData(
+        "registrationBookInsuranceCarFile"
+      );
+
+      const voluntaryInsuranceCarFileData = getFileData(
+        "voluntaryInsuranceCarFile"
+      );
+
+      const registrationBookInsuranceMotorcycleFileData = getFileData(
+        "registrationBookInsuranceMotorcycleFile"
+      );
+
+      const voluntaryInsuranceMotorcycleFileData = getFileData(
+        "voluntaryInsuranceMotorcycleFile"
+      );
+
+      const titleDeedFileData = getFileData("titleDeedFile");
+
+      const noIDcardFileData = getFileData("noIDcardFile");
+
+      const voluntaryInsuranceHouseFileData = getFileData(
+        "voluntaryInsuranceHouseFile"
+      );
+
+      const imageMessages = [];
+
+      // เพิ่มภาพจาก registrationBookInsuranceCarFile
+      if (registrationBookInsuranceCarFileData?.filePath) {
+        imageMessages.push({
+          type: "image",
+          originalContentUrl: registrationBookInsuranceCarFileData.filePath,
+          previewImageUrl: registrationBookInsuranceCarFileData.filePath,
+        });
+      }
+
+      // เพิ่มภาพจาก voluntaryInsuranceCarFile
+      if (voluntaryInsuranceCarFileData?.filePath) {
+        imageMessages.push({
+          type: "image",
+          originalContentUrl: voluntaryInsuranceCarFileData.filePath,
+          previewImageUrl: voluntaryInsuranceCarFileData.filePath,
+        });
+      }
+
+      // เพิ่มภาพจาก registrationBookInsuranceMotorcycleFile
+      if (registrationBookInsuranceMotorcycleFileData?.filePath) {
+        imageMessages.push({
+          type: "image",
+          originalContentUrl:
+            registrationBookInsuranceMotorcycleFileData.filePath,
+          previewImageUrl: registrationBookInsuranceMotorcycleFileData.filePath,
+        });
+      }
+
+      // เพิ่มภาพจาก voluntaryInsuranceMotorcycleFile
+      if (voluntaryInsuranceMotorcycleFileData?.filePath) {
+        imageMessages.push({
+          type: "image",
+          originalContentUrl: voluntaryInsuranceMotorcycleFileData.filePath,
+          previewImageUrl: voluntaryInsuranceMotorcycleFileData.filePath,
+        });
+      }
+      // เพิ่มภาพจาก titleDeedFile
+      if (titleDeedFileData?.filePath) {
+        imageMessages.push({
+          type: "image",
+          originalContentUrl: titleDeedFileData.filePath,
+          previewImageUrl: titleDeedFileData.filePath,
+        });
+      }
+      // เพิ่มภาพจาก noIDcardFile
+      if (noIDcardFileData?.filePath) {
+        imageMessages.push({
+          type: "image",
+          originalContentUrl: noIDcardFileData.filePath,
+          previewImageUrl: noIDcardFileData.filePath,
+        });
+      }
+      // เพิ่มภาพจาก voluntaryInsuranceHouseFile
+      if (voluntaryInsuranceHouseFileData?.filePath) {
+        imageMessages.push({
+          type: "image",
+          originalContentUrl: voluntaryInsuranceHouseFileData.filePath,
+          previewImageUrl: voluntaryInsuranceHouseFileData.filePath,
+        });
+      }
+
+      const message = [
+        {
+          type: "text",
+          text: `
+        🛡️ รายละเอียดการประกันภัย: 
+        👤 หมายเลขทะเบียน: ${registrationNumber}
+        📞 เบอร์ติดต่อ: ${contactNumber}
+           ประเภทประกัน: ${insuranceType}
+           หมวดหมู่: ${insuranceCompany}
+        ${
+          insuranceCategory === "รถยนต์" &&
+          `
+        🚗 ยี่ห้อรถ: ${vehicleBrand}
+            รุ่นรถ: ${vehicleModel}
+            ขนาดเครื่องยนต์: ${engineSize}
+            ปีรถ: ${vehicleYear}
+            จังหวัดจดทะเบียน: ${selectedProvinceRegistered}
+            การใช้งานรถ: ${vehiclePurpose}
+            กล้องหน้ารถ: ${hasDashCam ? "มี" : "ไม่มี"}
+            จังหวัดผู้ขับขี่: ${selectedProvinceDriver}
+            เพศ: ${gender === "อื่นๆ" ? customGender : gender}
+            สถานภาพสมรส: ${maritalStatus}
+            อาชีพ: ${occupation}
+            ประกันภัยภาคสมัครใจ: ${hasVoluntaryInsurance}
+            `
+        }
+        ${
+          insuranceCategory === "รถจักรยานยนต์" &&
+          `
+        🛵 ยี่ห้อรถ: ${vehicleBrand}
+            รุ่นรถ: ${vehicleModel}
+            ขนาดเครื่องยนต์: ${engineSize}
+            ปีรถ: ${vehicleYear}
+            จังหวัดจดทะเบียน: ${selectedProvinceRegistered}
+            การใช้งานรถ: ${vehiclePurpose}           
+            ประกันภัยภาคสมัครใจ: ${hasVoluntaryInsurance}
+            `
+        }
+        ${
+          insuranceCategory === "หอพัก บ้าน" &&
+          `
+        🏠 ประเภททรัพย์สิน: ${propertyType}
+            จังหวัด:: ${selectedProvinceLocation}
+            มูลค่าทรัพย์สิน: ${propertyValue}           
+            `
+        }
+            `,
+        },
+        ...imageMessages,
+      ];
+
+      // เรียก /webhook เพื่อส่ง message
+      const webhookResponse = await fetch(
+        "https://api.mittaemaefahlung88.com/webhook",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "Insurance",
+            message, // ส่งข้อความที่สร้างไว้ไปยังเซิร์ฟเวอร์
+            userId: "LINE_USER_ID", // แทนที่ด้วย userId ที่ต้องการ
+          }),
+        }
+      );
+
+      if (!webhookResponse.ok) {
+        throw new Error("Failed to send message to webhook");
+      }
+
+      console.log("Webhook message sent successfully");
+
       setSuccess(true);
     } catch (error) {
       console.error("Error during submission:", error);
@@ -499,7 +653,7 @@ const InsuranceForm: React.FC = () => {
   };
 
   return (
-    <body>
+    <div>
       <Row>
         <Col lg={1} md={2} xl={1}>
           <aside className="d-flex justify-content-center">
@@ -685,7 +839,8 @@ const InsuranceForm: React.FC = () => {
           </div>
         </Col>
       </Row>
-    </body>
+      <NavigationBlockerModal />
+    </div>
   );
 };
 

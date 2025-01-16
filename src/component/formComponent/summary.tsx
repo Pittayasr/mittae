@@ -138,6 +138,7 @@ const Summary: React.FC<SummaryProps> = ({
     document.body.removeChild(link);
   };
 
+  //summary.tsx
   const handleConfirm = async () => {
     setIsSubmitting(true);
     try {
@@ -178,11 +179,6 @@ const Summary: React.FC<SummaryProps> = ({
 
       const { registrationBookFile, licensePlateFile, formSlipQRcode } =
         responseData.form;
-
-      // console.log("Files uploaded successfully:", {
-      //   registrationBookFile,
-      //   licensePlateFile,
-      // });
 
       const uploadTime = dayjs().toISOString();
 
@@ -246,7 +242,7 @@ const Summary: React.FC<SummaryProps> = ({
       };
 
       await addDoc(collection(db, "prbform"), updatedData);
-      // console.log("Document written with ID: ", docRef.id);
+      
 
       setModalMessage(
         <div className="d-flex flex-column align-items-center text-center">
@@ -263,6 +259,10 @@ const Summary: React.FC<SummaryProps> = ({
         </div>
       );
       setSuccess(true);
+      {
+        /* ส่วนที่ส่งข้อความแจ้งข้อมูลรายละเอียดของผู้ส่งและผู้รับต่างๆ ที่แจ้งเหมือนใน Form พร้อมส่งรูปที่ดึงมาจากที่ผู้ใช้ส่งในเว็บของผมผ่าน Node.js ใน server.ts และแปลง locationTransport ที่มี latitude และ
+          longitude ให้มันเป็น google map ที่กดไปแล้วเป็นพิกัดที่หมุดในนั้นเลยเพื่อให้คนส่งของใช้เพื่อส่งของ */
+      }
     } catch (error) {
       console.error("Error uploading file or saving data:", error);
       setModalMessage(

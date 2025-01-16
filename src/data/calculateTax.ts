@@ -45,13 +45,6 @@ const calculateCarAge = (
   return { years, months, days };
 };
 
-// ฟังก์ชันสำหรับเช็คว่าอยู่ในช่วง 5 ปีแรกหรือไม่
-// const isWithinFiveYears = (registerDate: Dayjs): boolean => {
-//   const now = dayjs();
-//   const fiveYearsAgo = now.subtract(5, "year");
-//   return registerDate.isAfter(fiveYearsAgo);
-// };
-
 // ฟังก์ชันสำหรับเช็คว่าเกิน 3 ปีไหม
 const isMoreThanThreeYears = (
   lastTaxDate: Dayjs | null,
@@ -160,23 +153,35 @@ export const calculateTax = (
   const taxCarWeight = calculateTaxByCarWeight(car.weight);
   // console.log("ค่าภาษีตามน้ำหนัก =", taxCarWeight);
 
+  const monthsLate = car.expiryDate ? dayjs().diff(car.expiryDate, "month") : 0;
+
   // ภาษีตามชนิดรถ
-  const finalTax = car.isMotorcycle
-    ? isMoreThanThreeYears(dayjs(car.lastTaxDate), dayjs(car.expiryDate))
-      ? 372
-      : taxMotorcycleCC // ภาษีตาม CC ของจักรยานยนต์
+  let baseTax = car.isMotorcycle
+    ? taxMotorcycleCC
     : car.isCarTruck ||
       car.isElectric ||
       car.isHybrid ||
       car.hasMoreThanSevenSeats
-    ? taxCarWeight // ถ้าเป็นรถบรรทุก, รถไฟฟ้า, รถไฮบริด หรือรถบรรทุกเกิน 7 ที่นั่ง จะใช้คำนวณตามน้ำหนัก
+    ? taxCarWeight
     : car.isCar
-    ? totalTaxCarCC // ถ้าเป็นรถยนต์ 2 ประตู ใช้ภาษีตาม CC ของรถยนต์
+    ? totalTaxCarCC
     : car.isRoadroller
-    ? 200 // ถ้าเป็นรถบดถนน ใช้ภาษีคงที่ 200
+    ? 200
     : car.isCarTrailer
-    ? 100 // ถ้าเป็นรถจักรยานยนต์พ่วง ใช้ภาษีคงที่ 100
-    : 50; // ค่าเริ่มต้นถ้าไม่เข้าเงื่อนไขอื่นๆ
+    ? 100
+    : 50;
+
+  if (monthsLate >= 12 && monthsLate <= 23) {
+    baseTax *= 2; // เพิ่มเป็น 2 เท่าถ้าล่าช้า 12-23 เดือน
+  } else if (monthsLate >= 24 && monthsLate <= 36) {
+    baseTax *= 3; // เพิ่มเป็น 3 เท่าถ้าล่าช้า 24-36 เดือน
+  }
+
+  const finalTax =
+    isMoreThanThreeYears(dayjs(car.lastTaxDate), dayjs(car.expiryDate)) &&
+    car.isMotorcycle
+      ? 372
+      : baseTax;
 
   // console.log("ค่าภาษีสุทธิ =", finalTax);
 
@@ -212,10 +217,14 @@ export const calculateTax = (
 
   // ค่าปรับสำหรับการล่าช้า
   let lateFee = 0;
+
+  // ถ้าขาดชำระตามปีก็บวกภาษา 100 ตามจำนวนปีด้วย
+  // ต้องคิดวันที่จะชำระล่าสุด(วันที่กรอกข้อมูลคือวันนี้)
+
   if (carAge.years > 3 || (carAge.years === 3 && carAge.months > 0)) {
     const monthsLate = dayjs().diff(car.expiryDate, "month");
     lateFee += monthsLate; // ค่าปรับ 1 บาทต่อเดือน
-     console.log("ค่าปรับคิดตามเดือน =", lateFee);
+    console.log("ค่าปรับคิดตามเดือน =", lateFee);
 
     if (monthsLate >= 12 && monthsLate <= 23) {
       lateFee += finalTax * 0.2;
@@ -247,7 +256,8 @@ export const calculateTax = (
   // console.log("ค่าปรับล่าช้า = ", lateFee);
 
   // ส่วนลดจะเพิ่ม 10% ต่อปีตั้งแต่อายุ 6 ปีขึ้นไป และจำกัดส่วนลดที่ 50%
-  const discount = car.age >= 10 ? 0.5 : car.age >= 6 ? (car.age - 5) * 0.1 : 0;
+  const discount =
+    carAge.years >= 10 ? 0.5 : carAge.years >= 6 ? (carAge.years - 5) * 0.1 : 0;
 
   // คำนวณผลรวม
   console.log(

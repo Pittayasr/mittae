@@ -1,6 +1,6 @@
 //selelctAdminFormModal.tsx
 import React from "react";
-import { Modal, Button, Col, Row } from "react-bootstrap";
+import { Modal, Button, Col, Row, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../useAuth";
 
@@ -8,7 +8,7 @@ interface SelectAdminFormModalProps {
   isVisible: boolean;
   onClose: () => void;
   onNavigateToFormAdmin: () => void;
-  onNavigateToPrintAdmin: () => void;
+  onNavigateToTransportAdmin: () => void;
   onNavigateToDeliveryAdmin: () => void;
   onNavigateToInsuranceAdmin: () => void;
 }
@@ -24,8 +24,8 @@ const SelectAdminFormModal: React.FC<SelectAdminFormModalProps> = ({
     onClose();
   };
 
-  const handleNavigateToPrintAdmin = () => {
-    navigate("/print_admin_XTc}KPf]=Z@J");
+  const handleNavigateToTransportAdmin = () => {
+    navigate("/transport_admin_XTc}KPf]=Z@J");
     onClose();
   };
 
@@ -53,62 +53,133 @@ const SelectAdminFormModal: React.FC<SelectAdminFormModalProps> = ({
     >
       <Modal.Header>
         <Modal.Title>
-          <h3>บริการสำหรับผู้ดูแลระบบ</h3>
+          <h3 className="text-success">บริการสำหรับผู้ดูแลระบบ</h3>
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body className="text-center">
-        <Row>
-          <Col className="mb-2" xs={12}>
-            <Button
-              variant="success"
-              className="mt-3 mb-3 w-75"
-              onClick={handleNavigateToFormAdmin}
+      <Modal.Body
+        className="text-center"
+        style={{ maxHeight: "85vh", overflowY: "auto" }}
+      >
+        <Row className="g-3">
+          
+
+          {/* แดชบอร์ดส่งไปรษณีย์ */}
+          <Col xs={6} sm={4} md={4} lg={4}>
+            <Card
+              className="text-center compact-card-menu-form"
+              onClick={() => handleNavigateToDeliveryAdmin()}
+              style={{ cursor: "pointer" }}
             >
-              แดชบอร์ดแอดมินพรบ. ต่อภาษีรถ
-            </Button>
+              <Card.Img
+                variant="top"
+                src="/data/menu/flash&ไปรษณีย์ไทย.png"
+                alt="Print Admin"
+                className="menu-image-form"
+              />
+              <Card.Body className="pb-0 px-0">
+                <Card.Title className="compact-card-menu-form">
+                  <p className="responsive-label-menu-form m-0">
+                    แดชบอร์ดแอดมิน
+                    <br />
+                    ไปรษณีย์ไทย
+                  </p>
+                </Card.Title>
+              </Card.Body>
+            </Card>
           </Col>
 
-          <Col className="mb-2" xs={12}>
-            <Button
-              variant="success"
-              className="mb-3 w-75"
-              onClick={handleNavigateToPrintAdmin}
+          {/* แดชบอร์ดแอดมินพรบ. ต่อภาษีรถ */}
+          <Col xs={6} sm={4} md={4} lg={4}>
+            <Card
+              className="text-center compact-card-menu-form"
+              onClick={() => handleNavigateToFormAdmin()}
+              style={{ cursor: "pointer" }}
             >
-              แดชบอร์ดแอดมินปริ้นเอกสาร
-            </Button>
+              <Card.Img
+                variant="top"
+                src="/data/menu/prb.png" 
+                className="menu-image-form"
+              />
+              <Card.Body className="pb-0 px-0">
+                <Card.Title className="compact-card-menu-form">
+                  <p className="responsive-label-menu-form m-0">
+                    แดชบอร์ดแอดมิน
+                    <br />
+                    พรบ. ต่อภาษีรถ
+                  </p>
+                </Card.Title>
+              </Card.Body>
+            </Card>
           </Col>
-          <Col className="mb-2" xs={12}>
-            <Button
-              variant="success"
-              className="mb-3 w-75"
-              onClick={handleNavigateToDeliveryAdmin}
+
+          {/* แดชบอร์ดแอดมินส่งรถส่งของกลับบ้าน */}
+          <Col xs={6} sm={4} md={4} lg={4}>
+            <Card
+              className="text-center compact-card-menu-form"
+              onClick={() => handleNavigateToTransportAdmin()}
+              style={{ cursor: "pointer" }}
             >
-              แดชบอร์ดแอดมินส่งรถส่งของกลับบ้าน แฟลชและไปรษณีย์
-            </Button>
+              <Card.Img
+                variant="top"
+                src="/data/menu/delivery.png" 
+                alt="Delivery Admin"
+                className="menu-image-form"
+              />
+              <Card.Body className="pb-0 px-0">
+                <Card.Title className="compact-card-menu-form">
+                  <p className="responsive-label-menu-form m-0">
+                    แดชบอร์ดแอดมิน
+                    <br />
+                    ส่งรถส่งของกลับบ้าน
+                  </p>
+                </Card.Title>
+              </Card.Body>
+            </Card>
           </Col>
-          <Col className="mb-2" xs={12}>
-            <Button
-              variant="success"
-              className="mb-3 w-75"
-              onClick={handleNavigateToInsuranceAdmin}
+
+          {/* แดชบอร์ดแอดมินประกันภัย */}
+          <Col xs={6} sm={4} md={4} lg={4}>
+            <Card
+              className="text-center compact-card-menu-form"
+              onClick={() => handleNavigateToInsuranceAdmin()}
+              style={{ cursor: "pointer" }}
             >
-              แดชบอร์ดแอดมินประกันภัย ป1 ป2 ป3 ป4 ป5
-            </Button>
+              <Card.Img
+                variant="top"
+                src="/data/menu/insurance.png" // รูปไอคอนสำหรับประกันภัย
+                alt="Insurance Admin"
+                className="menu-image-form"
+              />
+              <Card.Body className="pb-0 px-0">
+                <Card.Title className="compact-card-menu-form">
+                  <p className="responsive-label-menu-form m-0">
+                    แดชบอร์ดแอดมิน
+                    <br />
+                    ประกันภัย ป1-ป5
+                  </p>
+                </Card.Title>
+              </Card.Body>
+            </Card>
           </Col>
         </Row>
       </Modal.Body>
-      <Button
-        variant="outline-danger"
-        className="mx-auto w-50 mt-0"
-        onClick={() => {
-          if (window.confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-            logout();
-          }
-        }}
-      >
-        ออกจากระบบ
-      </Button>
-      ;
+      <Modal.Footer>
+        <Row className="w-100 text-center">
+          <Col xs={12}>
+            <Button
+             variant="outline-danger"
+               className="mx-auto w-50 mt-0"
+              onClick={() => {
+                if (window.confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                  logout();
+                }
+              }}
+            >
+              ออกจากระบบ
+            </Button>
+          </Col>
+        </Row>
+      </Modal.Footer>
     </Modal>
   );
 };

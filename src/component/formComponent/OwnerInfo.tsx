@@ -77,22 +77,22 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
       const idCardPattern = /^\d{13}$/; // ID card pattern
       invalid = value.length > 0 && !idCardPattern.test(value);
 
-      if (!invalid) {
-        // ตรวจสอบการคำนวณเลขหลักที่ 13
-        const idArray = value.split("").map(Number); // แยกตัวเลขแต่ละหลัก
-        let sum = 0;
+      // if (!invalid) {
+      //   // ตรวจสอบการคำนวณเลขหลักที่ 13
+      //   const idArray = value.split("").map(Number); // แยกตัวเลขแต่ละหลัก
+      //   let sum = 0;
 
-        for (let i = 0; i < 12; i++) {
-          sum += idArray[i] * (13 - i); // คูณเลขแต่ละหลักด้วยตำแหน่งที่สอดคล้อง
-        }
+      //   for (let i = 0; i < 12; i++) {
+      //     sum += idArray[i] * (13 - i); // คูณเลขแต่ละหลักด้วยตำแหน่งที่สอดคล้อง
+      //   }
 
-        const checkDigit = (11 - (sum % 11)) % 10; // คำนวณเลขตรวจสอบ (หลักที่ 13)
+      //   const checkDigit = (11 - (sum % 11)) % 10; // คำนวณเลขตรวจสอบ (หลักที่ 13)
 
-        // ตรวจสอบว่าเลขหลักที่ 13 ตรงกับเลขตรวจสอบหรือไม่
-        invalid = idArray[12] !== checkDigit;
-      }
+      //   // ตรวจสอบว่าเลขหลักที่ 13 ตรงกับเลขตรวจสอบหรือไม่
+      //   invalid = idArray[12] !== checkDigit;
+      // }
     } else if (selectedRadio === "หมายเลขพาสปอร์ตเจ้าของรถล่าสุด") {
-      const passportPattern = /^[A-Za-z0-9]{6,12}$/; 
+      const passportPattern = /^[A-Za-z0-9]{6,12}$/;
       invalid = value.length > 0 && !passportPattern.test(value);
     }
 
@@ -144,7 +144,11 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
               }
               id="ownerData"
               value={ownerData}
-              type="numeric"
+              type={
+                selectedRadio === "หมายเลขบัตรประชาชนเจ้าของรถล่าสุด"
+                  ? "numeric"
+                  : "text"
+              }
               onChange={handleOwnerInfoChange}
               isInvalid={isInvalidOwnerInfo || isInvalid}
               alertText={

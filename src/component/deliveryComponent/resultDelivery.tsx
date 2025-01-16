@@ -88,6 +88,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
   const [modalMessage, setModalMessage] = useState<ReactNode>(null);
   const [success, setSuccess] = useState(false);
 
+  //resultDelivery.tsx
   const handleConfirm = async () => {
     setIsSubmitting(true);
     try {
@@ -112,7 +113,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
       formData.append("selectDeliveryType", deliveryType);
 
       const response = await fetch(
-        "https://api.mittaemaefahlung88.com/upload-multiple",
+        "http://localhost:3000/upload-multiple",
         {
           method: "POST",
           body: formData,
@@ -127,28 +128,19 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
 
       const responseData = await response.json();
 
-      // ตรวจสอบ response สำหรับไฟล์ที่จำเป็น
-      if (!responseData.delivery?.passportOrIDnumberFile) {
-        throw new Error(
-          "Response data missing required passportOrIDnumberFile"
-        );
-      }
-
-      const passportOrIDnumberFilePath =
-        responseData.delivery.passportOrIDnumberFile.filePath;
-
-      // ตรวจสอบไฟล์ที่เกี่ยวข้องกับการส่งรถกลับบ้าน
-      const registrationBookFileDelivery =
-        deliveryType === "ส่งรถกลับบ้าน"
-          ? responseData.delivery?.registrationBookFileDelivery || null
+      const getFileData = (
+        key: string
+      ): { storedFileName: string | null; filePath: string | null } | null => {
+        const file = responseData.delivery?.[key];
+        return file
+          ? {
+              storedFileName: file.storedFileName || null,
+              filePath: file.filePath || null,
+            }
           : null;
+      };
 
-      const licenseFileDelivery =
-        deliveryType === "ส่งรถกลับบ้าน"
-          ? responseData.delivery?.licenseFileDelivery || null
-          : null;
-
-      const uploadTime = dayjs().toISOString(); // เก็บเป็นรูปแบบ ISO 8601 เช่น 2024-04-27T10:38:00Z
+      const uploadTime = dayjs().toISOString();
 
       // สร้างข้อมูลสำหรับ Firestore
       const data = {
@@ -165,7 +157,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
           district: senderInfo.district,
           province: senderInfo.province,
           postalCode: senderInfo.postalCode,
-          passportOrIDnumberFilePath,
+          passportOrIDnumberFile: getFileData("passportOrIDnumberFile"),
         },
         receiverInfo: {
           username: receiverInfo.username,
@@ -185,12 +177,10 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
             ? {
                 carType: vehicleInfo.carType,
                 ccSize: vehicleInfo.ccSize,
-                registrationBookFilePath: registrationBookFileDelivery
-                  ? registrationBookFileDelivery.filePath
-                  : null,
-                idCardFilePath: licenseFileDelivery
-                  ? licenseFileDelivery.filePath
-                  : null,
+                registrationBookFileDelivery: getFileData(
+                  "registrationBookFileDelivery"
+                ),
+                licenseFileDelivery: getFileData("licenseFileDelivery"),
               }
             : null,
         deliveryCost: deliveryCost || 0,
@@ -209,7 +199,76 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
           </p>
         </div>
       );
+
+      const passportOrIDnumberFileData = getFileData("passportOrIDnumberFile");
+
+      const imageMessages = [];
+
+      // เพิ่มภาพจาก passportOrIDnumberFileTransport
+      if (passportOrIDnumberFileData?.filePath) {
+        imageMessages.push({
+          type: "image",
+          originalContentUrl: passportOrIDnumberFileData.filePath,
+          previewImageUrl: passportOrIDnumberFileData.filePath,
+        });
+      }
+
+      const message = [
+        {
+          type: "text",
+          text: `
+        🚛 รายละเอียดการส่ง:
+        👤 ผู้ส่ง: ${senderInfo.username}
+        📞 เบอร์ติดต่อ: ${senderInfo.contactNumber}
+        ${
+          senderInfo.ownerData.includes("@") ? "พาสปอร์ต" : "เลขบัตรประชาชน"
+        }: ${senderInfo.ownerData}
+        📍 บ้านเลขที่: ${senderInfo.houseNo}, หมู่: ${
+            senderInfo.villageNo
+          }, ซอย: ${senderInfo.soi}, ตำบล/แขวง: ${
+            senderInfo.subDistrict
+          }, อำเภอ/เขต: ${senderInfo.district}, จังหวัด: ${
+            senderInfo.province
+          }, รหัสไปรษณีย์: ${senderInfo.postalCode}
+        
+        👤 ผู้รับ: ${receiverInfo.username}
+        📞 เบอร์ติดต่อ: ${receiverInfo.contactNumber}
+        📍 บ้านเลขที่: ${receiverInfo.houseNo}, หมู่: ${
+            receiverInfo.villageNo
+          }, ซอย: ${receiverInfo.soi}, ตำบล/แขวง: ${
+            receiverInfo.subDistrict
+          }, อำเภอ/เขต: ${receiverInfo.district}, จังหวัด: ${
+            receiverInfo.province
+          }, รหัสไปรษณีย์: ${receiverInfo.postalCode}`,
+        },
+        ...imageMessages,
+      ];
+
+      // เรียก /webhook เพื่อส่ง message
+      const webhookResponse = await fetch(
+        "http://localhost:3000/webhook",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "Delivery",
+            message, // ส่งข้อความที่สร้างไว้ไปยังเซิร์ฟเวอร์
+            userId: "LINE_USER_ID", // แทนที่ด้วย userId ที่ต้องการ
+          }),
+        }
+      );
+
+      if (!webhookResponse.ok) {
+        throw new Error("Failed to send message to webhook");
+      }
+
+      console.log("Webhook message sent successfully");
+
       setSuccess(true);
+      {
+        /* ส่วนที่ส่งข้อความแจ้งข้อมูลรายละเอียดของผู้ส่งและผู้รับต่างๆ ที่แจ้งเหมือนใน Form พร้อมส่งรูปที่ดึงมาจากที่ผู้ใช้ส่งในเว็บของผมผ่าน Node.js ใน server.ts และแปลง locationTransport ที่มี latitude และ
+          longitude ให้มันเป็น google map ที่กดไปแล้วเป็นพิกัดที่หมุดในนั้นเลยเพื่อให้คนส่งของใช้เพื่อส่งของ */
+      }
     } catch (error) {
       console.error("Error uploading file or saving data:", error);
       setModalMessage(
@@ -340,8 +399,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
           </Col>
 
           <p className="my-3">
-            <strong>รายละเอียดสิ่งของที่ส่ง:</strong>
-            {" "}
+            <strong>รายละเอียดสิ่งของที่ส่ง:</strong>{" "}
             {receiverInfo.packageDetail}
           </p>
         </Row>

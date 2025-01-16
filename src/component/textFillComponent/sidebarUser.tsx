@@ -1,24 +1,25 @@
 import React, { useState } from "react";
 import { Card, Col, Row, CloseButton } from "react-bootstrap";
 import { FaBars } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import useCustomNavigationBlocker from "../useNavigationBlocker";
 
 const SidebarUser: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
+  
+  const { NavigationBlockerModal, blockNavigation } = useCustomNavigationBlocker(true);
 
   const handleToggleSidebar = () => {
     setIsOpen(!isOpen);
   };
 
   const handleNavigate = (path: string) => {
-    navigate(path);
-    setIsOpen(false); // ปิด Sidebar เมื่อเปลี่ยนหน้า
+    blockNavigation(path); 
+    setIsOpen(false); 
   };
 
   return (
     <div>
-      
+      <NavigationBlockerModal />
       {/* Sidebar */}
       <div className={`sidebar-container ${isOpen ? "open" : ""}`}>
         <div className="sidebar-header  mb-0 ">
@@ -49,7 +50,7 @@ const SidebarUser: React.FC = () => {
         <hr />
         <Row className="g-3 ">
           {/* Drop Off Flash + SPX + ไปรษณีย์ไทย */}
-          <Col  sm={12}>
+          <Col sm={12}>
             <Card
               className=" text-center compact-card-menu"
               onClick={() => handleNavigate("/delivery")}
@@ -78,7 +79,7 @@ const SidebarUser: React.FC = () => {
           </Col>
 
           {/* พรบ. ต่อภาษีรถ */}
-          <Col  sm={12}>
+          <Col sm={12}>
             <Card
               className="text-center compact-card-menu"
               onClick={() => handleNavigate("/form")}
@@ -101,7 +102,7 @@ const SidebarUser: React.FC = () => {
           </Col>
 
           {/* ส่งของกลับบ้าน */}
-          <Col  sm={12}>
+          <Col sm={12}>
             <Card
               className="text-center compact-card-menu"
               onClick={() => handleNavigate("/transport")}
@@ -114,19 +115,19 @@ const SidebarUser: React.FC = () => {
                 className="menu-image"
               />
               {isOpen && (
-              <Card.Body className=" px-0">
-                <Card.Title className="responsive-label-menu text-center">
-                  <p className="px-1 m-0 ">
-                    ส่งรถ ส่งของกลับบ้าน <br /> หมา แมว ฯลฯ
-                  </p>
-                </Card.Title>
-              </Card.Body>
+                <Card.Body className=" px-0">
+                  <Card.Title className="responsive-label-menu text-center">
+                    <p className="px-1 m-0 ">
+                      ส่งรถ ส่งของกลับบ้าน <br /> หมา แมว ฯลฯ
+                    </p>
+                  </Card.Title>
+                </Card.Body>
               )}
             </Card>
           </Col>
 
           {/* พิกัดร้าน */}
-          <Col  sm={12}>
+          <Col sm={12}>
             <Card
               className="text-center compact-card-menu"
               onClick={() =>
@@ -144,17 +145,17 @@ const SidebarUser: React.FC = () => {
                 className="menu-image"
               />
               {isOpen && (
-              <Card.Body className=" px-1 m-0">
-                <Card.Title className="responsive-label-menu">
-                  พิกัดร้าน
-                </Card.Title>
-              </Card.Body>
+                <Card.Body className=" px-1 m-0">
+                  <Card.Title className="responsive-label-menu">
+                    พิกัดร้าน
+                  </Card.Title>
+                </Card.Body>
               )}
             </Card>
           </Col>
 
           {/* ติดต่อแอดมิน */}
-          <Col  sm={12}>
+          <Col sm={12}>
             <Card
               className="text-center compact-card-menu"
               onClick={() => handleNavigate("/print")}
@@ -167,17 +168,17 @@ const SidebarUser: React.FC = () => {
                 className="menu-image"
               />
               {isOpen && (
-              <Card.Body className=" px-1 m-0">
-                <Card.Title className="responsive-label-menu">
-                  ติดต่อแอดมิน
-                </Card.Title>
-              </Card.Body>
+                <Card.Body className=" px-1 m-0">
+                  <Card.Title className="responsive-label-menu">
+                    ติดต่อแอดมิน
+                  </Card.Title>
+                </Card.Body>
               )}
             </Card>
           </Col>
 
           {/* ประกันภัย */}
-          <Col  sm={12}>
+          <Col sm={12}>
             <Card
               className="text-center compact-card-menu"
               onClick={() => handleNavigate("/insurance")}
@@ -190,15 +191,15 @@ const SidebarUser: React.FC = () => {
                 className="menu-image"
               />
               {isOpen && (
-              <Card.Body className=" px-0">
-                <Card.Title className="responsive-label-menu">
-                  <p className="responsive-label-menu text-center px-1 m-0">
-                    ประกันภัย
-                    <br />
-                    ป1 ถึง ป5
-                  </p>
-                </Card.Title>
-              </Card.Body>
+                <Card.Body className=" px-0">
+                  <Card.Title className="responsive-label-menu">
+                    <p className="responsive-label-menu text-center px-1 m-0">
+                      ประกันภัย
+                      <br />
+                      ป1 ถึง ป5
+                    </p>
+                  </Card.Title>
+                </Card.Body>
               )}
             </Card>
           </Col>

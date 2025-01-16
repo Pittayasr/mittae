@@ -14,6 +14,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import FileInput from "./textFillComponent/fileInput";
 import ScrollToTopAndBottomButton from "./ScrollToTopAndBottomButton";
 import SidebarUser from "./textFillComponent/sidebarUser";
+import useNavigationBlocker from "./useNavigationBlocker";
 
 const FormComponent: React.FC = () => {
   const [usernameData, setUsernameData] = useState<string>("");
@@ -54,16 +55,15 @@ const FormComponent: React.FC = () => {
   const [isInvalidVehicleInfo, setIsInvalidVehicleInfo] = useState(false);
 
   const [validated, setValidated] = useState(false);
-  const [isFormValid, setIsFormValid] = useState(false); // สถานะสำหรับตรวจสอบความถูกต้องของฟอร์ม
-  const [showResult, setShowResult] = useState(false); // State สำหรับแสดงหน้าสรุป
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [showResult, setShowResult] = useState(false);
   const [showForm, setShowForm] = useState(true);
   const [showReadME, setShowReadME] = useState(true);
   const [CCorWeightLabel, setCCorWeightLabel] = useState<string>("");
 
-  useEffect(() => {
-    // setBikeTypeOrDoorCount(null); // รีเซ็ตเมื่อ selectedCarType เปลี่ยน
-    console.log("registrationDate:", registrationDate);
+  const { NavigationBlockerModal } = useNavigationBlocker(true);
 
+  useEffect(() => {
     if (registrationDate) {
       const age = calculateCarAge(registrationDate);
       setCarAge(age);
@@ -319,14 +319,14 @@ const FormComponent: React.FC = () => {
   };
 
   return (
-    <body>
+    <div>
       <Row>
         <Col lg={1} md={2} xl={1}>
           <aside className="d-flex justify-content-center">
             <SidebarUser />
           </aside>
         </Col>
-        <Col  lg={11} md={10}  xl={11}>
+        <Col lg={11} md={10} xl={11}>
           <div className="form-container mx-auto ">
             {showReadME ? (
               <ReadMe onAgree={handleNextPage} />
@@ -510,7 +510,8 @@ const FormComponent: React.FC = () => {
           </div>
         </Col>
       </Row>
-    </body>
+      <NavigationBlockerModal />
+    </div>
   );
 };
 

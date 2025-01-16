@@ -21,6 +21,13 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "firebaseConfig.ts", "src/data/utils.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "firebaseConfig.ts",
+    "googleMapsConfig.ts",
+    "hereMapsConfig.ts",
+    "src/data/utils.ts"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -84,6 +84,8 @@ const TextSelect: React.FC<TextSelectProps> = ({
   ) => {
     const selectedValue = selectedOption ? String(selectedOption.value) : null; // แปลงเป็น string
     onChange(selectedValue);
+
+    
   };
 
   return (

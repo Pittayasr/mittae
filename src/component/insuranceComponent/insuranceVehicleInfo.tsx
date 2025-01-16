@@ -203,6 +203,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                 hasTouchedEngineSize && !validateEngineSize(engineSize)
               }
               alertText="กรุณาระบุขนาดเครื่องยนต์เป็นตัวเลขเท่านั้น"
+              type="numeric"
             />
           </Col>
           <Col className="mb-3" md={4} sm={6} xs={12}>
@@ -217,6 +218,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               }}
               isInvalid={hasTouchedYear && !validateYear(vehicleYear)}
               alertText="กรุณาระบุปีรถเป็นตัวเลข 4 หลัก (เช่น 2567)"
+              type="numeric"
             />
           </Col>
           <Col className="mb-3" md={4} sm={6} xs={12}>

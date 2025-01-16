@@ -74,7 +74,9 @@ const DateSection: React.FC<DateSectionProps> = ({
         className="date-idNo-carType-Input mb-4"
         xs={12}
         sm={6}
-        md={daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 4}
+        md={
+          daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 4
+        }
       >
         {/* <div className="responsive-label d-flex justify-content-between align-items-center mb-1">
           <span className=" mb-1">วันที่จดทะเบียน</span>
@@ -96,12 +98,40 @@ const DateSection: React.FC<DateSectionProps> = ({
         {/* <span>อายุรถ: {carAge.years} ปี {carAge.months} เดือน {carAge.days} วัน</span> */}
       </Col>
 
+      {/* วันต่อภาษีล่าสุด */}
+      <Col
+        className="date-idNo-carType-Input mb-4"
+        xs={12}
+        sm={
+          daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 12
+        }
+        md={
+          daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 4
+        }
+      >
+        {/* <div
+          className="responsive-label d-flex justify-content-between align-items-center "
+          style={{ paddingBottom: "10px" }}
+        >
+          <span className="mb-0">วันต่อภาษีล่าสุด</span>
+        </div> */}
+        <DateInput
+          label="วันต่อภาษีล่าสุด"
+          imgPath=""
+          onDateChange={(date) => handleDateChange(date, "latestTaxPayment")}
+          value={latestTaxPaymentDate} // Directly use latestTaxPaymentDate as Dayjs
+          isInvalid={isInvalid}
+          alertText="กรุณาเลือกวันต่อภาษีล่าสุด"
+        />
+      </Col>
       {/* วันสิ้นอายุ */}
       <Col
         className="date-idNo-carType-Input mb-4"
         xs={12}
         sm={6}
-        md={daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 4}
+        md={
+          daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 4
+        }
       >
         {/* <div className="responsive-label d-flex justify-content-between align-items-center mb-1">
           <span className="mb-1">วันสิ้นอายุ</span>
@@ -120,33 +150,18 @@ const DateSection: React.FC<DateSectionProps> = ({
         />
       </Col>
 
-      {/* วันต่อภาษีล่าสุด */}
-      <Col
-        className="date-idNo-carType-Input mb-4"
-        xs={12}
-        sm={daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 12}
-        md={daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 4}
-      >
-        {/* <div
-          className="responsive-label d-flex justify-content-between align-items-center "
-          style={{ paddingBottom: "10px" }}
-        >
-          <span className="mb-0">วันต่อภาษีล่าสุด</span>
-        </div> */}
-        <DateInput
-          label="วันต่อภาษีล่าสุด"
-          imgPath=""
-          onDateChange={(date) => handleDateChange(date, "latestTaxPayment")}
-          value={latestTaxPaymentDate} // Directly use latestTaxPaymentDate as Dayjs
-          isInvalid={isInvalid}
-          alertText="กรุณาเลือกวันต่อภาษีล่าสุด"
-        />
-      </Col>
       {/* การขาดการชำระ */}
       {daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 && (
-        <Col md={daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 4} sm={6} xs={12} className="mb-3">
+        <Col
+          md={
+            daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 4
+          }
+          sm={6}
+          xs={12}
+          className="mb-3"
+        >
           <TextSelect
-            label="เคยขาดชำระภาษีหรือไม่"
+            label="เคยขาดจ่ายชำระภาษีหรือไม่"
             id="insuranceType"
             options={missedPaymentOptions}
             value={missedTaxPayment}

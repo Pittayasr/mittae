@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Dropdown, Form, Row, Col } from "react-bootstrap";
-import Calendar, { CalendarProps } from "react-calendar";
+import { Modal, Form, Button } from "react-bootstrap";
+import { ThaiDatePicker } from "thaidatepicker-react";
 import ImageModal from "./Imagemodal";
-import "react-calendar/dist/Calendar.css";
+import { CiCalendar } from "react-icons/ci";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/th";
 
@@ -12,7 +12,7 @@ interface DateInputProps {
   isInvalid?: boolean;
   alertText?: string;
   label: string;
-  imgPath?: string | null; // Allow null or undefined
+  imgPath?: string | null;
 }
 
 const DateInput: React.FC<DateInputProps> = ({
@@ -23,13 +23,13 @@ const DateInput: React.FC<DateInputProps> = ({
   imgPath,
   label,
 }) => {
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-  const handleDateChange: CalendarProps["onChange"] = (value) => {
-    if (value instanceof Date) {
-      const dayjsDate = dayjs(value); // ไม่เพิ่ม 543 ปี
-      onDateChange(dayjsDate);
-      setShowDropdown(false);
+  const handleDateChange = (selectedDate: string) => {
+    if (selectedDate) {
+      const parsedDate = dayjs(selectedDate, "YYYY-MM-DD"); // ใช้รูปแบบปี ค.ศ.
+      onDateChange(parsedDate);
+      setShowModal(false);
     }
   };
 
@@ -41,58 +41,89 @@ const DateInput: React.FC<DateInputProps> = ({
           <ImageModal imageUrl={imgPath} buttonText="ดูรูปตัวอย่าง" />
         )}
       </div>
-      <Dropdown
-        show={showDropdown}
-        onToggle={(isOpen) => setShowDropdown(isOpen)}
+      <div
+        onClick={() => setShowModal(true)}
+        style={{
+          width: "100%",
+          padding: "7px 12px",
+          borderColor: isInvalid ? "red" : "#d9d9d9",
+          borderRadius: "8px",
+          fontFamily: "Noto Sans Thai, sans-serif",
+          cursor: "pointer",
+          backgroundColor: "#fff",
+          border: "1px solid #d9d9d9",
+          outline: "none",
+          textAlign: "left",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
       >
-        <Dropdown.Toggle
-          id="date-input"
-          as="div"
-          style={{
-            width: "100%",
-            padding: "7px 12px",
-            borderColor: isInvalid ? "red" : "#d9d9d9",
-            borderRadius: "8px",
-            fontFamily: "Noto Sans Thai, sans-serif",
-            cursor: "pointer",
-            backgroundColor: "#fff",
-            border: "1px solid #d9d9d9",
-            outline: "none",
-            textAlign: "left",
-          }}
-        >
+        <span className="d-flex align-items-center">
+          <CiCalendar size={25} style={{ padding: "0px 5px 0px 0px" }} />
           {value
             ? value.add(543, "year").format("D MMMM พ.ศ. YYYY")
             : "วัน เดือน ปี พ.ศ."}
-        </Dropdown.Toggle>
+        </span>
+      </div>
 
-        <Dropdown.Menu align="start" className="dropdown-dateInput">
-          <Row>
-            {imgPath && (
-              <Col className="text-center p-0">
-                <img
-                  src={imgPath}
-                  alt="Example"
-                  style={{
-                    maxWidth: "300px",
-                    borderRadius: "5px",
-                    marginBottom: "15px",
-                  }}
-                />
-              </Col>
-            )}
-            <Col className="p-0">
-              <Calendar
-                onChange={handleDateChange}
-                value={value ? value.toDate() : null} // ใช้ค่าปี ค.ศ. ภายใน Calendar
-                locale="th-TH"
-                calendarType="iso8601"
-                className="calendar-content"
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered className="dropdown-dateInput">
+        <Modal.Header closeButton>
+          <Modal.Title>เลือกวันที่</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="px-2">
+          {imgPath && (
+            <div className="text-center mb-3">
+              <img
+                src={imgPath}
+                alt="Example"
+                style={{
+                  maxWidth: "280px",
+                  borderRadius: "5px",
+                  marginBottom: "15px",
+                }}
               />
-            </Col>
-          </Row>
-        </Dropdown.Menu>
-      </Dropdown>
+            </div>
+          )}
+          <div className="d-flex justify-content-center">
+            <ThaiDatePicker
+              value={value ? value.format("YYYY-MM-DD") : ""}
+              onChange={handleDateChange}
+              header={{
+                prevButtonIcon: <span>&lt;</span>,
+                nextButtonIcon: <span>&gt;</span>,
+                prevButtonClassName: "custom-prev-btn",
+                nextButtonClassName: "custom-next-btn",
+                monthSelectClassName: "custom-month-btn px-1",
+                yearSelectClassName: "custom-year-btn px-1 ",
+              }}
+              inputProps={{
+                style: {
+                  backgroundColor: "#f0fdf4",
+                  border: "1px solid #28a745",
+                  borderRadius: "8px",
+                  padding: "5px",
+                  maxWidth: "100%",
+                  cursor: "pointer",
+                  textAlign: "center",
+                },
+                readOnly: true,
+                value: "",
+              }}
+              reactDatePickerProps={{
+                inline: true,
+              }}
+              placeholder="เลือกวันที่"
+              clearable={false}
+            />
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            ปิด
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {isInvalid && (
         <p style={{ color: "red", fontSize: "14px", marginTop: "5px" }}>
