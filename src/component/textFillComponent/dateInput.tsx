@@ -69,7 +69,7 @@ const DateInput: React.FC<DateInputProps> = ({
 
       <Modal show={showModal} onHide={() => setShowModal(false)} centered className="dropdown-dateInput">
         <Modal.Header closeButton>
-          <Modal.Title>เลือกวันที่</Modal.Title>
+          <Modal.Title>เลือก{label}</Modal.Title>
         </Modal.Header>
         <Modal.Body className="px-2">
           {imgPath && (

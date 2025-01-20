@@ -237,9 +237,9 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
     /^(?![่-๋])[เ-ไก-ฮa-zA-Z0-9]{1}[\u0E01-\u0E4C\u0E4E-\u0E4F\u0E30-\u0E3Aเ-ไก-ฮa-zA-Z0-9\s\-/]*$/;
   const soiPattern =
     /^(?![่-๋])[เ-ไก-ฮa-zA-Z0-9]{1}[\u0E01-\u0E4C\u0E4E-\u0E4F\u0E30-\u0E3Aเ-ไก-ฮa-zA-Z0-9\s\-/]*$/;
-  const houseNoPattern = /^[เ-ไก-ฮa-zA-Z0-9\-/]+$/;
-  const villageNoPattern = /^\d{1,10}$/;
-  const PostalCode = /^\d{5,5}$/;
+  const houseNoPattern = /^[ก-ฮa-zA-Z0-9\-/]+$/;
+  const villageNoPattern = /^[ก-ฮa-zA-Z0-9\-/]{1,10}$/;
+  const PostalCode = /^\d{5,10}$/;
   // const namePattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z\s]*$/;
 
   // ฟังก์ชั่นสำหรับ handle การกรอกข้อมูลและการ validation

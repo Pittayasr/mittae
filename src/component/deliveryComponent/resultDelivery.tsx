@@ -113,7 +113,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
       formData.append("selectDeliveryType", deliveryType);
 
       const response = await fetch(
-        "http://localhost:3000/upload-multiple",
+        "https://api.mittaemaefahlung88.com/upload-multiple",
         {
           method: "POST",
           body: formData,
@@ -246,7 +246,7 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
 
       // เรียก /webhook เพื่อส่ง message
       const webhookResponse = await fetch(
-        "http://localhost:3000/webhook",
+        "https://api.mittaemaefahlung88.com/webhook",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -259,6 +259,8 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
       );
 
       if (!webhookResponse.ok) {
+        const errorDetails = await webhookResponse.text(); // Log full error response
+        console.error("Webhook Response Error:", errorDetails);
         throw new Error("Failed to send message to webhook");
       }
 

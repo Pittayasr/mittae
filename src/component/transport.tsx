@@ -167,7 +167,8 @@ const TransportForm: React.FC = () => {
         selectedProvinceReceiver &&
         // packageDetail
         selectDeliveryType &&
-        (selectDeliveryType !== "ส่งรถกลับบ้าน" || isCarDeliveryValid)
+        (selectDeliveryType !== "ส่งรถกลับบ้าน" || isCarDeliveryValid) &&
+        transportLocation
       ) &&
       isInvalidUserInfo &&
       !isInvalidPackageDetail &&
@@ -228,6 +229,7 @@ const TransportForm: React.FC = () => {
     isInvalidAddress,
     isInvalidOwnerInfo,
     isInvalidUserInfo,
+    transportLocation,
     // selectedProvinceNameSender,
     // selectedDistrictNameSender,
     // selectedSubDistrictNameSender,
@@ -345,7 +347,7 @@ const TransportForm: React.FC = () => {
   };
 
   const handlePackageDetailInputChange = (value: string) => {
-    const namePattern = /^(?![่-๋])[เ-ไก-ฮ]{1}[ก-ฮะ-์A-Za-z\s]*$/;
+    const namePattern = /^(?![่-๋])[เ-ไก-ฮA-Za-z0-9]{1}[ก-ฮะ-์A-Za-z0-9/\s]*$/;
     const invalid = value.length > 0 && !namePattern.test(value);
 
     setPackageDetail(value);
@@ -603,18 +605,21 @@ const TransportForm: React.FC = () => {
                       />
                     </Col>
                   </Row>
-                  <div className="mb-3">
-                    <p>เลือกพิกัดที่จะส่ง</p>
-                    <MapModal
-                      onConfirm={(coordinates) => {
-                        const locationString = `${coordinates.lat},${coordinates.lng}`;
-                        setTransportLocation(locationString);
-                        console.log("Selected Coordinates: ", coordinates);
-                        alert(`พิกัดที่เลือก: ${locationString}`);
-                      }}
-                      initialAddress={`${dormitoryReceiver} ${houseNoReceiver} ${soiReceiver} ${villageNoReceiver} ${selectedSubDistrictNameReceiver} ${selectedDistrictNameReceiver} ${selectedProvinceNameReceiver} ${postalCodeReceiver}`}
-                    />
-                  </div>
+                  {selectDeliveryType && (
+                    <div className="mb-3">
+                      <p>เลือกพิกัดที่จะส่ง</p>
+                      <MapModal
+                        onConfirm={(coordinates) => {
+                          const locationString = `${coordinates.lat},${coordinates.lng}`;
+                          setTransportLocation(locationString);
+                          console.log("Selected Coordinates: ", coordinates);
+                          alert(`พิกัดที่เลือก: ${locationString}`);
+                        }}
+                        initialAddress={`${dormitoryReceiver} ${houseNoReceiver} ${soiReceiver} ${villageNoReceiver} ${selectedSubDistrictNameReceiver} ${selectedDistrictNameReceiver} ${selectedProvinceNameReceiver} ${postalCodeReceiver}`}
+                      />
+                    </div>
+                  )}
+
                   {selectDeliveryType == "ส่งรถกลับบ้าน" && (
                     <Row>
                       <Col
@@ -720,8 +725,6 @@ const TransportForm: React.FC = () => {
                     </Form.Control.Feedback>
                   </div>
 
-                  
-
                   <hr className="my-4" />
                   <footer>
                     {!isFormReceiverValid && (
@@ -731,7 +734,7 @@ const TransportForm: React.FC = () => {
                       >
                         <i className="fas fa-exclamation-triangle me-2"></i>
                         <span>
-                          กรุณากรอกข้อมูลและรูปภาพให้ครบถ้วนและถูกต้อง
+                          กรุณากรอกข้อมูล รูปภาพ พิกัดส่งของให้ครบถ้วนและถูกต้อง
                         </span>
                       </Alert>
                     )}

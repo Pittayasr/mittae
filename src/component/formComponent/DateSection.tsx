@@ -102,9 +102,7 @@ const DateSection: React.FC<DateSectionProps> = ({
       <Col
         className="date-idNo-carType-Input mb-4"
         xs={12}
-        sm={
-          daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 12
-        }
+        sm={6}
         md={
           daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 4
         }
@@ -128,7 +126,7 @@ const DateSection: React.FC<DateSectionProps> = ({
       <Col
         className="date-idNo-carType-Input mb-4"
         xs={12}
-        sm={6}
+        sm={daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 12}
         md={
           daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 4
         }

@@ -1,6 +1,7 @@
 // server.ts
 import express from "express";
 import cors from "cors";
+import sharp from "sharp";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -21,20 +22,47 @@ const UPLOADS_DIR = process.env.UPLOADS_DIRECTORY || "uploads";
 const LINE_API_URL = "https://api.line.me/v2/bot/message/push";
 const LINE_CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 
+app.options("*", cors()); // Allow preflight requests
+
 // เปิดใช้งาน CORS
 app.use(
   cors({
-    origin: [
-      "https://www.mittaemaefahlung88.com",
-      "https://api.mittaemaefahlung88.com",
-      "http://localhost:3000/",
-      "http://localhost:5173",
-    ],
+    origin: (origin, callback) => {
+      console.log("Request origin:", origin); // Debug origin
+      callback(null, true); // อนุญาตทุก origin
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type"],
   })
 );
+
 app.use(express.json());
+
+const resizeImage = async (
+  filePath: string,
+  width: number = 800
+): Promise<void> => {
+  try {
+    await sharp(filePath)
+      .resize({ width }) 
+      .toFile(filePath); 
+  } catch (error) {
+    console.error("Error resizing image:", error);
+    throw error;
+  }
+};
+
+const resizeAllImages = async (files: { [fieldname: string]: Express.Multer.File[] }) => {
+  const promises = [];
+  for (const fieldName in files) {
+    for (const file of files[fieldName]) {
+      console.log(`Resizing file: ${file.path}`);
+      promises.push(resizeImage(file.path)); 
+    }
+  }
+  await Promise.all(promises); 
+};
+
 
 // server.ts
 const storage = multer.diskStorage({
@@ -151,6 +179,7 @@ const storage = multer.diskStorage({
     const randomSuffix = Math.floor(1000 + Math.random() * 9000); // สุ่มตัวเลข 4 หลัก
     const ext = path.extname(file.originalname);
     const randomFileName = `${formattedDate}_${randomSuffix}${ext}`;
+
     cb(null, randomFileName);
   },
 });
@@ -247,10 +276,7 @@ app.post(
     { name: "voluntaryInsuranceHouseFile", maxCount: 1 },
     { name: "noIDcardFile", maxCount: 1 },
   ]),
-  (req, res) => {
-    console.log("Request files:", req.files);
-    console.log("Request body:", req.body);
-
+  async (req, res) => {
     try {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       const body = req.body;
@@ -289,6 +315,8 @@ app.post(
       const voluntaryInsuranceHouseFile =
         files["voluntaryInsuranceHouseFile"]?.[0];
       const noIDcardFile = files["noIDcardFile"]?.[0];
+
+      
 
       // Delivery Validation
       if (body.type === "Delivery") {
@@ -378,6 +406,9 @@ app.post(
           }
         }
       }
+
+      // Resize ทุกไฟล์ที่อัปโหลด
+      await resizeAllImages(files);
 
       // Generate print file paths
       const printFilePath = printFile
@@ -652,7 +683,10 @@ app.post(
 
 app.post("/webhook", async (req, res) => {
   try {
-    const { type, message, userId, destination, events } = req.body;
+    console.log("Received request at /webhook");
+    console.log("Headers:", req.headers); // ดู headers ทั้งหมด
+    console.log("Body:", JSON.stringify(req.body, null, 2));
+    const { type, message, userId, events } = req.body;
 
     // Handle Push Message
     if (type && message && userId) {
@@ -662,12 +696,14 @@ app.post("/webhook", async (req, res) => {
         Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`,
       };
 
+      console.log("heraders: ", headers);
+
       const body = {
         to: userId,
         messages: message,
       };
 
-      const response = await fetch("https://api.line.me/v2/bot/message/push", {
+      const response = await fetch(LINE_API_URL, {
         method: "POST",
         headers,
         body: JSON.stringify(body),

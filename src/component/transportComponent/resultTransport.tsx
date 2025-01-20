@@ -65,6 +65,8 @@ const ResultTransport: React.FC<ResultTransportProps> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [isError, setIsError] = useState(false);
+
   const deliveryCost =
     vehicleInfo && deliveryType === "ส่งรถกลับบ้าน"
       ? calculateDelivery(receiverInfo.province, vehicleInfo.ccSize)
@@ -116,10 +118,13 @@ const ResultTransport: React.FC<ResultTransportProps> = ({
       formData.append("type", "Transport");
       formData.append("selectTransportType", deliveryType);
 
-      const response = await fetch("http://localhost:3000/upload-multiple", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://api.mittaemaefahlung88.com/upload-multiple",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -221,6 +226,12 @@ const ResultTransport: React.FC<ResultTransportProps> = ({
       );
       const licenseFileData = getFileData("licenseFileTransport");
 
+      console.log("Generated File Data:", {
+        passportOrIDnumberFileData,
+        registrationBookFileData,
+        licenseFileData,
+      });
+
       const imageMessages = [];
 
       // เพิ่มภาพจาก passportOrIDnumberFileTransport
@@ -290,7 +301,7 @@ const ResultTransport: React.FC<ResultTransportProps> = ({
         }
             `.trim(),
         },
-        ...imageMessages,
+        ...imageMessages,//ตรงส่วนที่ผมตัดออกแล้วใช้ได้ครับ
         {
           type: "location",
           title: "ตำแหน่งจัดส่ง",
@@ -300,17 +311,21 @@ const ResultTransport: React.FC<ResultTransportProps> = ({
         },
       ];
 
+      const payload = {
+        type: "Transport",
+        message,
+        userId: "U0b52a337f94b31b123ae9410138212fd",
+      };
+
+      console.log("Payload being sent to /webhook:", payload);
+
       // เรียก /webhook เพื่อส่ง message
       const webhookResponse = await fetch(
-        "https://7b13-2403-6200-88a1-5a1b-19c4-9e9b-aaa4-6842.ngrok-free.app/webhook",
+        "https://api.mittaemaefahlung88.com/webhook",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            type: "Transport",
-            message,
-            userId: "U0b52a337f94b31b123ae9410138212fd",
-          }),
+          body: JSON.stringify(payload),
         }
       );
 
@@ -322,6 +337,7 @@ const ResultTransport: React.FC<ResultTransportProps> = ({
       setSuccess(true);
     } catch (error) {
       console.error("Error uploading file or saving data:", error);
+      setIsError(true);
       setModalMessage(
         <div className="d-flex flex-column align-items-center text-center">
           <VscError className="text-danger my-3" size={50} />
@@ -529,23 +545,27 @@ const ResultTransport: React.FC<ResultTransportProps> = ({
         <AlertModal
           show={showModal}
           onBack={() => {
+            setIsError(false);
             setShowModal(false);
           }}
           onSuccess={() => {
             window.location.reload();
             onBack();
             setShowModal(false);
+            setIsError(false);
           }}
           onConfirm={
             success
               ? () => {
                   onBack();
                   setShowModal(false);
+                  setIsError(false);
                 }
               : handleConfirm
           }
           message={modalMessage}
           success={success}
+          isError={isError}
         />
       </Form>
       {/* Modal แสดงตัวอย่างไฟล์ */}
