@@ -370,7 +370,11 @@ const Delivery: React.FC = () => {
                   <h2 className="text-center mb-4 text-success">
                     Drop off Flash + SPX ไปรษณีย์ไทย
                   </h2>
-                  <h4 className="mb-4 text-success">ข้อมูลผู้ส่ง:</h4>
+                  <small className="text-danger">
+                    * ระบุว่าจำเป็นต้องกรอกข้อมูล
+                  </small>
+                  <h4 className="my-4 text-success">ข้อมูลผู้ส่ง:</h4>
+
                   <Row>
                     <Col>
                       <DeliveryUserInfo
@@ -399,6 +403,7 @@ const Delivery: React.FC = () => {
                         onChange={handleRadioChange}
                         isInvalid={validated} // จะเป็น true เมื่อไม่มีการเลือกค่า
                         alertText="กรุณาเลือกประเภทข้อมูลเจ้าของรถ" // ข้อความแจ้งเตือน
+                        required
                       />
                     </Col>
                     {/* ช่องกรอกตามประเภทข้อมูลของเจ้าของรถล่าสุด */}
@@ -428,7 +433,6 @@ const Delivery: React.FC = () => {
                             }
                             id="ownerData"
                             value={ownerData}
-                            type="numeric"
                             onChange={handleOwnerInfoChange}
                             isInvalid={isInvalidOwnerInfo}
                             alertText={
@@ -517,7 +521,9 @@ const Delivery: React.FC = () => {
                       >
                         <i className="fas fa-exclamation-triangle me-2"></i>
                         <span>
-                          กรุณากรอกข้อมูลและรูปภาพให้ครบถ้วนและถูกต้อง
+                          กรุณากรอกข้อมูล
+                          {!selectedFile ? "และรูปภาพ" : ""}
+                          ให้ครบถ้วนและถูกต้อง
                         </span>
                       </Alert>
                     )}
@@ -541,7 +547,11 @@ const Delivery: React.FC = () => {
                   <h2 className="text-center mb-4 text-success">
                     Drop off Flash + SPX ไปรษณีย์ไทย
                   </h2>
-                  <h4 className=" mb-4 text-success">ข้อมูลผู้รับ:</h4>
+                  <small className="text-danger">
+                    * ระบุว่าจำเป็นต้องกรอกข้อมูล
+                  </small>
+                  <h4 className="my-4 text-success">ข้อมูลผู้รับ:</h4>
+
                   <DeliveryUserInfo
                     isInvalid={validated}
                     username={usernameReceiver}
@@ -650,7 +660,7 @@ const Delivery: React.FC = () => {
                         xl={6}
                       >
                         <FileInput
-                          label="สำเนาภาพเล่มทะเบียนรถ (รองรับ .png, .jpg)"
+                          label="ภาพเล่มทะเบียนรถหน้าแรก (รองรับ .png, .jpg)"
                           onFileSelect={(file) =>
                             setSelectedRegistrationBookFile(file)
                           }
@@ -708,7 +718,13 @@ const Delivery: React.FC = () => {
                       >
                         <i className="fas fa-exclamation-triangle me-2"></i>
                         <span>
-                          กรุณากรอกข้อมูลและรูปภาพให้ครบถ้วนและถูกต้อง
+                          กรุณากรอกข้อมูล
+                          {selectDeliveryType === "ส่งรถกลับบ้าน" &&
+                          (!selectedRegistrationBookFile ||
+                            !selectedIDcardVehicleFile)
+                            ? "และรูปภาพ"
+                            : ""}
+                          ให้ครบถ้วนและถูกต้อง
                         </span>
                       </Alert>
                     )}

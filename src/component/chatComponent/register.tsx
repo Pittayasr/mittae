@@ -211,6 +211,7 @@ const RegisterUser: React.FC<RegisterUserProps> = ({
                       : "กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก"
                     : ""
                 }
+                isPhoneNumber
               />
             </Col>
 

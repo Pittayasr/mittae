@@ -21,6 +21,8 @@ interface TextInputProps {
     | "email"
     | "numeric"
     | "decimal";
+  isNumericWithComma?: boolean;
+  isPhoneNumber?: boolean;
 }
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -35,6 +37,8 @@ const TextInput: React.FC<TextInputProps> = ({
   onChange,
   isInvalid,
   inputMode,
+  isNumericWithComma = false,
+  isPhoneNumber = false,
 }) => {
   const [showPopover, setShowPopover] = useState(false);
   const [target, setTarget] = useState<HTMLDivElement | null>(null);
@@ -49,20 +53,71 @@ const TextInput: React.FC<TextInputProps> = ({
     setShowPopover(false);
   };
 
+  const formatNumberWithCommas = (value: string) => {
+    const numericValue = value.replace(/[^\d]/g, "");
+    if (!numericValue) return "";
+    return new Intl.NumberFormat("en-US").format(Number(numericValue));
+  };
+
+  const formatPhoneNumber = (value: string) => {
+    const numericValue = value.replace(/[^\d]/g, "");
+    if (numericValue.length <= 3) return numericValue;
+    if (numericValue.length <= 6)
+      return `${numericValue.slice(0, 3)}-${numericValue.slice(3)}`;
+    return `${numericValue.slice(0, 3)}-${numericValue.slice(
+      3,
+      6
+    )}-${numericValue.slice(6, 20)}`;
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let formattedValue = e.target.value;
+    if (isNumericWithComma) {
+      const rawValue = formattedValue.replace(/[^\d]/g, "");
+      formattedValue = formatNumberWithCommas(rawValue);
+      onChange?.({ ...e, target: { ...e.target, value: rawValue } });
+    } else if (isPhoneNumber) {
+      const rawValue = formattedValue.replace(/[^\d]/g, "");
+      formattedValue = formatPhoneNumber(rawValue);
+      onChange?.({ ...e, target: { ...e.target, value: formattedValue } });
+    } else {
+      onChange?.(e);
+    }
+    if (inputRef.current) {
+      inputRef.current.value = formattedValue;
+    }
+  };
+
   return (
     <Form.Group controlId={id} className="position-relative">
       <Form.Label>
-        <p className="mb-0">{label}</p>
+        <p className="mb-0">
+          {label}{" "}
+          {required && (
+            <span
+              style={{ color: "red", cursor: "help" }}
+              title="จำเป็นต้องกรอกข้อมูล"
+            >
+              *
+            </span>
+          )}
+        </p>
       </Form.Label>
       <Form.Control
         ref={inputRef}
         className={isInvalid ? "" : "custom-input"}
         type={type}
         required={required}
-        value={value}
+        value={
+          isNumericWithComma
+            ? formatNumberWithCommas(value || "")
+            : isPhoneNumber
+            ? formatPhoneNumber(value || "")
+            : value
+        }
         disabled={disabled}
         placeholder={placeholder}
-        onChange={onChange}
+        onChange={handleInputChange}
         isInvalid={isInvalid}
         inputMode={inputMode}
         onFocus={handleFocus}
@@ -74,8 +129,13 @@ const TextInput: React.FC<TextInputProps> = ({
         placement="top-end"
         containerPadding={10}
       >
-        <Popover id={`${id}-popover`} >
-          <Popover.Body className="responsive-label" style={{ padding: "10px" }}>{placeholder}</Popover.Body>
+        <Popover id={`${id}-popover`}>
+          <Popover.Body
+            className="responsive-label"
+            style={{ padding: "10px" }}
+          >
+            {placeholder}
+          </Popover.Body>
         </Popover>
       </Overlay>
       <Form.Control.Feedback type="invalid">{alertText}</Form.Control.Feedback>

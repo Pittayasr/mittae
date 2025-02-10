@@ -2,19 +2,77 @@ import React, { useState } from "react";
 import { Card, Col, Row, CloseButton } from "react-bootstrap";
 import { FaBars } from "react-icons/fa";
 import useCustomNavigationBlocker from "../useNavigationBlocker";
+import liff from "@line/liff";
 
 const SidebarUser: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  
-  const { NavigationBlockerModal, blockNavigation } = useCustomNavigationBlocker(true);
+
+  const { NavigationBlockerModal, blockNavigation } =
+    useCustomNavigationBlocker(true);
 
   const handleToggleSidebar = () => {
     setIsOpen(!isOpen);
   };
 
   const handleNavigate = (path: string) => {
-    blockNavigation(path); 
-    setIsOpen(false); 
+    blockNavigation(path);
+    setIsOpen(false);
+  };
+
+  const LINE_LIFF_ID = import.meta.env.VITE_LINE_LIFF_ID;
+
+  const handleChatClick = async () => {
+    try {
+      if (!LINE_LIFF_ID) {
+        console.error("ไม่มีค่า LINE_LIFF_ID, กรุณาตรวจสอบ .env");
+        return;
+      }
+
+      // เริ่มต้น LIFF app (ควรเรียก init เสมอก่อนใช้งาน API)
+      await liff.init({ liffId: LINE_LIFF_ID });
+
+      // ตรวจสอบว่าผู้ใช้ล็อกอินแล้วหรือไม่
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return; // หลังจาก login ให้รันใหม่อีกครั้ง
+      }
+
+      let friendStatus;
+      try {
+        // ลองเรียกใช้งาน getFriendship
+        friendStatus = await liff.getFriendship();
+      } catch (err) {
+        console.warn(
+          "ไม่สามารถตรวจสอบสถานะเพื่อนได้ เนื่องจากยังไม่มีการลิงค์ login bot หรือเกิดปัญหาอื่น ๆ",
+          err
+        );
+        // กำหนด friendStatus ให้เป็น false ในกรณี error เพื่อให้ไปที่เงื่อนไข 'ยังไม่ได้เป็นเพื่อน'
+        friendStatus = { friendFlag: false };
+      }
+
+      if (friendStatus.friendFlag) {
+        console.log("✅ ผู้ใช้เป็นเพื่อนแล้ว, เปิดแชท...");
+        await liff.sendMessages([
+          { type: "text", text: "ต้องการสอบถามข้อมูลเพิ่มเติม" },
+        ]);
+        liff.openWindow({
+          url: "https://line.me/R/ti/p/%40057pqgjw",
+          external: false,
+        });
+      } else if (!liff.isInClient()) {
+        alert("โปรดเปิดลิงก์นี้ในแอป LINE เพื่อใช้งานฟีเจอร์นี้");
+        window.open("https://lin.ee/fvuORcS", "_blank");
+        return;
+      } else {
+        console.log("ผู้ใช้ยังไม่ได้เป็นเพื่อน, เปิดลิงก์เพิ่มเพื่อน...");
+        liff.openWindow({
+          url: "https://lin.ee/fvuORcS",
+          external: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error handling chat:", error);
+    }
   };
 
   return (
@@ -158,7 +216,7 @@ const SidebarUser: React.FC = () => {
           <Col sm={12}>
             <Card
               className="text-center compact-card-menu"
-              onClick={() => handleNavigate("/print")}
+              onClick={handleChatClick}
               style={{ cursor: "pointer" }}
             >
               <Card.Img

@@ -14,6 +14,7 @@ import { FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
 import { VscError } from "react-icons/vsc";
 import dayjs from "dayjs";
 import useNavigationBlocker from "./useNavigationBlocker";
+import { useLiffAuth } from ".././component/lineLiffAuthContext";
 
 const InsuranceForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,6 +76,13 @@ const InsuranceForm: React.FC = () => {
     useState<File | null>(null);
   const [noIDcardFile, setNoIDcardFile] = useState<File | null>(null);
 
+  const [isRegistrationNumberValid, setIsRegistrationNumberValid] =
+    useState<boolean>(true);
+  const [isContactNumberValid, setIsContactNumberValid] =
+    useState<boolean>(true);
+
+  const [userLabel, setUserLabel] = useState<string>("");
+
   const [isInvalid, setIsInvalid] = useState(false);
 
   // const [vehicleInfoInvalid, setVehicleInfoInvalid] = useState(false);
@@ -85,38 +93,46 @@ const InsuranceForm: React.FC = () => {
 
   const { NavigationBlockerModal } = useNavigationBlocker(true);
 
-  // const [isShowRegistrationNumber, setIsShowRegistrationNumber] =
-  //   useState<boolean>(false);
-
-  // const handleValidateVehicleInfo = (validations: { isInvalid: boolean }) => {
-  //   setVehicleInfoInvalid(validations.isInvalid);
-  // };
-
   const validateFields = useCallback(() => {
     let isInvalid = false;
     const validationSteps = [];
 
-    // ตรวจสอบ registrationNumber
-    if (!registrationNumber || !/^[ก-ฮ0-9]+$/.test(registrationNumber)) {
-      console.log("Invalid registrationNumber:", registrationNumber);
-      isInvalid = true;
-      validationSteps.push("registrationNumber");
+    // ตรวจสอบหมายเลขทะเบียน (Registration Number)
+    if (
+      !["ประกันภัยทางทะเลและขนส่ง", "ประกันภัยเบ็ดเตล็ด"].includes(
+        insuranceCategory || ""
+      )
+    ) {
+      if (!registrationNumber || !/^[ก-ฮ0-9]+$/.test(registrationNumber)) {
+        // console.log("Invalid registrationNumber:", registrationNumber);
+        setIsRegistrationNumberValid(false);
+        isInvalid = true;
+        validationSteps.push("registrationNumber");
+      } else {
+        setIsRegistrationNumberValid(true);
+      }
+    } else {
+      // สำหรับประเภทที่ไม่ต้องกรอกหมายเลขทะเบียน ให้ถือว่า valid
+      setIsRegistrationNumberValid(true);
     }
 
-    // ตรวจสอบ contactNumber
+    // ตรวจสอบเบอร์ติดต่อ (Contact Number)
     if (!contactNumber || !/^(06|08|09)\d{8}$/.test(contactNumber)) {
-      console.log("Invalid contactNumber:", contactNumber);
+      // console.log("Invalid contactNumber:", contactNumber);
+      setIsContactNumberValid(false);
       isInvalid = true;
       validationSteps.push("contactNumber");
+    } else {
+      setIsContactNumberValid(true);
     }
 
     // ตรวจสอบ insuranceType, insuranceCompany, insuranceCategory
     if (!insuranceType || !insuranceCompany || !insuranceCategory) {
-      console.log("Missing insurance details:", {
-        insuranceType,
-        insuranceCompany,
-        insuranceCategory,
-      });
+      // console.log("Missing insurance details:", {
+      //   insuranceType,
+      //   insuranceCompany,
+      //   insuranceCategory,
+      // });
       isInvalid = true;
       validationSteps.push("insuranceDetails");
     }
@@ -145,7 +161,7 @@ const InsuranceForm: React.FC = () => {
         (hasVoluntaryInsurance === "ยังมีประกันภัยภาคสมัครใจ" &&
           !voluntaryInsuranceCarFile)
       ) {
-        console.log("Missing required fields for รถยนต์");
+        // console.log("Missing required fields for รถยนต์");
         isInvalid = true;
         validationSteps.push("vehicleCarDetails");
       }
@@ -165,7 +181,7 @@ const InsuranceForm: React.FC = () => {
         (hasVoluntaryInsurance === "ยังมีประกันภัยภาคสมัครใจ" &&
           !voluntaryInsuranceMotorcycleFile)
       ) {
-        console.log("Missing required fields for รถจักรยานยนต์");
+        // console.log("Missing required fields for รถจักรยานยนต์");
         isInvalid = true;
         validationSteps.push("vehicleMotorcycleDetails");
       }
@@ -183,7 +199,7 @@ const InsuranceForm: React.FC = () => {
         (hasVoluntaryInsurance === "ยังมีประกันภัยภาคสมัครใจ" &&
           !voluntaryInsuranceHouseFile)
       ) {
-        console.log("Missing required fields for หอพัก บ้าน");
+        // console.log("Missing required fields for หอพัก บ้าน");
         isInvalid = true;
         validationSteps.push("propertyDetails");
       }
@@ -197,12 +213,12 @@ const InsuranceForm: React.FC = () => {
           customGender
         )
       ) {
-        console.log("Invalid custom gender:", customGender);
+        // console.log("Invalid custom gender:", customGender);
         isInvalid = true;
         validationSteps.push("customGender");
       }
     }
-    console.log("Validation steps:", validationSteps);
+    // console.log("Validation steps:", validationSteps);
     setIsSubmitDisabled(isInvalid);
   }, [
     registrationNumber,
@@ -262,6 +278,8 @@ const InsuranceForm: React.FC = () => {
 
     handleOpenModal();
   };
+
+  const { userId } = useLiffAuth();
 
   //insurance.tsx
   const handleSubmitData = async () => {
@@ -331,7 +349,6 @@ const InsuranceForm: React.FC = () => {
       }
 
       const responseData = await response.json();
-      console.log("Response Data:", responseData);
 
       const insuranceData = responseData.insurances;
       if (!insuranceData) {
@@ -566,53 +583,60 @@ const InsuranceForm: React.FC = () => {
       const message = [
         {
           type: "text",
-          text: `
-        🛡️ รายละเอียดการประกันภัย: 
-        👤 หมายเลขทะเบียน: ${registrationNumber}
-        📞 เบอร์ติดต่อ: ${contactNumber}
-           ประเภทประกัน: ${insuranceType}
-           หมวดหมู่: ${insuranceCompany}
-        ${
-          insuranceCategory === "รถยนต์" &&
-          `
-        🚗 ยี่ห้อรถ: ${vehicleBrand}
-            รุ่นรถ: ${vehicleModel}
-            ขนาดเครื่องยนต์: ${engineSize}
-            ปีรถ: ${vehicleYear}
-            จังหวัดจดทะเบียน: ${selectedProvinceRegistered}
-            การใช้งานรถ: ${vehiclePurpose}
-            กล้องหน้ารถ: ${hasDashCam ? "มี" : "ไม่มี"}
-            จังหวัดผู้ขับขี่: ${selectedProvinceDriver}
-            เพศ: ${gender === "อื่นๆ" ? customGender : gender}
-            สถานภาพสมรส: ${maritalStatus}
-            อาชีพ: ${occupation}
-            ประกันภัยภาคสมัครใจ: ${hasVoluntaryInsurance}
-            `
-        }
-        ${
-          insuranceCategory === "รถจักรยานยนต์" &&
-          `
-        🛵 ยี่ห้อรถ: ${vehicleBrand}
-            รุ่นรถ: ${vehicleModel}
-            ขนาดเครื่องยนต์: ${engineSize}
-            ปีรถ: ${vehicleYear}
-            จังหวัดจดทะเบียน: ${selectedProvinceRegistered}
-            การใช้งานรถ: ${vehiclePurpose}           
-            ประกันภัยภาคสมัครใจ: ${hasVoluntaryInsurance}
-            `
-        }
-        ${
-          insuranceCategory === "หอพัก บ้าน" &&
-          `
-        🏠 ประเภททรัพย์สิน: ${propertyType}
-            จังหวัด:: ${selectedProvinceLocation}
-            มูลค่าทรัพย์สิน: ${propertyValue}           
-            `
-        }
-            `,
+          text: `🛡️ รายละเอียดการประกันภัย: 
+${userLabel}: ${registrationNumber}
+เบอร์ติดต่อ: ${contactNumber}
+ประเภทประกัน: ${insuranceType}
+หมวดหมู่: ${insuranceCompany}
+${
+  insuranceCategory === "รถยนต์" &&
+  `
+🚗 ยี่ห้อรถ: ${vehicleBrand}
+รุ่นรถ: ${vehicleModel}
+ขนาดเครื่องยนต์: ${engineSize}
+ปีรถ: ${vehicleYear}
+จังหวัดจดทะเบียน: ${selectedProvinceRegistered}
+การใช้งานรถ: ${vehiclePurpose}
+กล้องหน้ารถ: ${hasDashCam ? "มี" : "ไม่มี"}
+จังหวัดผู้ขับขี่: ${selectedProvinceDriver}
+เพศ: ${gender === "อื่นๆ" ? customGender : gender}
+สถานภาพสมรส: ${maritalStatus}
+อาชีพ: ${occupation}
+ประกันภัยภาคสมัครใจ: ${hasVoluntaryInsurance}
+`
+}
+${
+  insuranceCategory === "รถจักรยานยนต์"
+    ? `🛵 ยี่ห้อรถ: ${vehicleBrand || "ไม่ระบุ"}
+รุ่นรถ: ${vehicleModel || "ไม่ระบุ"}
+ขนาดเครื่องยนต์: ${engineSize || "ไม่ระบุ"}
+ปีรถ: ${vehicleYear || "ไม่ระบุ"}
+จังหวัดจดทะเบียน: ${selectedProvinceRegistered || "ไม่ระบุ"}
+การใช้งานรถ: ${vehiclePurpose || "ไม่ระบุ"}
+ประกันภัยภาคสมัครใจ: ${hasVoluntaryInsurance ? "มี" : "ไม่มี"}
+`
+    : ""
+}
+${
+  insuranceCategory === "หอพัก บ้าน"
+    ? `
+🏠 ประเภททรัพย์สิน: ${propertyType}
+จังหวัด:: ${selectedProvinceLocation}
+มูลค่าทรัพย์สิน: ${propertyValue}           
+`
+    : ""
+}`.trim(),
         },
         ...imageMessages,
       ];
+
+      const payload = {
+        type: "Insurance",
+        message,
+        userId: userId || "UNKNOWN_USER",
+      };
+
+      console.log("Payload being sent to /webhook:", payload);
 
       // เรียก /webhook เพื่อส่ง message
       const webhookResponse = await fetch(
@@ -620,15 +644,13 @@ const InsuranceForm: React.FC = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            type: "Insurance",
-            message, // ส่งข้อความที่สร้างไว้ไปยังเซิร์ฟเวอร์
-            userId: "LINE_USER_ID", // แทนที่ด้วย userId ที่ต้องการ
-          }),
+          body: JSON.stringify(payload),
         }
       );
 
       if (!webhookResponse.ok) {
+        const errorMessage = await webhookResponse.text();
+        console.error("Webhook Error:", errorMessage);
         throw new Error("Failed to send message to webhook");
       }
 
@@ -666,6 +688,9 @@ const InsuranceForm: React.FC = () => {
               <h2 className="text-success text-center mb-4">
                 ประกันภัย ป1 ป2 ป3 ป4 ป5
               </h2>
+              <small className="text-danger">
+                * ระบุว่าจำเป็นต้องกรอกข้อมูล
+              </small>
               <InsuranceInfo
                 insuranceType={insuranceType}
                 setInsuranceType={setInsuranceType}
@@ -696,10 +721,13 @@ const InsuranceForm: React.FC = () => {
                     ? false
                     : true
                 }
+                setLabel={setUserLabel}
                 registrationNumber={registrationNumber}
                 setRegistrationNumber={setRegistrationNumber}
+                isRegistrationNumberValid={isRegistrationNumberValid}
                 contactNumber={contactNumber}
                 setContactNumber={setContactNumber}
+                isContactNumberValid={isContactNumberValid}
                 isShowHouseNumber={
                   insuranceCategory === "หอพัก บ้าน" ? true : false
                 }
@@ -779,6 +807,12 @@ const InsuranceForm: React.FC = () => {
                 insuranceCategory={insuranceCategory}
               />
 
+              {insuranceCompany && (
+                <p className="responsive-label mt-3 d-flex justify-content-center">
+                  กดรูปภาพเพื่อดูภาพขนาดใหญ่
+                </p>
+              )}
+
               <hr className="my-3"></hr>
               {/* Alert */}
               {isSubmitDisabled && (
@@ -787,9 +821,21 @@ const InsuranceForm: React.FC = () => {
                   className="d-flex align-items-center mb-4"
                 >
                   <i className="fas fa-exclamation-triangle me-2"></i>
-                  <span>กรุณากรอกข้อมูลให้ครบถ้วน</span>
+                  <span>
+                    กรุณากรอกข้อมูล
+                    {(insuranceCategory === "รถยนต์" &&
+                      !registrationBookInsuranceCarFile) ||
+                    (insuranceCategory === "รถจักรยานยนต์" &&
+                      !registrationBookInsuranceMotorcycleFile) ||
+                    (insuranceCategory === "หอพัก บ้าน" &&
+                      (!titleDeedFile || !noIDcardFile))
+                      ? " และรูปภาพ"
+                      : ""}
+                    ให้ครบถ้วน
+                  </span>
                 </Alert>
               )}
+
               <Row>
                 <Col className="text-center">
                   <Button

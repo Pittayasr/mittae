@@ -1,10 +1,12 @@
 // server.ts
 import express from "express";
 import cors from "cors";
-import sharp from "sharp";
 import multer from "multer";
+import sharp from "sharp";
 import path from "path";
 import fs from "fs";
+import fsp from "fs/promises";
+import axios from "axios";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 dotenv.config();
@@ -16,11 +18,12 @@ const app = express();
 
 console.log(process.env.VITE_API_BASE_URL);
 
-const PORT = process.env.PORT || 3000; // ใช้ PORT จากไฟล์ .env หรือค่าดีฟอลต์ 3000
+const PORT = process.env.PORT || 3000;
 const UPLOADS_DIR = process.env.UPLOADS_DIRECTORY || "uploads";
 
 const LINE_API_URL = "https://api.line.me/v2/bot/message/push";
-const LINE_CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+const LINE_CHANNEL_ACCESS_TOKEN = process.env.VITE_LINE_CHANNEL_ACCESS_TOKEN;
+const X_IBM_Client_Id = process.env.VITE_X_IBM_CLIENT_ID;
 
 app.options("*", cors()); // Allow preflight requests
 
@@ -36,35 +39,34 @@ app.use(
   })
 );
 
+app.post("/update-holidays", async (req, res) => {
+  try {
+    const year = new Date().getFullYear();
+    const response = await axios.get(
+      `https://apigw1.bot.or.th/bot/public/financial-institutions-holidays/?year=${year}`,
+      {
+        headers: {
+          "X-IBM-Client-Id": X_IBM_Client_Id,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    const holidays = response.data;
+    const filePath = path.join(__dirname, "public/data", "holidays.json");
+
+    fs.writeFileSync(filePath, JSON.stringify(holidays, null, 2));
+    console.log(`Holidays data saved to ${filePath}`);
+
+    res.status(200).send("Holidays updated and saved successfully.");
+  } catch (error) {
+    console.error("Error updating holidays:", error);
+    res.status(500).send("Error updating holidays.");
+  }
+});
+
 app.use(express.json());
 
-const resizeImage = async (
-  filePath: string,
-  width: number = 800
-): Promise<void> => {
-  try {
-    await sharp(filePath)
-      .resize({ width }) 
-      .toFile(filePath); 
-  } catch (error) {
-    console.error("Error resizing image:", error);
-    throw error;
-  }
-};
-
-const resizeAllImages = async (files: { [fieldname: string]: Express.Multer.File[] }) => {
-  const promises = [];
-  for (const fieldName in files) {
-    for (const file of files[fieldName]) {
-      console.log(`Resizing file: ${file.path}`);
-      promises.push(resizeImage(file.path)); 
-    }
-  }
-  await Promise.all(promises); 
-};
-
-
-// server.ts
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let folderPath = path.join(UPLOADS_DIR, "forms");
@@ -253,6 +255,35 @@ app.delete("/delete-file", (req, res) => {
   }
 });
 
+// ฟังก์ชันลดขนาดและแปลงไฟล์เป็น JPEG
+const processImageFile = async (filePath: string): Promise<string> => {
+  const outputFilePath = filePath.replace(/\.[^/.]+$/, ".jpeg");
+
+  try {
+    // ประมวลผลไฟล์ด้วย Sharp
+    await sharp(filePath)
+      .resize({ width: 1080, height: 1080, fit: "inside" })
+      .jpeg({ quality: 80 })
+      .toFile(outputFilePath);
+
+    // ลองลบไฟล์ต้นฉบับ
+    try {
+      await fsp.unlink(filePath);
+    } catch (unlinkError) {
+      console.error(
+        `Failed to unlink file: ${filePath}. This file may still be in use.`,
+        unlinkError
+      );
+    }
+
+    console.error(`outputFilePath = `, outputFilePath);
+    return outputFilePath;
+  } catch (sharpError) {
+    console.error(`Error processing file: ${filePath}`, sharpError);
+    throw new Error(`Failed to process file: ${filePath}`);
+  }
+};
+
 // เพิ่ม endpoint สำหรับการอัปโหลดหลายไฟล์
 app.post(
   "/upload-multiple",
@@ -280,6 +311,13 @@ app.post(
     try {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       const body = req.body;
+
+      const processedFiles: {
+        [key: string]: {
+          originalName: string;
+          storedFileName: string;
+        } | null;
+      } = {};
 
       // Group: Print
       const printFile = files["printFile"]?.[0];
@@ -316,7 +354,19 @@ app.post(
         files["voluntaryInsuranceHouseFile"]?.[0];
       const noIDcardFile = files["noIDcardFile"]?.[0];
 
-      
+      // Form Validation
+      if (body.type === "Form") {
+        if (!registrationBookFile) {
+          return res.status(400).json({
+            error: "registrationBookFile is required for Form.",
+          });
+        }
+        if (!licensePlateFile) {
+          return res.status(400).json({
+            error: "licensePlateFile is required for Form.",
+          });
+        }
+      }
 
       // Delivery Validation
       if (body.type === "Delivery") {
@@ -407,12 +457,31 @@ app.post(
         }
       }
 
-      // Resize ทุกไฟล์ที่อัปโหลด
-      await resizeAllImages(files);
+      for (const fieldName in files) {
+        const file = files[fieldName]?.[0];
+        if (file) {
+          try {
+            const processedFilePath = await processImageFile(file.path);
+            processedFiles[fieldName] = {
+              originalName: file.originalname,
+              storedFileName: path.basename(processedFilePath),
+            };
+          } catch (error) {
+            console.error(
+              `Error processing file for field ${fieldName}:`,
+              error
+            );
+            processedFiles[fieldName] = null; // กำหนดค่าเป็น null หากมีข้อผิดพลาด
+          }
+        } else {
+          console.warn(`No file found for field ${fieldName}`);
+          processedFiles[fieldName] = null; // หากไม่มีไฟล์แนบมาก็ให้เป็น null
+        }
+      }
 
       // Generate print file paths
       const printFilePath = printFile
-        ? `${req.protocol}://${req.get("host")}/uploads/${
+        ? `https://${req.get("host")}/uploads/${
             printFile.mimetype === "application/pdf"
               ? "prints/pdf"
               : "prints/photo"
@@ -420,41 +489,39 @@ app.post(
         : null;
 
       const printSlipQRcodePath = printSlipQRcode
-        ? `${req.protocol}://${req.get(
-            "host"
-          )}/uploads/prints/printSlipQRcode/${printSlipQRcode.filename}`
+        ? `https://${req.get("host")}/uploads/prints/printSlipQRcode/${
+            printSlipQRcode.filename
+          }`
         : null;
 
       // Generate form file paths
       const registrationBookFilePath = registrationBookFile
-        ? `${req.protocol}://${req.get(
-            "host"
-          )}/uploads/forms/registrationBook/${registrationBookFile.filename}`
+        ? `https://${req.get("host")}/uploads/forms/registrationBook/${
+            registrationBookFile.filename
+          }`
         : null;
 
       const licensePlateFilePath = licensePlateFile
-        ? `${req.protocol}://${req.get("host")}/uploads/forms/licensePlate/${
+        ? `https://${req.get("host")}/uploads/forms/licensePlate/${
             licensePlateFile.filename
           }`
         : null;
 
       const formSlipQRcodePath = formSlipQRcode
-        ? `${req.protocol}://${req.get("host")}/uploads/forms/formSlipQRcode/${
+        ? `https://${req.get("host")}/uploads/forms/formSlipQRcode/${
             formSlipQRcode.filename
           }`
         : null;
 
       // Generate delivery file paths
       const passportOrIDnumberFilePath = passportOrIDnumberFile
-        ? `${req.protocol}://${req.get(
-            "host"
-          )}/uploads/deliveries/passportOrIDnumber/${
+        ? `https://${req.get("host")}/uploads/deliveries/passportOrIDnumber/${
             passportOrIDnumberFile.filename
           }`
         : null;
 
       const registrationBookFileDeliveryPath = registrationBookFileDelivery
-        ? `${req.protocol}://${req.get(
+        ? `https://${req.get(
             "host"
           )}/uploads/deliveries/registrationBookDelivery/${
             registrationBookFileDelivery.filename
@@ -462,43 +529,40 @@ app.post(
         : null;
 
       const licenseFileDeliveryPath = licenseFileDelivery
-        ? `${req.protocol}://${req.get(
-            "host"
-          )}/uploads/deliveries/licenseFileDelivery/${
+        ? `https://${req.get("host")}/uploads/deliveries/licenseFileDelivery/${
             licenseFileDelivery.filename
           }`
         : null;
 
-      // Generate transport file paths
+      // Generate transport file paths ใน server.ts
       const passportOrIDnumberFileTransportPath =
-        passportOrIDnumberFileTransport
-          ? `${req.protocol}://${req.get(
+        processedFiles.passportOrIDnumberFileTransport
+          ? `https://${req.get(
               "host"
             )}/uploads/transports/passportOrIDnumberTransport/${
-              passportOrIDnumberFileTransport.filename
+              processedFiles.passportOrIDnumberFileTransport.storedFileName
             }`
           : null;
 
-      const registrationBookFileTransportPath = registrationBookFileTransport
-        ? `${req.protocol}://${req.get(
-            "host"
-          )}/uploads/transports/registrationBookTransport/${
-            registrationBookFileTransport.filename
-          }`
-        : null;
+      const registrationBookFileTransportPath =
+        processedFiles.registrationBookFileTransport
+          ? `https://${req.get(
+              "host"
+            )}/uploads/transports/registrationBookTransport/${
+              processedFiles.registrationBookFileTransport.storedFileName
+            }`
+          : null;
 
-      const licenseFileTransportPath = licenseFileTransport
-        ? `${req.protocol}://${req.get(
-            "host"
-          )}/uploads/transports/licenseFileTransport/${
-            licenseFileTransport.filename
+      const licenseFileTransportPath = processedFiles.licenseFileTransport
+        ? `https://${req.get("host")}/uploads/transports/licenseFileTransport/${
+            processedFiles.licenseFileTransport.storedFileName
           }`
         : null;
 
       // Generate insurance file paths
       const registrationBookInsuranceCarFilePath =
         registrationBookInsuranceCarFile
-          ? `${req.protocol}://${req.get(
+          ? `https://${req.get(
               "host"
             )}/uploads/insurances/registrationBookInsuranceCarFile/${
               registrationBookInsuranceCarFile.filename
@@ -507,7 +571,7 @@ app.post(
 
       const registrationBookInsuranceMotorcycleFilePath =
         registrationBookInsuranceMotorcycleFile
-          ? `${req.protocol}://${req.get(
+          ? `https://${req.get(
               "host"
             )}/uploads/insurances/registrationBookInsuranceMotorcycleFile/${
               registrationBookInsuranceMotorcycleFile.filename
@@ -515,13 +579,13 @@ app.post(
           : null;
 
       const titleDeedFilePath = titleDeedFile
-        ? `${req.protocol}://${req.get(
-            "host"
-          )}/uploads/insurances/titleDeedFile/${titleDeedFile.filename}`
+        ? `https://${req.get("host")}/uploads/insurances/titleDeedFile/${
+            titleDeedFile.filename
+          }`
         : null;
 
       const voluntaryInsuranceCarFilePath = voluntaryInsuranceCarFile
-        ? `${req.protocol}://${req.get(
+        ? `https://${req.get(
             "host"
           )}/uploads/insurances/voluntaryInsuranceCarFile/${
             voluntaryInsuranceCarFile.filename
@@ -530,7 +594,7 @@ app.post(
 
       const voluntaryInsuranceMotorcycleFilePath =
         voluntaryInsuranceMotorcycleFile
-          ? `${req.protocol}://${req.get(
+          ? `https://${req.get(
               "host"
             )}/uploads/insurances/voluntaryInsuranceMotorcycleFile/${
               voluntaryInsuranceMotorcycleFile.filename
@@ -538,7 +602,7 @@ app.post(
           : null;
 
       const voluntaryInsuranceHouseFilePath = voluntaryInsuranceHouseFile
-        ? `${req.protocol}://${req.get(
+        ? `https://${req.get(
             "host"
           )}/uploads/insurances/voluntaryInsuranceHouseFile/${
             voluntaryInsuranceHouseFile.filename
@@ -546,12 +610,12 @@ app.post(
         : null;
 
       const noIDcardFilePath = noIDcardFile
-        ? `${req.protocol}://${req.get(
-            "host"
-          )}/uploads/insurances/noIDcardFile/${noIDcardFile.filename}`
+        ? `https://${req.get("host")}/uploads/insurances/noIDcardFile/${
+            noIDcardFile.filename
+          }`
         : null;
 
-      // Response object
+      // Response ของ server.ts
       const response = {
         print: {
           printFile: printFile
@@ -608,19 +672,23 @@ app.post(
           passportOrIDnumberFileTransport: passportOrIDnumberFileTransport
             ? {
                 filePath: passportOrIDnumberFileTransportPath,
-                storedFileName: passportOrIDnumberFileTransport.filename,
+                storedFileName:
+                  processedFiles.passportOrIDnumberFileTransport
+                    ?.storedFileName,
               }
             : null,
           registrationBookFileTransport: registrationBookFileTransport
             ? {
                 filePath: registrationBookFileTransportPath,
-                storedFileName: registrationBookFileTransport.filename,
+                storedFileName:
+                  processedFiles.registrationBookFileTransport?.storedFileName,
               }
             : null,
           licenseFileTransport: licenseFileTransport
             ? {
                 filePath: licenseFileTransportPath,
-                storedFileName: licenseFileTransport.filename,
+                storedFileName:
+                  processedFiles.licenseFileTransport?.storedFileName,
               }
             : null,
         },
@@ -673,7 +741,10 @@ app.post(
       };
 
       console.log("Files uploaded successfully:", response);
-      res.status(200).json(response);
+      res.status(200).json({
+        success: true,
+        ...response,
+      });
     } catch (error) {
       console.error("Error uploading files:", error);
       res.status(500).json({ error: "Failed to upload files" });
@@ -684,7 +755,7 @@ app.post(
 app.post("/webhook", async (req, res) => {
   try {
     console.log("Received request at /webhook");
-    console.log("Headers:", req.headers); // ดู headers ทั้งหมด
+    console.log("Headers:", req.headers);
     console.log("Body:", JSON.stringify(req.body, null, 2));
     const { type, message, userId, events } = req.body;
 

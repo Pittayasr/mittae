@@ -354,6 +354,16 @@ const TransportForm: React.FC = () => {
     setIsInvalidPackageDetail(invalid);
   };
 
+  const showMapModal =
+    usernameReceiver &&
+    contactNumReceiver &&
+    houseNoReceiver &&
+    selectedProvinceReceiver &&
+    subDistrictReceiver &&
+    districtReceiver &&
+    postalCodeReceiver &&
+    selectDeliveryType;
+
   return (
     <div>
       <Row>
@@ -375,7 +385,11 @@ const TransportForm: React.FC = () => {
                   <h2 className="text-center mb-4 text-success">
                     ส่งรถส่งของกลับบ้าน หมา แมว กระต่าย ฯลฯ
                   </h2>
-                  <h4 className="mb-4 text-success">ข้อมูลผู้ส่ง:</h4>
+                  <small className="text-danger ">
+                    * ระบุว่าจำเป็นต้องกรอกข้อมูล
+                  </small>
+                  <h4 className="my-4 text-success">ข้อมูลผู้ส่ง:</h4>
+
                   <Row>
                     <Col>
                       <DeliveryUserInfo
@@ -402,8 +416,9 @@ const TransportForm: React.FC = () => {
                         label="ประเภทข้อมูลของผู้ส่ง"
                         selectedValue={selectedRadio}
                         onChange={handleRadioChange}
-                        isInvalid={validated} // จะเป็น true เมื่อไม่มีการเลือกค่า
-                        alertText="กรุณาเลือกประเภทข้อมูลเจ้าของรถ" // ข้อความแจ้งเตือน
+                        isInvalid={validated}
+                        alertText="กรุณาเลือกประเภทข้อมูลเจ้าของรถ"
+                        required
                       />
                     </Col>
                     {/* ช่องกรอกตามประเภทข้อมูลของเจ้าของรถล่าสุด */}
@@ -527,7 +542,8 @@ const TransportForm: React.FC = () => {
                       >
                         <i className="fas fa-exclamation-triangle me-2"></i>
                         <span>
-                          กรุณากรอกข้อมูลและรูปภาพให้ครบถ้วนและถูกต้อง
+                          กรุณากรอกข้อมูล{!selectedFile ? "และรูปภาพ" : ""}
+                          ให้ครบถ้วนและถูกต้อง
                         </span>
                       </Alert>
                     )}
@@ -551,7 +567,11 @@ const TransportForm: React.FC = () => {
                   <h2 className="text-center mb-4 text-success">
                     ส่งรถส่งของกลับบ้าน หมา แมว กระต่าย ฯลฯ
                   </h2>
-                  <h4 className=" mb-4 text-success">ข้อมูลผู้รับ:</h4>
+                  <small className="text-danger ">
+                    * ระบุว่าจำเป็นต้องกรอกข้อมูล
+                  </small>
+                  <h4 className=" my-4 text-success">ข้อมูลผู้รับ:</h4>
+
                   <DeliveryUserInfo
                     isInvalid={validated}
                     username={usernameReceiver}
@@ -605,9 +625,17 @@ const TransportForm: React.FC = () => {
                       />
                     </Col>
                   </Row>
-                  {selectDeliveryType && (
+                  {showMapModal && (
                     <div className="mb-3">
-                      <p>เลือกพิกัดที่จะส่ง</p>
+                      <p>
+                        เลือกพิกัดที่จะส่ง{" "}
+                        <span
+                          style={{ color: "red", cursor: "help" }}
+                          title="จำเป็นต้องกรอกข้อมูล"
+                        >
+                          *
+                        </span>
+                      </p>
                       <MapModal
                         onConfirm={(coordinates) => {
                           const locationString = `${coordinates.lat},${coordinates.lng}`;
@@ -675,7 +703,7 @@ const TransportForm: React.FC = () => {
                         xl={6}
                       >
                         <FileInput
-                          label="สำเนาภาพเล่มทะเบียนรถ (รองรับ .png, .jpg)"
+                          label="ภาพเล่มทะเบียนรถหน้าแรก (รองรับ .png, .jpg)"
                           onFileSelect={(file) =>
                             setSelectedRegistrationBookFile(file)
                           }
@@ -734,7 +762,14 @@ const TransportForm: React.FC = () => {
                       >
                         <i className="fas fa-exclamation-triangle me-2"></i>
                         <span>
-                          กรุณากรอกข้อมูล รูปภาพ พิกัดส่งของให้ครบถ้วนและถูกต้อง
+                          กรุณากรอกข้อมูล
+                          {selectDeliveryType === "ส่งรถกลับบ้าน" &&
+                          (!selectedRegistrationBookFile ||
+                            !selectedIDcardVehicleFile)
+                            ? " รูปภาพ"
+                            : ""}
+                          {!transportLocation ? " พิกัดส่งของ" : ""}
+                          ให้ครบถ้วนและถูกต้อง
                         </span>
                       </Alert>
                     )}

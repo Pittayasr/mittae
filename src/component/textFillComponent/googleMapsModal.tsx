@@ -35,7 +35,7 @@ const MapModal: React.FC<MapModalProps> = ({ onConfirm, initialAddress }) => {
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY || "",
     libraries,
     language: "th",
   });
@@ -54,10 +54,10 @@ const MapModal: React.FC<MapModalProps> = ({ onConfirm, initialAddress }) => {
       markerRef.current = new google.maps.Marker({
         position: coordinates,
         map: mapRef.current,
-        icon: {
-          url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png", // URL ไอคอน
-          scaledSize: new window.google.maps.Size(40, 40), // ขนาดของไอคอน
-        },
+        // icon: {
+        //   url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png", // URL ไอคอน
+        //   scaledSize: new window.google.maps.Size(40, 40), // ขนาดของไอคอน
+        // },
         draggable: true,
         title: "ลาก Marker เพื่อเลือกตำแหน่ง",
       });

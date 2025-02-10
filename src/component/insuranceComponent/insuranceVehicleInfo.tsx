@@ -161,7 +161,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
 
       {(vehicleType === "รถยนต์" || vehicleType === "รถจักรยานยนต์") && (
         <Row>
-          <Col className="mb-3" md={4} sm={6} xs={12}>
+          <Col className="mb-3" lg={4} sm={6} xs={12}>
             <TextInput
               label="ยี่ห้อรถ"
               id="vehicle-brand"
@@ -173,9 +173,10 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               }}
               isInvalid={hasTouchedBrand && !validateVehicleBrand(vehicleBrand)}
               alertText="กรุณาระบุยี่ห้อรถ"
+              required
             />
           </Col>
-          <Col className="mb-3" md={4} sm={6} xs={12}>
+          <Col className="mb-3" lg={4} sm={6} xs={12}>
             <TextInput
               label="รุ่นรถ"
               id="vehicle-model"
@@ -187,9 +188,10 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               }}
               isInvalid={hasTouchedModel && !validateVehicleModel(vehicleModel)}
               alertText="กรุณาระบุรุ่นรถ"
+              required
             />
           </Col>
-          <Col className="mb-3" md={4} sm={6} xs={12}>
+          <Col className="mb-3" lg={4} sm={6} xs={12}>
             <TextInput
               label="ขนาดเครื่องยนต์ (CC)"
               id="engine-size"
@@ -204,9 +206,11 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               }
               alertText="กรุณาระบุขนาดเครื่องยนต์เป็นตัวเลขเท่านั้น"
               type="numeric"
+              required
+              isNumericWithComma
             />
           </Col>
-          <Col className="mb-3" md={4} sm={6} xs={12}>
+          <Col className="mb-3" lg={4} sm={6} xs={12}>
             <TextInput
               label="ปีรถ (พ.ศ.)"
               id="vehicle-year"
@@ -219,9 +223,10 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               isInvalid={hasTouchedYear && !validateYear(vehicleYear)}
               alertText="กรุณาระบุปีรถเป็นตัวเลข 4 หลัก (เช่น 2567)"
               type="numeric"
+              required
             />
           </Col>
-          <Col className="mb-3" md={4} sm={6} xs={12}>
+          <Col className="mb-3" lg={4} sm={6} xs={12}>
             <TextSelect
               value={selectedProvinceRegistered || ""}
               label="จังหวัดที่รถจดทะเบียน"
@@ -234,9 +239,10 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               onChange={(value) => setSelectedProvinceRegistered(value || null)}
               // isInvalid={isInvalid && !selectedProvinceRegistered}
               alertText="กรุณาเลือกจังหวัดที่จดทะเบียนรถ"
+              required
             />
           </Col>
-          <Col className="mb-3" md={4} sm={6} xs={12}>
+          <Col className="mb-3" lg={4} sm={6} xs={12}>
             <TextSelect
               value={vehiclePurpose}
               label="จุดประสงค์การใช้รถ"
@@ -258,9 +264,10 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               }}
               // isInvalid={isInvalid && !vehiclePurpose}
               alertText="กรุณาระบุจุดประสงค์การใช้รถ"
+              required
             />
           </Col>
-          <Col className="mb-3" md={4} sm={12} xs={12}>
+          <Col className="mb-3" lg={4} sm={6} xs={12}>
             <TextSelect
               label={
                 vehicleType === "รถยนต์"
@@ -282,10 +289,11 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               onChange={(value) => setLicenseAge(value || "")}
               // isInvalid={isInvalid && !licenseAge}
               alertText="กรุณาเลือกอายุใบขับขี่"
+              required
             />
           </Col>
           {vehicleType === "รถยนต์" && (
-            <Col className="mb-3" md={4} sm={12} xs={12}>
+            <Col className="mb-3" lg={6} sm={6} xs={12}>
               <RadioButton
                 name="dashCam"
                 label="คุณมีกล้องติดรถยนต์หรือไม่?"
@@ -294,6 +302,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                 onChange={(value) => setHasDashCam(value)}
                 // isInvalid={isInvalid && !hasDashCam}
                 alertText="กรุณาระบุข้อมูล"
+                required
               />
             </Col>
           )}
@@ -305,7 +314,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
           <Col className="mb-3" xs={12}>
             <p className="mb-1">ผู้ขับขี่หลัก **</p>
           </Col>
-          <Col className="mb-3 " md={4} xs={12}>
+          <Col className="mb-3 " md={gender === "อื่นๆ" ? 4 : 6} xs={12}>
             <RadioButton
               name="gender"
               label="เพศ"
@@ -314,6 +323,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               onChange={setGender}
               // isInvalid={isInvalid && !gender}
               alertText="กรุณาเลือกเพศ"
+              required
             />
           </Col>
           {gender === "อื่นๆ" && (
@@ -331,10 +341,11 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                   hasTouchedCustomGender && !validateCustomGender(occupation)
                 }
                 alertText="กรุณาเลือกเพศ"
+                required
               />
             </Col>
           )}
-          <Col className="mb-3" md={4} sm={12} xs={12}>
+          <Col className="mb-3" md={gender === "อื่นๆ" ? 4 : 6} sm={12} xs={12}>
             <TextSelect
               value={selectedProvinceDriver || ""}
               label="จังหวัดที่อยู่ของผู้ขับขี่หลัก"
@@ -349,9 +360,10 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               }}
               // isInvalid={isInvalid && !selectedProvinceDriver}
               alertText="กรุณาเลือกจังหวัด"
+              required
             />
           </Col>
-          <Col md={4} sm={6} xs={12} className="mb-3">
+          <Col sm={6} xs={12} className="mb-3">
             <TextSelect
               label="สถานะสมรส"
               id="maritalStatus"
@@ -373,7 +385,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               alertText="กรุณาเลือกสถานะสมรส"
             />
           </Col>
-          <Col className="mb-3" md={4} sm={6} xs={12}>
+          <Col className="mb-3" sm={6} xs={12}>
             <TextInput
               label="อาชีพ"
               id="occupation"
@@ -387,6 +399,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                 hasTouchedOccupation && !validateOccupation(occupation)
               }
               alertText="กรุณาระบุอาชีพ"
+              required
             />
           </Col>
         </Row>
@@ -396,7 +409,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
         <Row>
           <Col className="mb-3" md={4} sm={6} xs={12}>
             <TextSelect
-              label="ประเภทของทรัพย์สินที่ประกัน"
+              label="ประเภททรัพย์สินที่ประกัน"
               id="propertyType"
               options={[
                 { value: "บ้านเดี่ยว", label: "บ้านเดี่ยว" },
@@ -420,6 +433,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
               onChange={(value) => setPropertyType(value || "")}
               // isInvalid={isInvalid && !propertyType}
               alertText="กรุณาเลือกประเภททรัพย์สิน"
+              required
             />
           </Col>
           <Col className="mb-3" md={4} sm={6} xs={12}>
@@ -439,10 +453,10 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
           </Col>
           <Col className="mb-3" md={4} sm={6} xs={12}>
             <TextInput
-              label="มูลค่าของทรัพย์สิน"
+              label="มูลค่าของทรัพย์สิน (บาท)"
               id="propertyValue"
               value={propertyValue}
-              placeholder="ระบุมูลค่าของทรัพย์สิน"
+              placeholder="ระบุมูลค่าของทรัพย์สิน (บาท)"
               onChange={(e) => {
                 setPropertyValue(e.target.value);
                 setHasTouchedPropertyValue(true);
@@ -451,6 +465,9 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                 hasTouchedPropertyValue && !validatePropertyValue(propertyValue)
               }
               alertText="กรุณระบุมูลค่าทรัพย์สินเป็นตัวเลขเท่านั้น"
+              type="numeric"
+              required
+              isNumericWithComma
             />
           </Col>
         </Row>
@@ -458,16 +475,17 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
 
       {["รถยนต์", "รถจักรยานยนต์", "หอพัก บ้าน"].includes(vehicleType) && (
         <Row>
-          <Col md={10} xs={12}>
+          <Col className="mb-3" md={10} xs={12}>
             <RadioButton
               name="voluntaryInsurance"
               label="มีประกันภัยภาคสมัครใจหรือไม่? *หากมีโปรดระบุและส่งภาพถ่ายสำเนากรมธรรม์ประกันภัยเดิมเพิ่มเป็นส่วนลด
               %"
-              options={["เคยทำ", "ยังไม่เคยทำ", "ยังมีประกันภัยภาคสมัครใจ"]}
+              options={["เคยทำ", "ยังไม่เคยทำ", "มีประกันภัยภาคสมัครใจ"]}
               selectedValue={hasVoluntaryInsurance}
               onChange={setHasVoluntaryInsurance}
               // isInvalid={isInvalid && !hasVoluntaryInsurance}
               alertText="กรุณาเลือกข้อมูล"
+              required
             />
             {/* <p className="my-3">
               *หากมีโปรดระบุและส่งภาพถ่ายสำเนากรมธรรม์ประกันภัยเดิมเพิ่มเป็นส่วนลด
@@ -487,9 +505,10 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                   // isInvalid={isInvalid && !registrationBookInsuranceCarFile}
                   alertText="กรุณาอัปโหลดสำเนาหน้าเล่มทะเบียน"
                   initialFile={registrationBookInsuranceCarFile}
+                  required
                 />
               </Col>
-              {hasVoluntaryInsurance === "ยังมีประกันภัยภาคสมัครใจ" && (
+              {hasVoluntaryInsurance === "มีประกันภัยภาคสมัครใจ" && (
                 <Col sm={6} xs={12} className="mb-3">
                   <FileInput
                     label="สำเนากรมธรรม์เดิม (รองรับ .png, .jpg)"
@@ -500,6 +519,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                     // isInvalid={isInvalid && !voluntaryInsuranceCarFile}
                     alertText="กรุณาอัปโหลดสำเนากรมธรรม์เดิม"
                     initialFile={voluntaryInsuranceCarFile}
+                    required
                   />
                 </Col>
               )}
@@ -519,9 +539,10 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                   // }
                   alertText="กรุณาอัปโหลดสำเนาหน้าเล่มทะเบียน"
                   initialFile={registrationBookInsuranceMotorcycleFile}
+                  required
                 />
               </Col>
-              {hasVoluntaryInsurance === "ยังมีประกันภัยภาคสมัครใจ" && (
+              {hasVoluntaryInsurance === "มีประกันภัยภาคสมัครใจ" && (
                 <Col sm={6} xs={12} className="mb-3">
                   <FileInput
                     label="สำเนากรมธรรม์เดิม (รองรับ .png, .jpg)"
@@ -532,6 +553,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                     // isInvalid={isInvalid && !voluntaryInsuranceMotorcycleFile}
                     alertText="กรุณาอัปโหลดสำเนากรมธรรม์เดิม"
                     initialFile={voluntaryInsuranceMotorcycleFile}
+                    required
                   />
                 </Col>
               )}
@@ -550,6 +572,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                   // isInvalid={isInvalid && !titleDeedFile}
                   alertText="กรุณาอัปโหลดสำเนาโฉนดที่ดิน"
                   initialFile={titleDeedFile}
+                  required
                 />
               </Col>
               <Col sm={6} xs={12} className="mb-3">
@@ -562,9 +585,10 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                   // isInvalid={isInvalid && !noIDcardFile}
                   alertText="กรุณาอัปโหลดสำเนาบัตรประชาชน"
                   initialFile={noIDcardFile}
+                  required
                 />
               </Col>
-              {hasVoluntaryInsurance === "ยังมีประกันภัยภาคสมัครใจ" && (
+              {hasVoluntaryInsurance === "มีประกันภัยภาคสมัครใจ" && (
                 <Col sm={6} xs={12} className="mb-3">
                   <FileInput
                     label="สำเนากรมธรรม์เดิม (รองรับ .png, .jpg)"
@@ -575,6 +599,7 @@ const InsuranceVehicleInfo: React.FC<InsuranceVehicleInfoProps> = ({
                     // isInvalid={isInvalid && !voluntaryInsuranceHouseFile}
                     alertText="กรุณาอัปโหลดสำเนากรมธรรม์เดิม"
                     initialFile={voluntaryInsuranceHouseFile}
+                    required
                   />
                 </Col>
               )}

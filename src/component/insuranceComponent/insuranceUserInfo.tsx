@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Col, Row } from "react-bootstrap";
 import TextInput from "../textFillComponent/textInput";
 
@@ -12,8 +12,11 @@ interface InsuranceUserInfoProps {
   isInvalid: boolean;
   setIsInvalid: (value: boolean) => void;
   label: string;
+  setLabel?: (label: string) => void;
   isShowRegistrationNumber: boolean;
   isShowHouseNumber: boolean;
+  isRegistrationNumberValid: boolean;
+  isContactNumberValid: boolean;
 }
 
 const InsuranceUserInfo: React.FC<InsuranceUserInfoProps> = ({
@@ -22,36 +25,31 @@ const InsuranceUserInfo: React.FC<InsuranceUserInfoProps> = ({
   contactNumber,
   setContactNumber,
   label,
+  setLabel,
   isShowRegistrationNumber,
   houseNumber,
   setHouseNumber,
   isShowHouseNumber,
+  isRegistrationNumberValid,
+  isContactNumberValid,
 }) => {
   const [hasTouchedRegistration, setHasTouchedRegistration] = useState(false);
   const [hasTouchedContact, setHasTouchedContact] = useState(false);
   const [hasTouchedHouseNumber, setHasTouchedHouseNumber] = useState(false);
 
-  const validateRegistrationNumber = (value: string) =>
-    /^[ก-ฮ0-9]+$/.test(value);
-
-  const validateContactNumber = (value: string) =>
-    /^(06|08|09)\d{8}$/.test(value);
-
   const validateHouseNumber = (value: string) =>
     /^[เ-ไก-ฮa-zA-Z0-9\-/]+$/.test(value);
 
-  // useEffect(() => {
-  //   // ตรวจสอบว่าเลขทะเบียนและหมายเลขโทรศัพท์กรอกถูกต้อง
-  //   const invalid = !/^[ก-ฮ0-9]+$/.test(registrationNumber); // เงื่อนไขเลขทะเบียน
-  //   const contactNumberInvalid = !/^(06|08|09)\d{8}$/.test(contactNumber); // หมายเลขโทรศัพท์ต้องเป็นตัวเลข 10 หลัก
-  //   setIsInvalid(invalid);
-  //   setIsInvalidContact(contactNumberInvalid);
-  // }, [registrationNumber, contactNumber, setIsInvalid]);
+  useEffect(() => {
+    if (setLabel) {
+      setLabel(label); 
+    }
+  }, [label, setLabel])
 
   return (
     <Row>
       {isShowRegistrationNumber && (
-        <Col md={4} sm={6} xs={12} className="mb-3">
+        <Col md={isShowHouseNumber ? 4 : 6} sm={6} xs={12} className="mb-3">
           <TextInput
             label={label}
             id="registrationNumber"
@@ -59,12 +57,9 @@ const InsuranceUserInfo: React.FC<InsuranceUserInfoProps> = ({
             value={registrationNumber}
             onChange={(e) => {
               setRegistrationNumber(e.target.value);
-              setHasTouchedRegistration(true); // ระบุว่าผู้ใช้เริ่มกรอกข้อมูล
+              setHasTouchedRegistration(true); 
             }}
-            isInvalid={
-              hasTouchedRegistration &&
-              !validateRegistrationNumber(registrationNumber)
-            }
+            isInvalid={hasTouchedRegistration && !isRegistrationNumberValid}
             required
             alertText="กรุณากรอกเลขทะเบียน (เฉพาะตัวอักษรไทยและตัวเลข)"
           />
@@ -87,12 +82,13 @@ const InsuranceUserInfo: React.FC<InsuranceUserInfoProps> = ({
             }
             required
             alertText="กรุณากรอกเลขทะเบียน (เฉพาะตัวอักษรไทยและตัวเลข)"
+            
           />
         </Col>
       )}
 
       {/* หมายเลขโทรศัพท์ */}
-      <Col md={4} sm={6} xs={12} className="mb-3">
+      <Col md={isShowRegistrationNumber && !isShowHouseNumber ? 6 : 4} sm={6} xs={12} className="mb-3">
         <TextInput
           label="หมายเลขโทรศัพท์"
           id="contactNumber"
@@ -102,7 +98,7 @@ const InsuranceUserInfo: React.FC<InsuranceUserInfoProps> = ({
             setContactNumber(e.target.value);
             setHasTouchedContact(true); // ระบุว่าผู้ใช้เริ่มกรอกข้อมูล
           }}
-          isInvalid={hasTouchedContact && !validateContactNumber(contactNumber)}
+          isInvalid={hasTouchedContact && !isContactNumberValid}
           required
           alertText={
             hasTouchedContact
@@ -111,6 +107,7 @@ const InsuranceUserInfo: React.FC<InsuranceUserInfoProps> = ({
                 : "กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก"
               : ""
           }
+          isPhoneNumber
         />
       </Col>
     </Row>

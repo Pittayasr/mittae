@@ -1,8 +1,9 @@
+//dateInput.tsx
 import React, { useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import { ThaiDatePicker } from "thaidatepicker-react";
 import ImageModal from "./Imagemodal";
-import { CiCalendar } from "react-icons/ci";
+import { IoCalendarClearOutline, IoCloseCircleSharp } from "react-icons/io5";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/th";
 
@@ -11,6 +12,7 @@ interface DateInputProps {
   value: Dayjs | null;
   isInvalid?: boolean;
   alertText?: string;
+  required?: boolean;
   label: string;
   imgPath?: string | null;
 }
@@ -18,6 +20,7 @@ interface DateInputProps {
 const DateInput: React.FC<DateInputProps> = ({
   onDateChange,
   value,
+  required,
   isInvalid = false,
   alertText,
   imgPath,
@@ -29,19 +32,28 @@ const DateInput: React.FC<DateInputProps> = ({
     if (selectedDate) {
       const parsedDate = dayjs(selectedDate, "YYYY-MM-DD"); // ใช้รูปแบบปี ค.ศ.
       onDateChange(parsedDate);
-      setShowModal(false);
+      // setShowModal(false);
     }
   };
 
   return (
     <Form.Group style={{ flexDirection: "column", position: "relative" }}>
       <div className="responsive-label d-flex justify-content-between align-items-center">
-        <Form.Label>{label}</Form.Label>
-        {imgPath && (
-          <ImageModal imageUrl={imgPath} buttonText="ดูรูปตัวอย่าง" />
-        )}
+        <Form.Label>
+          {label}{" "}
+          {required && (
+            <span
+              style={{ color: "red", cursor: "help" }}
+              title="จำเป็นต้องกรอกข้อมูล"
+            >
+              *
+            </span>
+          )}
+        </Form.Label>
+        {imgPath && <ImageModal imageUrl={imgPath} buttonText="รูปตัวอย่าง" />}
       </div>
       <div
+        className="d-flex align-items-center "
         onClick={() => setShowModal(true)}
         style={{
           width: "100%",
@@ -51,7 +63,8 @@ const DateInput: React.FC<DateInputProps> = ({
           fontFamily: "Noto Sans Thai, sans-serif",
           cursor: "pointer",
           backgroundColor: "#fff",
-          border: "1px solid #d9d9d9",
+          borderWidth: "1px",
+          borderStyle: "solid",
           outline: "none",
           textAlign: "left",
           display: "flex",
@@ -59,15 +72,42 @@ const DateInput: React.FC<DateInputProps> = ({
           justifyContent: "space-between",
         }}
       >
-        <span className="d-flex align-items-center">
-          <CiCalendar size={25} style={{ padding: "0px 5px 0px 0px" }} />
+        <span className="responsive-label">
+          <IoCalendarClearOutline
+            size={24}
+            style={{ padding: "0px 5px 3px 0px" }}
+          />
           {value
-            ? value.add(543, "year").format("D MMMM พ.ศ. YYYY")
+            ? value.add(543, "year").format("D MMM  YYYY")
             : "วัน เดือน ปี พ.ศ."}
         </span>
+        {value && (
+          <IoCloseCircleSharp
+            size={18}
+            type="IoCloseCircleSharp "
+            className="align-items-center "
+            style={{
+              background: "none",
+              border: "none",
+              marginRight: "0px",
+              cursor: "pointer",
+              padding: "0",
+              opacity: "0.4",
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDateChange(null);
+            }}
+          />
+        )}
       </div>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered className="dropdown-dateInput">
+      <Modal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        centered
+        className="dropdown-dateInput"
+      >
         <Modal.Header closeButton>
           <Modal.Title>เลือก{label}</Modal.Title>
         </Modal.Header>
@@ -126,7 +166,10 @@ const DateInput: React.FC<DateInputProps> = ({
       </Modal>
 
       {isInvalid && (
-        <p style={{ color: "red", fontSize: "14px", marginTop: "5px" }}>
+        <p
+          className="mb-0"
+          style={{ color: "red", fontSize: "14px", marginTop: "5px" }}
+        >
           {alertText}
         </p>
       )}

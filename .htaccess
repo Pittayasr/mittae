@@ -1,34 +1,37 @@
-# .htaccess
 # เปิดการใช้ Rewrite Engine
 RewriteEngine On
 
-# บังคับ Redirect ไปยัง HTTPS
-RewriteCond %{HTTPS} off
-RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
-# บังคับใช้ www (ถ้าต้องการ)
-RewriteCond %{HTTP_HOST} !^www\.
+# ✅ บังคับให้ใช้ HTTPS และ www ใน URL
+RewriteCond %{HTTPS} off [OR]
+RewriteCond %{HTTP_HOST} !^www\. [NC]
 RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# Redirect ไปยัง index.html สำหรับ React (Single Page Application)
+# ✅ Redirect ไปยัง index.html สำหรับ React (Single Page Application)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ /index.html [L]
 
-# บล็อกการเข้าถึงไฟล์สำคัญ
-<FilesMatch "^.*\.(env|json|config|ini|log|sh|bashrc|htaccess|htpasswd)$">
+# ✅ บล็อกการเข้าถึงไฟล์สำคัญ (ป้องกันการเข้าถึงไฟล์ JSON ที่สำคัญ)
+<FilesMatch "(\.env|\.config|\.ini|\.log|\.sh|\.bashrc|\.htaccess|\.htpasswd)$">
     Order allow,deny
     Deny from all
 </FilesMatch>
 
-# อนุญาต CORS (ถ้าจำเป็น)
+# ✅ เปิดใช้งาน CORS (กำหนดแค่ครั้งเดียว)
 <IfModule mod_headers.c>
-    Header always set Access-Control-Allow-Origin "*"
-    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS, DELETE, PUT"
+    SetEnvIf Origin "https://www\.mittaemaefahlung88\.com" origin_is=$0
+    Header always set Access-Control-Allow-Origin "%{origin_is}e" env=origin_is
+    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
     Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
 </IfModule>
 
-# กำหนด Cache-Control Headers เพื่อปรับปรุง Performance
+# ✅ อนุญาตให้ไฟล์ JSON ใช้ CORS (เฉพาะที่อนุญาต)
+<FilesMatch "\.(json)$">
+    Header set Access-Control-Allow-Origin "https://www.mittaemaefahlung88.com"
+</FilesMatch>
+
+
+# ✅ ตั้งค่าการ Caching เพื่อปรับปรุง Performance
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresByType text/html "access plus 1 month"
@@ -40,9 +43,14 @@ RewriteRule ^ /index.html [L]
     ExpiresByType image/svg+xml "access plus 1 year"
 </IfModule>
 
+# ✅ Cache Control สำหรับไฟล์ Static (ปรับปรุง Performance)
 <IfModule mod_headers.c>
   <FilesMatch "\.(jpg|jpeg|png|gif|js|css|woff|woff2|ttf|otf|eot|svg)$">
     Header set Cache-Control "max-age=31536000, public"
   </FilesMatch>
 </IfModule>
 
+# ✅ Test Header (สำหรับตรวจสอบว่า `.htaccess` ใช้งานได้หรือไม่)
+<IfModule mod_headers.c>
+    Header set Test-Header "Working"
+</IfModule>

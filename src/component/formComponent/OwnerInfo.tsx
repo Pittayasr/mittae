@@ -119,6 +119,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
             onChange={setSelectedRadio}
             isInvalid={isInvalid} // จะเป็น true เมื่อไม่มีการเลือกค่า
             alertText="กรุณาเลือกประเภทข้อมูลเจ้าของรถ" // ข้อความแจ้งเตือน
+            required
           />
         </Col>
       </Row>
@@ -168,7 +169,7 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
           </Col>
         )}
 
-        {/* จำนวนประตูหรือประเภทของรถจักรยารยนต์ */}
+        {/* จำนวนประตูหรือประเภทของรถจักรยานยนต์ */}
         {selectedCarType && (
           <Col className="date-idNo-carType-Input mb-4" sm={6} md={6} xs={12}>
             <TextSelect
@@ -184,7 +185,10 @@ const OwnerInfo: React.FC<OwnerInfoProps> = ({
                   ? [
                       { label: "รถส่วนบุคคล", value: "รถส่วนบุคคล" },
                       { label: "รถสาธารณะ", value: "รถสาธารณะ" },
-                      { label: "รถพ่วง", value: "รถพ่วง" },
+                      {
+                        label: "รถจักรยานยนต์พร้อมพ่วง",
+                        value: "รถจักรยานยนต์พร้อมพ่วง",
+                      },
                     ]
                   : [
                       { label: "2 ประตู", value: "2 ประตู" },

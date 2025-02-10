@@ -12,6 +12,7 @@ interface VehicleInfoProps {
   engineSize: string;
   setEngineSize: (value: string) => void;
   selectedCarType: string | null;
+  selectedFuelType: string | null;
   setIsFormValid: (isValid: boolean) => void;
   CCorWeight: string;
   setCCorWeight: React.Dispatch<React.SetStateAction<string>>;
@@ -31,6 +32,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
   engineSize,
   setEngineSize,
   selectedCarType,
+  selectedFuelType,
   // setIsFormValid,
   CCorWeight,
   setCCorWeight,
@@ -158,6 +160,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
                 : "กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก"
               : ""
           }
+          isPhoneNumber
         />
       </Col>
 
@@ -168,9 +171,9 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
             label={CCorWeight}
             placeholder={
               selectedCarType === "รถบรรทุก" ||
-              selectedCarType === "รถบรรทุก(เกิน7ที่นั่ง)" ||
-              selectedCarType === "รถไฮบริด" ||
-              selectedCarType === "รถไฟฟ้า"
+              selectedCarType === "รถกระบะ" ||
+              selectedFuelType === "ไฮบริด" ||
+              selectedFuelType === "ไฟฟ้า"
                 ? "กรอกน้ำหนักรถ(กิโลกรัม)"
                 : selectedCarType === "รถพ่วง" ||
                   // selectedCarType === "รถบดถนน" ||
@@ -191,6 +194,7 @@ const VehicleInfo: React.FC<VehicleInfoProps> = ({
               // selectedCarType === "รถบดถนน" ||
               selectedCarType === "รถแทรกเตอร์"
             } // เพิ่มเงื่อนไขล็อค
+            isNumericWithComma
           />
         </Col>
       )}

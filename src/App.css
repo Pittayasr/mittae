@@ -126,7 +126,7 @@
   align-items: center;
 }
 
-.custom-calender{
+.custom-calender {
   text-align: center;
   border-radius: 5px;
   font-family: "Noto Sans Thai", sans-serif;
@@ -169,10 +169,9 @@
 }
 
 .dropdown-dateInput {
-  
   padding: 5px;
   border-radius: 8px;
-  
+
   z-index: 1150;
 }
 
@@ -519,14 +518,6 @@
 }
 
 @media (max-width: 768px) {
-  .radioButton {
-    margin-left: 15px;
-    display: flex; /* ใช้ Flexbox */
-    flex-direction: column; /* ตั้งค่าการจัดเรียงในแนวนอน */
-    justify-content: flex-start; /* จัดชิดซ้าย หรือคุณสามารถใช้ center หรือ space-between */
-    align-items: center; /* จัดแนวกลางในแนวตั้ง */
-  }
-
   .noCar-tel {
     display: flex;
     flex-direction: column; /* หรือ row ถ้าต้องการให้เรียงกันในแนวนอน */
@@ -548,6 +539,13 @@
 }
 
 @media (max-width: 553px) {
+  .radioButton {
+    margin-left: 15px;
+    display: flex; /* ใช้ Flexbox */
+    flex-direction: column; /* ตั้งค่าการจัดเรียงในแนวนอน */
+    justify-content: flex-start; /* จัดชิดซ้าย หรือคุณสามารถใช้ center หรือ space-between */
+    align-items: center; /* จัดแนวกลางในแนวตั้ง */
+  }
   .register-and-contract-number {
     display: flex;
     flex-direction: column;

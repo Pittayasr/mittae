@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/th";
 import { FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
 import { VscError } from "react-icons/vsc";
+import { useLiffAuth } from "../../component/lineLiffAuthContext";
 
 interface ResultDeliveryProps {
   deliveryType: string;
@@ -87,6 +88,8 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState<ReactNode>(null);
   const [success, setSuccess] = useState(false);
+
+  const { userId } = useLiffAuth();
 
   //resultDelivery.tsx
   const handleConfirm = async () => {
@@ -216,14 +219,14 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
       const message = [
         {
           type: "text",
-          text: `
-        🚛 รายละเอียดการส่ง:
-        👤 ผู้ส่ง: ${senderInfo.username}
-        📞 เบอร์ติดต่อ: ${senderInfo.contactNumber}
-        ${
-          senderInfo.ownerData.includes("@") ? "พาสปอร์ต" : "เลขบัตรประชาชน"
-        }: ${senderInfo.ownerData}
-        📍 บ้านเลขที่: ${senderInfo.houseNo}, หมู่: ${
+          text: `🚛 รายละเอียดการส่ง:
+👤 ผู้ส่ง: ${senderInfo.username}
+📞 เบอร์ติดต่อ: ${senderInfo.contactNumber}
+${senderInfo.ownerData.includes("@") ? "พาสปอร์ต" : "เลขบัตรประชาชน"}: ${
+            senderInfo.ownerData
+          }
+📍 ที่อยู่: 
+          บ้านเลขที่: ${senderInfo.houseNo}, หมู่: ${
             senderInfo.villageNo
           }, ซอย: ${senderInfo.soi}, ตำบล/แขวง: ${
             senderInfo.subDistrict
@@ -231,9 +234,10 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
             senderInfo.province
           }, รหัสไปรษณีย์: ${senderInfo.postalCode}
         
-        👤 ผู้รับ: ${receiverInfo.username}
-        📞 เบอร์ติดต่อ: ${receiverInfo.contactNumber}
-        📍 บ้านเลขที่: ${receiverInfo.houseNo}, หมู่: ${
+👤 ผู้รับ: ${receiverInfo.username}
+📞 เบอร์ติดต่อ: ${receiverInfo.contactNumber}
+📍 ที่อยู่:
+          บ้านเลขที่: ${receiverInfo.houseNo}, หมู่: ${
             receiverInfo.villageNo
           }, ซอย: ${receiverInfo.soi}, ตำบล/แขวง: ${
             receiverInfo.subDistrict
@@ -244,23 +248,27 @@ const ResultDelivery: React.FC<ResultDeliveryProps> = ({
         ...imageMessages,
       ];
 
+      const payload = {
+        type: "Delivery",
+        message,
+        userId: userId || "UNKNOWN_USER",
+      };
+
+      console.log("Payload being sent to /webhook:", payload);
+
       // เรียก /webhook เพื่อส่ง message
       const webhookResponse = await fetch(
         "https://api.mittaemaefahlung88.com/webhook",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            type: "Delivery",
-            message, // ส่งข้อความที่สร้างไว้ไปยังเซิร์ฟเวอร์
-            userId: "LINE_USER_ID", // แทนที่ด้วย userId ที่ต้องการ
-          }),
+          body: JSON.stringify(payload),
         }
       );
 
       if (!webhookResponse.ok) {
-        const errorDetails = await webhookResponse.text(); // Log full error response
-        console.error("Webhook Response Error:", errorDetails);
+        const errorMessage = await webhookResponse.text();
+        console.error("Webhook Error:", errorMessage);
         throw new Error("Failed to send message to webhook");
       }
 

@@ -176,7 +176,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
 
     if (selectedProvinceObj) {
       setSelectedProvince(value); // เก็บ provinceCode
-      setSelectedProvinceName(selectedProvinceObj.provinceNameTh); 
+      setSelectedProvinceName(selectedProvinceObj.provinceNameTh);
     } else {
       setSelectedProvince(null);
       setSelectedProvinceName(null);
@@ -298,7 +298,6 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
           value={dormitory}
           placeholder="กรอกชื่อหอพัก"
           onChange={(e) => handleTextInputChange(e.target.value, "dormitory")}
-          required
           isInvalid={isInvalid || isInvalidDormitory}
           alertText="กรุณากรอกชื่อหอพักให้ถูกต้อง"
         />
@@ -310,7 +309,6 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
           value={soi}
           placeholder="กรอกซอย"
           onChange={(e) => handleTextInputChange(e.target.value, "soi")}
-          required
           isInvalid={isInvalid || isInvalidSoi}
           alertText="กรุณากรอกซอยให้ถูกต้อง"
         />
@@ -412,7 +410,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
         />
       </Col>
 
-      {(!showSender && !transport) &&  (
+      {!showSender && !transport && (
         <Col className="register-and-contract-number mb-4" md={4} xs={12}>
           <TextSelect
             value={selectDeliveryType || ""}

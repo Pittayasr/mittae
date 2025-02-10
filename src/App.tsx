@@ -4,7 +4,7 @@ import { Button } from "react-bootstrap";
 import { AuthProvider } from "./component/authContext";
 import useAuth from "./component/useAuth";
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Routes,
   Route,
   Navigate,
@@ -25,6 +25,8 @@ import "./App.css";
 import SelectFormModal from "./component/selectFromModal";
 import SelectAdminFormModal from "./component/pageAdmin/selelctAdminFormModal";
 import LoginAdmin from "./component/pageAdmin/loginAdmin";
+import { LiffAuthProvider } from "./component/lineLiffAuthContext";
+import ProtectedLiffRoute from "./component/ProtectedLiffRoute";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isLoggedIn } = useAuth();
@@ -79,22 +81,6 @@ function App() {
     setShowPDPA(false);
   };
 
-  // const handleNavigateToForm = () => {
-  //   navigate("/form");
-  // };
-
-  // const handleNavigateToPrint = () => {
-  //   navigate("/print");
-  // };
-
-  // const handleNavigateToDelivery = () => {
-  //   navigate("/delivery");
-  // };
-
-  // const handleNavigateToInsurance = () => {
-  //   navigate("/insurance");
-  // };
-
   const handleNavigateToFormAdmin = () => {
     navigate("/form_admin_hc{SlU(.'rhA");
   };
@@ -110,15 +96,6 @@ function App() {
   const handleNavigateToInsuranceAdmin = () => {
     navigate("/insurance_admin_yKLwO~{WoOL(");
   };
-
-  // if (
-  //   !isPDPAAgreed &&
-  //   (location.pathname === "/form" ||
-  //     location.pathname === "/print" ||
-  //     location.pathname === "/delivery")
-  // ) {
-  //   return <PDPA_modal isVisible={!isPDPAAgreed} onAgree={handlePDPAAgree} />;
-  // }
 
   return (
     <div className="app-container">
@@ -185,19 +162,50 @@ function App() {
             <SelectFormModal
               isVisible={showSelectFormModal}
               onClose={() => setShowSelectFormModal(false)}
-              // onNavigateToReadMe={handleNavigateToForm}
-              // onNavigateToPrint={handleNavigateToPrint}
-              // onNavigateToDelivery={handleNavigateToDeliveryAdmin}
-              // onNavigateToInsurance={handleNavigateToInsurance}
             />
           }
         />
-        <Route path="/form" element={<FormComponent />} />
+        <Route
+          path="/form"
+          element={
+            <>
+              <ProtectedLiffRoute>
+                <FormComponent />
+              </ProtectedLiffRoute>
+            </>
+          }
+        />
+        <Route
+          path="/delivery"
+          element={
+            <>
+              <ProtectedLiffRoute>
+                <Delivery />
+              </ProtectedLiffRoute>
+            </>
+          }
+        />
+        <Route
+          path="/transport"
+          element={
+            <>
+              <ProtectedLiffRoute>
+                <TransportForm />
+              </ProtectedLiffRoute>
+            </>
+          }
+        />
+        <Route
+          path="/insurance"
+          element={
+            <>
+              <ProtectedLiffRoute>
+                <InsuranceForm />
+              </ProtectedLiffRoute>
+            </>
+          }
+        />
         {/* <Route path="/print" element={<Print />} /> */}
-        <Route path="/delivery" element={<Delivery />} />
-        <Route path="/transport" element={<TransportForm />} />
-        <Route path="/insurance" element={<InsuranceForm />} />
-
         {/* เส้นทางเข้าสู่ระบบสำหรับแอดมิน */}
         <Route path="/login_admin" element={<LoginAdmin />} />
 
@@ -260,11 +268,13 @@ function App() {
 
 function AppWrapper() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <LiffAuthProvider>
+      <AuthProvider>
         <App />
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+      </LiffAuthProvider>
+    </Router>
   );
 }
 

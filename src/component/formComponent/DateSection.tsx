@@ -1,9 +1,9 @@
-// DateSection.tsx
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { Col, Row } from "react-bootstrap";
 import DateInput from "../textFillComponent/dateInput";
 import TextSelect from "../textFillComponent/textSelect";
-import dayjs, { Dayjs } from "dayjs";
+import { calculateCarAge } from "../../data/calculateTax"; // นำเข้าฟังก์ชัน
+import { Dayjs } from "dayjs";
 
 interface DateSectionProps {
   isInvalid: boolean;
@@ -17,6 +17,7 @@ interface DateSectionProps {
   missedTaxPayment: string | null;
   setMissedTaxPayment: (value: string | null) => void;
   setIsFormValid: (isValid: boolean) => void;
+  setCarMoreThan5Years: (value: boolean) => void;
 }
 
 const DateSection: React.FC<DateSectionProps> = ({
@@ -27,20 +28,27 @@ const DateSection: React.FC<DateSectionProps> = ({
   latestTaxPaymentDate,
   missedTaxPayment,
   setMissedTaxPayment,
+  setIsFormValid,
+  setCarMoreThan5Years,
 }) => {
-  const daysSinceRegistration = useMemo(() => {
-    if (!registrationDate) return 0;
-    return dayjs().diff(registrationDate, "day");
-  }, [registrationDate]);
+  // ใช้ฟังก์ชัน calculateCarAge แทนการคำนวณวันเอง
+  const carAge = useMemo(
+    () => calculateCarAge(registrationDate),
+    [registrationDate]
+  );
 
-  const maxMissedPayments = useMemo(() => {
-    if (daysSinceRegistration === 0) return 0;
+  // ตรวจสอบว่ารถมีอายุ >= 5 ปี หรือไม่
+  const carMoreThan5Years = useMemo(() => carAge.years < 5, [carAge]);
 
-    const yearsPassed = Math.floor(daysSinceRegistration / 365); // คำนวณปีที่ผ่านไป
-    return Math.min(Math.max(yearsPassed, 0), 5); // จำกัดที่ 5 ปี
-  }, [daysSinceRegistration]);
+  // อัปเดตค่า `setCarMoreThan5Years`
+  useEffect(() => {
+    setCarMoreThan5Years(carMoreThan5Years);
+  }, [carMoreThan5Years, setCarMoreThan5Years]);
 
-  // สร้างตัวเลือกสำหรับจำนวนครั้งที่ขาดชำระ
+  // คำนวณจำนวนครั้งที่ขาดชำระ (สูงสุด 5 ปี)
+  const maxMissedPayments = useMemo(() => Math.min(carAge.years, 5), [carAge]);
+
+  // ตัวเลือก dropdown ของ "จำนวนขาดชำระภาษี"
   const missedPaymentOptions = useMemo(() => {
     if (maxMissedPayments === 0) return [{ label: "ไม่เคย", value: "ไม่เคย" }];
 
@@ -55,109 +63,78 @@ const DateSection: React.FC<DateSectionProps> = ({
     date: Dayjs | null,
     type: "registration" | "expiration" | "latestTaxPayment"
   ) => {
-    if (type === "registration" || type === "expiration") {
-      // เลื่อนหน้าจอขึ้นด้านบน
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    }
-
-    // เรียกใช้ handleDateChange ดั้งเดิม
+    // if (type === "registration" || type === "expiration") {
+    //   window.scrollTo({ top: 200, behavior: "smooth" });
+    // }
     handleDateChange(date, type);
   };
+
+  // ตรวจสอบว่าค่าที่กรอกถูกต้องหรือไม่
+  const isDateInvalid = useMemo(() => {
+    if (!latestTaxPaymentDate || !expirationDate) return false;
+    return latestTaxPaymentDate.isAfter(expirationDate);
+  }, [latestTaxPaymentDate, expirationDate]);
+
+  // ตรวจสอบความถูกต้องของฟอร์ม
+  useEffect(() => {
+    if (carMoreThan5Years) {
+      setMissedTaxPayment(null);
+    }
+    setIsFormValid(!isDateInvalid);
+  }, [isDateInvalid, setIsFormValid]);
+  
 
   return (
     <Row>
       {/* วันที่จดทะเบียน */}
-      <Col
-        className="date-idNo-carType-Input mb-4"
-        xs={12}
-        sm={6}
-        md={
-          daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 4
-        }
-      >
-        {/* <div className="responsive-label d-flex justify-content-between align-items-center mb-1">
-          <span className=" mb-1">วันที่จดทะเบียน</span>
-          <ImageModal
-            imageUrl="/src/data/registerDate.png"
-            buttonText="ดูรูปตัวอย่าง"
-          />
-        </div> */}
+      <Col xs={12} sm={6} md={carMoreThan5Years ? 6 : 4} className="mb-4">
         <DateInput
           label="วันที่จดทะเบียน"
           onDateChange={(date) =>
             handleScrollAndDateChange(date, "registration")
           }
           imgPath="/src/data/registerDate.png"
-          value={registrationDate} // Directly use registrationDate as Dayjs
+          value={registrationDate}
           isInvalid={isInvalid}
           alertText="กรุณาเลือกวันที่จดทะเบียน"
+          required
         />
-        {/* <span>อายุรถ: {carAge.years} ปี {carAge.months} เดือน {carAge.days} วัน</span> */}
       </Col>
 
       {/* วันต่อภาษีล่าสุด */}
-      <Col
-        className="date-idNo-carType-Input mb-4"
-        xs={12}
-        sm={6}
-        md={
-          daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 4
-        }
-      >
-        {/* <div
-          className="responsive-label d-flex justify-content-between align-items-center "
-          style={{ paddingBottom: "10px" }}
-        >
-          <span className="mb-0">วันต่อภาษีล่าสุด</span>
-        </div> */}
+      <Col xs={12} sm={6} md={carMoreThan5Years ? 6 : 4} className="mb-4">
         <DateInput
           label="วันต่อภาษีล่าสุด"
           imgPath=""
           onDateChange={(date) => handleDateChange(date, "latestTaxPayment")}
-          value={latestTaxPaymentDate} // Directly use latestTaxPaymentDate as Dayjs
-          isInvalid={isInvalid}
-          alertText="กรุณาเลือกวันต่อภาษีล่าสุด"
+          value={latestTaxPaymentDate}
+          isInvalid={isDateInvalid || isInvalid}
+          alertText="วันต่อภาษีล่าสุดต้องไม่เกินวันสิ้นอายุ"
+          required
         />
       </Col>
+
       {/* วันสิ้นอายุ */}
       <Col
-        className="date-idNo-carType-Input mb-4"
         xs={12}
-        sm={daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 12}
-        md={
-          daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 4
-        }
+        sm={carMoreThan5Years ? 6 : 12}
+        md={carMoreThan5Years ? 6 : 4}
+        className="mb-4"
       >
-        {/* <div className="responsive-label d-flex justify-content-between align-items-center mb-1">
-          <span className="mb-1">วันสิ้นอายุ</span>
-          <ImageModal
-            imageUrl="/src/data/endDate.png"
-            buttonText="ดูรูปตัวอย่าง"
-          />
-        </div> */}
         <DateInput
           label="วันสิ้นอายุ"
           onDateChange={(date) => handleScrollAndDateChange(date, "expiration")}
           imgPath="/src/data/endDate.png"
-          value={expirationDate} // Directly use expirationDate as Dayjs
+          value={expirationDate}
           isInvalid={isInvalid}
           alertText="กรุณาเลือกวันสิ้นอายุ"
+          required
         />
       </Col>
 
-      {/* การขาดการชำระ */}
-      {daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 && (
-        <Col
-          md={
-            daysSinceRegistration !== 0 && daysSinceRegistration <= 1825 ? 6 : 4
-          }
-          sm={6}
-          xs={12}
-          className="mb-3"
-        >
+      {/* แสดงช่องขาดชำระภาษี เฉพาะรถที่มีอายุ >= 5 ปี */}
+      {carMoreThan5Years && (
+        <Col md={6} sm={6} xs={12} className="mb-3">
           <TextSelect
             label="เคยขาดจ่ายชำระภาษีหรือไม่"
             id="insuranceType"
@@ -167,6 +144,7 @@ const DateSection: React.FC<DateSectionProps> = ({
             placeholder="เลือก..."
             required
             alertText="กรุณาเลือกจำนวนครั้งที่ขาดชำระภาษี"
+            isInvalid={isInvalid}
           />
         </Col>
       )}

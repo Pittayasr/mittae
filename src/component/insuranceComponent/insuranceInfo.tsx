@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Col, Row } from "react-bootstrap";
 import TextSelect from "../textFillComponent/textSelect";
 
+
 interface InsuranceInfoProps {
   insuranceType: string | null;
   setInsuranceType: (value: string | null) => void;
@@ -30,9 +31,9 @@ const InsuranceInfo: React.FC<InsuranceInfoProps> = ({
   }, [insuranceType, insuranceCompany, insuranceCategory, setIsInvalid]);
 
   return (
-    <Row>
+    <Row className="mt-4">
       {/* ประเภทประกัน */}
-      <Col md={4} sm={6} xs={12} className="mb-3">
+      <Col xl={4} sm={6} lg={4} md={4} xs={12} className="mb-3">
         <TextSelect
           label="เลือกประเภทประกัน"
           id="insuranceType"
@@ -55,7 +56,7 @@ const InsuranceInfo: React.FC<InsuranceInfoProps> = ({
       </Col>
 
       {/* บริษัทประกัน */}
-      <Col md={4} sm={6} xs={12} className="mb-3">
+      <Col xl={4} sm={6} lg={4} md={4} xs={12} className="mb-3">
         <TextSelect
           label="เลือกบริษัทประกัน"
           id="insuranceCompany"
@@ -75,7 +76,7 @@ const InsuranceInfo: React.FC<InsuranceInfoProps> = ({
       </Col>
 
       {/* ประเภท */}
-      <Col md={4} xs={12} className="mb-3">
+      <Col xl={4} lg={4} md={4} xs={12} className="mb-3">
         <TextSelect
           label="ประเภท"
           id="insuranceCategory"
@@ -92,7 +93,6 @@ const InsuranceInfo: React.FC<InsuranceInfoProps> = ({
           value={insuranceCategory}
           onChange={setInsuranceCategory}
           placeholder="เลือกประเภท"
-          // isInvalid={isInvalid && !insuranceCategory}
           required
           alertText="กรุณาเลือกประเภท"
         />

@@ -7,8 +7,9 @@ interface RadioButtonProps {
   label: string;
   selectedValue?: string | null;
   onChange: (value: string) => void;
-  isInvalid?: boolean; // เพิ่ม prop สำหรับจัดการสถานะ validation
-  alertText?: string; // เพิ่มข้อความแจ้งเตือน
+  isInvalid?: boolean;
+  alertText?: string;
+  required?: boolean;
 }
 
 const RadioButton: React.FC<RadioButtonProps> = ({
@@ -17,12 +18,23 @@ const RadioButton: React.FC<RadioButtonProps> = ({
   label,
   selectedValue,
   onChange,
-  isInvalid = false, // ค่าเริ่มต้นของ isInvalid
-  alertText = "กรุณาเลือกตัวเลือก", // ข้อความเตือนเริ่มต้น
+  isInvalid = false,
+  alertText = "กรุณาเลือกตัวเลือก",
+  required,
 }) => {
   return (
     <Form.Group>
-      <Form.Label className="responsive-label">{label}</Form.Label>
+      <Form.Label className="responsive-label">
+        {label}{" "}
+        {required && (
+          <span
+            style={{ color: "red", cursor: "help" }}
+            title="จำเป็นต้องกรอกข้อมูล"
+          >
+            *
+          </span>
+        )}
+      </Form.Label>
       <div className="responsive-label radioButton mx-2">
         {/* ใช้ Flexbox เพื่อให้ radio buttons อยู่ในบรรทัดเดียวกัน */}
         {options.map((option, index) => {

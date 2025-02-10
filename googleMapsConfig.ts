@@ -1,5 +1,5 @@
 // googleMapsConfig.ts
-const GOOGLE_MAPS_API_KEY = "AIzaSyA-I0EHF7YUDR9TPzOzVua1H-vwrkjAzb4";
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 export const geocodeAddress = async (address: string) => {
   try {

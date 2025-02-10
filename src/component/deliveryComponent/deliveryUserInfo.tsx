@@ -91,7 +91,8 @@ const DeliveryUserInfo: React.FC<DeliveryUserInfoProps> = ({
               : ""
           }
           required
-          type="tel"
+          type="numeric"
+          isPhoneNumber
         />
       </Col>
     </Row>

@@ -69,6 +69,7 @@ const TextSelect: React.FC<TextSelectProps> = ({
   id,
   options,
   value,
+  required,
   onChange,
   placeholder = "Select an option",
   isInvalid,
@@ -100,7 +101,17 @@ const TextSelect: React.FC<TextSelectProps> = ({
   return (
     <Form.Group controlId={id} className="position-relative">
       <Form.Label>
-        <p className="mb-0">{label}</p>
+        <p className="mb-0">
+          {label}{" "}
+          {required && (
+            <span
+              style={{ color: "red", cursor: "help" }}
+              title="จำเป็นต้องกรอกข้อมูล"
+            >
+              *
+            </span>
+          )}
+        </p>
       </Form.Label>
       <div
         onFocus={handleFocus}

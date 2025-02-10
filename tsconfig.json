@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
-    "types": ["jquery", "multer", "node"],
+    "types": ["jquery", "multer", "node", "jest"],
     "composite": true,
     "noEmit": false,
+
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "allowImportingTsExtensions": false,
-    "target": "ESNext",
-    "module": "ESNext",
+    "module": "esnext",
+    "target": "es2020",
+    "lib": ["ESNext", "DOM"],
+    "resolveJsonModule": true,
     "moduleResolution": "node",
     "rootDir": ".",
     "outDir": "./dist",

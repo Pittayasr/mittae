@@ -1,6 +1,6 @@
-//resultDelivery.tsx
+//resultTransport.tsx
 import React, { useState, ReactNode } from "react";
-import { Button, Row, Col, Form, Modal, Image, Spinner } from "react-bootstrap";
+import { Button, Row, Col, Modal, Image, Spinner } from "react-bootstrap";
 import { Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { calculateDelivery } from "../../data/calculateDelivery";
@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/th";
 import { FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
 import { VscError } from "react-icons/vsc";
+import { useLiffAuth } from "../../component/lineLiffAuthContext";
 
 interface ResultTransportProps {
   deliveryType: string;
@@ -91,6 +92,8 @@ const ResultTransport: React.FC<ResultTransportProps> = ({
   const [modalMessage, setModalMessage] = useState<ReactNode>(null);
   const [success, setSuccess] = useState(false);
 
+  const { userId } = useLiffAuth();
+
   //resultTransport.tsx
   const handleConfirm = async () => {
     setIsSubmitting(true);
@@ -133,11 +136,17 @@ const ResultTransport: React.FC<ResultTransportProps> = ({
       }
 
       const responseData = await response.json();
+      console.log("Response Data:", responseData);
+
+      const transportData = responseData.transport;
+      if (!transportData) {
+        throw new Error("transportData is undefined");
+      }
 
       const getFileData = (
         key: string
       ): { storedFileName: string | null; filePath: string | null } | null => {
-        const file = responseData.transport?.[key];
+        const file = transportData[key];
         return file
           ? {
               storedFileName: file.storedFileName || null,
@@ -220,11 +229,15 @@ const ResultTransport: React.FC<ResultTransportProps> = ({
       const passportOrIDnumberFileData = getFileData(
         "passportOrIDnumberFileTransport"
       );
+      // console.log("passportOrIDnumberFileData:", passportOrIDnumberFileData);
 
       const registrationBookFileData = getFileData(
         "registrationBookFileTransport"
       );
+      // console.log("registrationBookFileData:", registrationBookFileData);
+
       const licenseFileData = getFileData("licenseFileTransport");
+      console.log("licenseFileData:", licenseFileData);
 
       console.log("Generated File Data:", {
         passportOrIDnumberFileData,
@@ -263,45 +276,48 @@ const ResultTransport: React.FC<ResultTransportProps> = ({
 
       const message = [
         {
+          ...imageMessages,
           type: "text",
           text: `
-        🚛 รายละเอียดการขนส่ง:
-        ✅ ผู้ส่ง: ${senderInfo.username}
-        📞 เบอร์ติดต่อ: ${senderInfo.contactNumber}
+        รายละเอียดการส่งของ:
+        ✅ (ผู้ส่ง)
+        ชื่อ-นามสกุล: ${senderInfo.username}
+        หมายเลขโทรศัพท์: ${senderInfo.contactNumber}
         ${
           senderInfo.ownerData.includes("@") ? "พาสปอร์ต" : "เลขบัตรประชาชน"
         }: ${senderInfo.ownerData}
-        📍 ที่อยู่:
-          บ้านเลขที่: ${senderInfo.houseNo}, หมู่: ${
-            senderInfo.villageNo
-          }, ซอย: ${senderInfo.soi}, ตำบล/แขวง: ${
+        ที่อยู่: 
+        ${senderInfo.houseNo ? `เลขที่: ${senderInfo.houseNo} ` : ""}${
+            senderInfo.villageNo ? `หมู่ที่: ${senderInfo.villageNo} ` : ""
+          }${senderInfo.soi ? `ซอย: ${senderInfo.soi} ` : ""}ตำบล: ${
             senderInfo.subDistrict
-          }, อำเภอ/เขต: ${senderInfo.district}, จังหวัด: ${
+          } อำเภอ: ${senderInfo.district} จังหวัด: ${
             senderInfo.province
-          }, รหัสไปรษณีย์: ${senderInfo.postalCode}
+          } รหัสไปรษณีย์: ${senderInfo.postalCode}
         
-        👤 ผู้รับ: ${receiverInfo.username}
-        📞 เบอร์ติดต่อ: ${receiverInfo.contactNumber}
-        📍 ที่อยู่:
-          บ้านเลขที่: ${receiverInfo.houseNo}, หมู่: ${
-            receiverInfo.villageNo
-          }, ซอย: ${receiverInfo.soi}, ตำบล/แขวง: ${
+      ✅ (ผู้รับ)
+        ชื่อ-นามสกุล: ${receiverInfo.username}
+        หมายเลขโทรศัพท์: ${receiverInfo.contactNumber}
+        ที่อยู่: 
+        ${receiverInfo.houseNo ? `เลขที่: ${receiverInfo.houseNo} ` : ""}${
+            receiverInfo.villageNo ? `หมู่ที่: ${receiverInfo.villageNo} ` : ""
+          }${receiverInfo.soi ? `ซอย: ${receiverInfo.soi} ` : ""}ตำบล: ${
             receiverInfo.subDistrict
-          }, อำเภอ/เขต: ${receiverInfo.district}, จังหวัด: ${
+          } อำเภอ: ${receiverInfo.district} จังหวัด: ${
             receiverInfo.province
-          }, รหัสไปรษณีย์: ${receiverInfo.postalCode}
+          } รหัสไปรษณีย์: ${receiverInfo.postalCode}
         
         📍 ตำแหน่งจัดส่ง: [Google Maps](${googleMapsLink})
+        
         ${
           deliveryType === "ส่งรถกลับบ้าน" && vehicleInfo
-            ? `
-        🚗 ประเภทรถ: ${vehicleInfo.carType || "ไม่ระบุ"}
+            ? `🚗 ประเภทรถ: ${vehicleInfo.carType || "ไม่ระบุ"}
         🔧 CC: ${vehicleInfo.ccSize || "ไม่ระบุ"}`
             : ""
         }
-            `.trim(),
+        `.trim(),
         },
-        ...imageMessages,//ตรงส่วนที่ผมตัดออกแล้วใช้ได้ครับ
+
         {
           type: "location",
           title: "ตำแหน่งจัดส่ง",
@@ -314,7 +330,7 @@ const ResultTransport: React.FC<ResultTransportProps> = ({
       const payload = {
         type: "Transport",
         message,
-        userId: "U0b52a337f94b31b123ae9410138212fd",
+        userId: userId || "UNKNOWN_USER",
       };
 
       console.log("Payload being sent to /webhook:", payload);
@@ -330,6 +346,8 @@ const ResultTransport: React.FC<ResultTransportProps> = ({
       );
 
       if (!webhookResponse.ok) {
+        const errorMessage = await webhookResponse.text();
+        console.error("Webhook Error:", errorMessage);
         throw new Error("Failed to send message to webhook");
       }
 
@@ -369,7 +387,7 @@ const ResultTransport: React.FC<ResultTransportProps> = ({
 
   return (
     <div>
-      <Form>
+      <>
         <Row className="mb-4">
           {/* ผู้ส่ง */}
           <Col md={6}>
@@ -567,7 +585,7 @@ const ResultTransport: React.FC<ResultTransportProps> = ({
           success={success}
           isError={isError}
         />
-      </Form>
+      </>
       {/* Modal แสดงตัวอย่างไฟล์ */}
       <Modal show={showPhotoModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>

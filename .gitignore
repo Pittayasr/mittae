@@ -1,25 +1,35 @@
+# Node modules
+node_modules/
+
+# Build output
+dist/
+uploads/
+
 # Logs
-logs
-*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# Environment Variables
 .env
+
+# Cache/Temp Files
+*.tsbuildinfo
+*.cache
+.vscode/
+.DS_Store
+
+# TypeScript compiled output
+*.js
+*.js.map
+*.d.ts
+
+# Firebase and Configs (ตามความเหมาะสม)
+firebaseConfig.ts
+
+# Package Lock Files (กรณีเลือกใช้ Yarn หรือ npm แต่ไม่ควรติดตามทั้งสอง)
+package-lock.json
+yarn.lock
+
+# Git-specific
+.git/

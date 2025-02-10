@@ -13,6 +13,7 @@ import QRCodeImage from "../../data/QRcodeClean.png";
 
 import { FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
 import { VscError } from "react-icons/vsc";
+import { useLiffAuth } from "../../component/lineLiffAuthContext";
 
 const formatDate = (date: Date | null) => {
   if (!date) return "-";
@@ -33,19 +34,25 @@ interface SummaryProps {
   registrationDate: Date | null;
   expirationDate: Date | null;
   latestTaxPaymentDate: Date | null;
+  missedTaxPayment: string | null;
+  carMoreThan5Years: boolean;
   selectedRadio: string | null;
   bikeTypeOrDoorCount: string | null;
   selectedCarType: string | null;
+  selectedFuelType: string | null;
+  selectedCarSeat: string | null;
   totalCost: number | null;
   prbCost: number | null; // ค่าพรบ.สุทธิ
   taxCost: number | null; // ค่าภาษีสุทธิ
   lateFee: number | null; // ค่าปรับล่าช้า
   inspectionCost: number | null; // ค่าตรวจสภาพ
   processingCost: number | null; // ค่าดำเนินการ
+  registrationFee: number | null;
+  taxAnotherYear: number | null;
   carAge: { years: number; months: number; days: number };
   selectedRegistrationBookFile: File | null;
   selectedLicenseFile: File | null;
- 
+  isRegistrationCancelled: boolean;
 
   onBack: () => void; // ฟังก์ชันสำหรับย้อนกลับ
   onConfirm: () => void; // ฟังก์ชันสำหรับส่งข้อมูล
@@ -63,18 +70,24 @@ const Summary: React.FC<SummaryProps> = ({
   CCorWeight,
   carOrMotorcycleLabel,
   latestTaxPaymentDate,
+  // missedTaxPayment,
+  // carMoreThan5Years,
   selectedRadio,
   bikeTypeOrDoorCount,
   selectedCarType,
+  selectedFuelType,
+  selectedCarSeat,
   totalCost,
   prbCost,
   taxCost,
   lateFee,
   inspectionCost,
   processingCost,
+  registrationFee,
   carAge,
   selectedRegistrationBookFile,
   selectedLicenseFile,
+  isRegistrationCancelled,
 
   onBack,
 }) => {
@@ -138,6 +151,8 @@ const Summary: React.FC<SummaryProps> = ({
     document.body.removeChild(link);
   };
 
+  const { userId } = useLiffAuth();
+
   //summary.tsx
   const handleConfirm = async () => {
     setIsSubmitting(true);
@@ -149,15 +164,18 @@ const Summary: React.FC<SummaryProps> = ({
       if (selectedLicenseFile) {
         formData.append("licensePlateFile", selectedLicenseFile);
       }
-      if (selectedSlipQRcodeFile) {
-        formData.append("formSlipQRcode", selectedSlipQRcodeFile);
-      }
+      // if (selectedSlipQRcodeFile) {
+      //   formData.append("formSlipQRcode", selectedSlipQRcodeFile);
+      // }
       // console.log("FormData content:", Array.from(formData.entries()));
 
-      const response = await fetch("https://api.mittaemaefahlung88.com/upload-multiple", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://api.mittaemaefahlung88.com/upload-multiple",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -167,18 +185,32 @@ const Summary: React.FC<SummaryProps> = ({
 
       const responseData = await response.json();
 
+      const prbformData = responseData.form;
+      if (!prbformData) {
+        throw new Error("prbformData is undefined");
+      }
+
       // ตรวจสอบว่า responseData มีค่าที่ต้องการ
       if (
         !responseData.form ||
         !responseData.form.registrationBookFile ||
-        !responseData.form.licensePlateFile ||
-        !responseData.form.formSlipQRcode
+        !responseData.form.licensePlateFile
+        // !responseData.form.formSlipQRcode
       ) {
         throw new Error("Response data missing required files");
       }
 
-      const { registrationBookFile, licensePlateFile, formSlipQRcode } =
-        responseData.form;
+      const getFileData = (
+        key: string
+      ): { storedFileName: string | null; filePath: string | null } | null => {
+        const file = prbformData[key];
+        return file
+          ? {
+              storedFileName: file.storedFileName || null,
+              filePath: file.filePath || null,
+            }
+          : null;
+      };
 
       const uploadTime = dayjs().toISOString();
 
@@ -196,16 +228,22 @@ const Summary: React.FC<SummaryProps> = ({
           : new Date(),
         bikeTypeOrDoorCount: bikeTypeOrDoorCount || "",
         selectedCarType: selectedCarType || "",
+        selectedFuelType: selectedFuelType || "",
+        selectedCarSeat: selectedCarSeat || "",
         totalCost: totalCost || 0,
         prbCost: prbCost || 0,
         taxCost: taxCost || 0,
         lateFee: lateFee || 0,
         inspectionCost: inspectionCost || 0,
         processingCost: processingCost || 0,
+        registrationFee: registrationFee || 0,
         carAge: carAge || { years: 0, months: 0, days: 0 },
         CCorWeight: CCorWeight || "",
         carOrMotorcycleLabel: carOrMotorcycleLabel || "",
         selectedRadio: selectedRadio || "",
+        isRegistrationCancelled: isRegistrationCancelled
+          ? "ทะเบียนถูกระงับ"
+          : "",
       };
 
       const updatedData = {
@@ -227,22 +265,19 @@ const Summary: React.FC<SummaryProps> = ({
         lateFee: data.lateFee,
         inspectionCost: data.inspectionCost,
         processingCost: data.processingCost,
+        registrationFee: data.registrationFee,
         totalCost: data.totalCost,
         CCorWeight: data.CCorWeight,
         carOrMotorcycleLabel: data.carOrMotorcycleLabel,
         selectedRadio: data.selectedRadio,
-        registrationBookFilePath: registrationBookFile.filePath,
-        registrationBookStoredFileName: registrationBookFile.storedFileName,
-        licensePlateFilePath: licensePlateFile.filePath,
-        licensePlateStoredFileName: licensePlateFile.storedFileName,
-        formSlipQRcodeFilePath: formSlipQRcode.filePath,
-        formSlipQRcodeFileFileName: formSlipQRcode.storedFileName,
+        registrationBookFile: getFileData("registrationBookFile"),
+        licensePlateFile: getFileData("licensePlateFile"),
+        // formSlipQRcodeFile: getFileData("formSlipQRcodeFile"),
         uploadTime,
         status: "อยู่ระหว่างดำเนินการ",
       };
 
       await addDoc(collection(db, "prbform"), updatedData);
-      
 
       setModalMessage(
         <div className="d-flex flex-column align-items-center text-center">
@@ -258,11 +293,116 @@ const Summary: React.FC<SummaryProps> = ({
           </p>
         </div>
       );
-      setSuccess(true);
-      {
-        /* ส่วนที่ส่งข้อความแจ้งข้อมูลรายละเอียดของผู้ส่งและผู้รับต่างๆ ที่แจ้งเหมือนใน Form พร้อมส่งรูปที่ดึงมาจากที่ผู้ใช้ส่งในเว็บของผมผ่าน Node.js ใน server.ts และแปลง locationTransport ที่มี latitude และ
-          longitude ให้มันเป็น google map ที่กดไปแล้วเป็นพิกัดที่หมุดในนั้นเลยเพื่อให้คนส่งของใช้เพื่อส่งของ */
+
+      const registrationBookFileData = getFileData("registrationBookFile");
+
+      const licensePlateFileData = getFileData("licensePlateFile");
+
+      // const formSlipQRcodeFileData = getFileData("formSlipQRcodeFile");
+
+      const imageMessages = [];
+
+      // เพิ่มภาพจาก registrationBookInsuranceCarFile
+      if (registrationBookFileData?.filePath) {
+        imageMessages.push({
+          type: "image",
+          originalContentUrl: registrationBookFileData.filePath,
+          previewImageUrl: registrationBookFileData.filePath,
+        });
       }
+
+      // เพิ่มภาพจาก registrationBookInsuranceCarFile
+      if (licensePlateFileData?.filePath) {
+        imageMessages.push({
+          type: "image",
+          originalContentUrl: licensePlateFileData.filePath,
+          previewImageUrl: licensePlateFileData.filePath,
+        });
+      }
+
+      // เพิ่มภาพจาก registrationBookInsuranceCarFile
+      // if (formSlipQRcodeFileData?.filePath) {
+      //   imageMessages.push({
+      //     type: "image",
+      //     originalContentUrl: formSlipQRcodeFileData.filePath,
+      //     previewImageUrl: formSlipQRcodeFileData.filePath,
+      //   });
+      // }
+
+      imageMessages.push({
+        type: "image",
+        originalContentUrl: QRCodeImage,
+        previewImageUrl: QRCodeImage,
+      });
+
+      const message = [
+        {
+          ...imageMessages,
+          type: "text",
+          //     text: `
+          // 🛡️ รายละเอียดการประกันภัย:
+          // 👤 ชื่อเจ้าของรถ: ${usernameData}
+          // 📍 จังหวัด: ${selectedProvince}
+          // 🚗 ประเภทรถ: ${selectedCarType}
+          // ${selectedFuelType ? `⛽ ประเภทเชื้อเพลิง: ${selectedFuelType}` : ""}
+          // ${selectedCarSeat ? `🪑 จำนวนที่นั่ง: ${selectedCarSeat}` : ""}
+          // 📅 วันที่จดทะเบียน: ${registrationDate}
+          // 🗓️ วันต่อภาษีล่าสุด: ${latestTaxPaymentDate}
+          // ⏰ วันสิ้นอายุ: ${expirationDate}
+          // ${carMoreThan5Years ? `❗ เคยขาดจ่ายภาษี: ${missedTaxPayment}` : ""}
+          // ${selectedRadio ? `🆔 ${selectedRadio}: ${ownerData}` : ""}
+          // ${
+          //   bikeTypeOrDoorCount
+          //     ? `🚪 ${
+          //         selectedCarType === "รถจักรยานยนต์" ? "ประเภทรถ" : "จำนวนประตู"
+          //       }: ${bikeTypeOrDoorCount}`
+          //     : ""
+          // }
+          // 🔢 หมายเลขทะเบียนรถ: ${registrationNumber}
+          // 📞 เบอร์ติดต่อ: ${contactNumber}
+          // ${engineSize ? `⚙️ ${CCorWeight}: ${engineSize}` : ""}
+          //     `.trim(),
+          //   },
+
+          text: `
+      🙏⭐ขออนุญาตแจ้งยอดค่าใช้จ่ายรวมทั้งสิ้น: ${totalCost?.toFixed(2)} บาทค่ะ
+      ✅1.🎯รบกวนลูกค้าโอนเงินชำระเรียบร้อยแล้ว
+      ✅2.💵แจ้งส่งสลิป🧾ยืนยันเพื่อให้ทางเราดำเนินการต่อไป🙏
+      ✅3.ท่านจะได้รับ📑พ.ร.บ.ทันทีเมื่อชำระเงินเรียบร้อย
+      ✅4.แอดมินจะดำเนินการแจ้งนัดหมายเข้าไปรับรถ(หากต้องมีการตรวจสภาพรถเอกชน ตรอ)
+      ✅ขอขอบพระคุณที่ใช้บริการกับทางเราตลอดไป🙏❤️
+      📢สักครู่หลังจากชำระเงินแล้วท่านจะได้รับข้อความSMSยืนยันความคุ้มครองฯพ.ร.บ.ไปยังหมายเลขโทรศัพท์ที่ท่านแจ้งมานะคะ❤️
+          `.trim(),
+        },
+      ];
+
+      const payload = {
+        type: "Form",
+        message,
+        userId: userId || "UNKNOWN_USER",
+      };
+
+      console.log("Payload being sent to /webhook:", payload);
+
+      // เรียก /webhook เพื่อส่ง message
+      const webhookResponse = await fetch(
+        "https://api.mittaemaefahlung88.com/webhook",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!webhookResponse.ok) {
+        const errorMessage = await webhookResponse.text();
+        console.error("Webhook Error:", errorMessage);
+        throw new Error("Failed to send message to webhook");
+      }
+
+      console.log("Webhook message sent successfully");
+
+      setSuccess(true);
     } catch (error) {
       console.error("Error uploading file or saving data:", error);
       setModalMessage(

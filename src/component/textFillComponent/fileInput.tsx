@@ -11,6 +11,7 @@ interface FileInputProps {
   alertText?: string;
   initialFile?: File | null;
   reset?: boolean;
+  required?: boolean;
 }
 
 const FileInput: React.FC<FileInputProps> = ({
@@ -21,6 +22,7 @@ const FileInput: React.FC<FileInputProps> = ({
   alertText,
   initialFile,
   reset,
+  required,
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [fileName, setFileName] = useState<string>("ยังไม่ได้เลือกไฟล์");
@@ -28,7 +30,6 @@ const FileInput: React.FC<FileInputProps> = ({
   const [fileType, setFileType] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  // Set initial file and reset file state
   useEffect(() => {
     if (initialFile) {
       setFileName(initialFile.name);
@@ -36,18 +37,30 @@ const FileInput: React.FC<FileInputProps> = ({
       setFileType(initialFile.type);
     }
     if (reset) {
-      setFileName("ยังไม่ได้เลือกไฟล์");
-      setPreviewUrl(null);
-      setFileType(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      onFileSelect(null);
+      resetFileState();
     }
-  }, [initialFile, reset, onFileSelect]);
+  }, [initialFile, reset]);
+
+  // ล้างค่าไฟล์
+  const resetFileState = () => {
+    setFileName("ยังไม่ได้เลือกไฟล์");
+    setPreviewUrl(null);
+    setFileType(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    onFileSelect(null);
+  };
 
   // Handle file selection
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      const maxSizeMB = 5; // กำหนดขนาดไฟล์สูงสุด 5 MB
+      const sizeInMB = file.size / (1024 * 1024);
+      if (sizeInMB > maxSizeMB) {
+        alert(`ขนาดไฟล์ต้องไม่เกิน ${maxSizeMB} MB`);
+        return;
+      }
+
       setFileName(file.name);
       setPreviewUrl(URL.createObjectURL(file));
       setFileType(file.type);
@@ -60,9 +73,12 @@ const FileInput: React.FC<FileInputProps> = ({
     }
   };
 
-  // Simulate button click for file input
   const handleClick = () => {
-    fileInputRef.current?.click();
+    if (previewUrl) {
+      resetFileState();
+    } else {
+      fileInputRef.current?.click();
+    }
   };
 
   const handleOpenModal = () => setIsModalOpen(true);
@@ -72,14 +88,24 @@ const FileInput: React.FC<FileInputProps> = ({
       <Form.Group>
         {/* Label */}
         <div className="responsive-label d-flex justify-content-between align-items-center">
-          <Form.Label>{label}</Form.Label>
+          <Form.Label>
+            {label}{" "}
+            {required && (
+              <span
+                style={{ color: "red", cursor: "help" }}
+                title="จำเป็นต้องกรอกข้อมูล"
+              >
+                *
+              </span>
+            )}
+          </Form.Label>
           {previewUrl && (
             <Button
               variant="link"
               className="responsive-label text-success px-0 py-0 mb-2"
               onClick={handleOpenModal}
             >
-              ดูไฟล์ที่เลือก{" "}
+              ดูไฟล์ที่เลือก
             </Button>
           )}
         </div>
@@ -88,18 +114,22 @@ const FileInput: React.FC<FileInputProps> = ({
           className={`custom-file-input responsive-label ${
             isInvalid ? "is-invalid" : ""
           }`}
-          onClick={handleClick}
           style={{
             display: "flex",
             alignItems: "center",
-            cursor: "pointer",
+            // cursor: "pointer",
             border: "1px solid #ced4da",
             borderRadius: "5px",
             padding: "5px",
           }}
         >
-          <Button variant="outline-success" className="me-2 " size="sm">
-            เลือกไฟล์
+          <Button
+            variant="outline-success"
+            className="me-2"
+            size="sm"
+            onClick={handleClick}
+          >
+            {previewUrl ? "แก้ไข" : "เลือกไฟล์"}
           </Button>
           <span className="custom-file-name">{fileName}</span>
         </div>
